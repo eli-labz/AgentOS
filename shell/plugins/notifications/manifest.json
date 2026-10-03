@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.notifications",
+  "id": "agent0s.notifications",
   "name": "Notifications",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Notification daemon, popups, DND, and history",
   "kinds": [
     "service"

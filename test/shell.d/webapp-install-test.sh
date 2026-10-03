@@ -11,7 +11,7 @@ home="$tmpdir/home"
 mkdir -p "$home/.local/share/applications"
 
 install_webapp() {
-  HOME="$home" "$ROOT/bin/omarchy-webapp-install" "$@"
+  HOME="$home" "$ROOT/bin/agent0s-webapp-install" "$@"
 }
 
 desktop_for() {
@@ -27,7 +27,7 @@ fi
 desktop=$(desktop_for Example)
 [[ -f $desktop ]] || fail "webapp install writes a desktop file"
 grep -Fxq 'Name=Example' "$desktop" || fail "webapp install writes the app name"
-grep -Fxq 'Exec=omarchy-launch-webapp "https://example.com"' "$desktop" ||
+grep -Fxq 'Exec=agent0s-launch-webapp "https://example.com"' "$desktop" ||
   fail "webapp install launches the https URL" "$(cat "$desktop")"
 pass "webapp install writes an https desktop entry"
 
@@ -36,16 +36,16 @@ if install_webapp "Plain" "example.org/app" "webapp" >"$tmpdir/out" 2>"$tmpdir/e
 else
   fail "webapp install prefixes a schemeless URL with https" "$(cat "$tmpdir/err")"
 fi
-grep -Fxq 'Exec=omarchy-launch-webapp "https://example.org/app"' "$(desktop_for Plain)" ||
+grep -Fxq 'Exec=agent0s-launch-webapp "https://example.org/app"' "$(desktop_for Plain)" ||
   fail "webapp install stores the prefixed https URL" "$(cat "$(desktop_for Plain)")"
 pass "webapp install prefixes a schemeless URL with https"
 
-if install_webapp "Local" "https://localhost:47990" "webapp" "omarchy-launch-webapp https://localhost:47990 --ignore-certificate-errors" >"$tmpdir/out" 2>"$tmpdir/err"; then
+if install_webapp "Local" "https://localhost:47990" "webapp" "agent0s-launch-webapp https://localhost:47990 --ignore-certificate-errors" >"$tmpdir/out" 2>"$tmpdir/err"; then
   :
 else
   fail "webapp install keeps a custom https exec" "$(cat "$tmpdir/err")"
 fi
-grep -Fxq 'Exec=omarchy-launch-webapp https://localhost:47990 --ignore-certificate-errors' "$(desktop_for Local)" ||
+grep -Fxq 'Exec=agent0s-launch-webapp https://localhost:47990 --ignore-certificate-errors' "$(desktop_for Local)" ||
   fail "webapp install writes the custom exec" "$(cat "$(desktop_for Local)")"
 pass "webapp install keeps a custom https exec"
 
@@ -82,7 +82,7 @@ if install_webapp "Upper" "HTTPS://example.com" "webapp" >"$tmpdir/out" 2>"$tmpd
 else
   fail "webapp install accepts an uppercase scheme" "$(cat "$tmpdir/err")"
 fi
-grep -Fxq 'Exec=omarchy-launch-webapp "HTTPS://example.com"' "$(desktop_for Upper)" ||
+grep -Fxq 'Exec=agent0s-launch-webapp "HTTPS://example.com"' "$(desktop_for Upper)" ||
   fail "webapp install keeps the uppercase scheme" "$(cat "$(desktop_for Upper)")"
 pass "webapp install accepts an uppercase http scheme"
 
@@ -112,7 +112,7 @@ printf 'Evil\nfile:///etc/passwd\n' >"$tmpdir/answers"
 : >"$tmpdir/curl-log"
 
 if GUM_ANSWERS="$tmpdir/answers" GUM_COUNT="$tmpdir/gum-count" CURL_LOG="$tmpdir/curl-log" \
-  PATH="$stubs:$PATH" HOME="$home" "$ROOT/bin/omarchy-webapp-install" \
+  PATH="$stubs:$PATH" HOME="$home" "$ROOT/bin/agent0s-webapp-install" \
   >"$tmpdir/out" 2>"$tmpdir/err"; then
   fail "interactive webapp install refuses a file: URL" "$(cat "$tmpdir/out")"
 fi

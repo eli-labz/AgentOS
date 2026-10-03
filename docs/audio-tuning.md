@@ -11,10 +11,10 @@ default/audio/tunings/<vendor>-<model>/
 └── filter-chain.conf  # the graph, with @SPEAKER_SINK@ substituted on install
 ```
 
-`on` renders the graph into `~/.config/pipewire/omarchy-speaker-tuning.conf.d/`
-(plus the shared host config `omarchy-speaker-tuning.conf`, from
+`on` renders the graph into `~/.config/pipewire/agent0s-speaker-tuning.conf.d/`
+(plus the shared host config `agent0s-speaker-tuning.conf`, from
 `default/audio/filter-chain-host.conf`) and runs it as its own PipeWire client via
-`omarchy-speaker-tuning.service`, rather than
+`agent0s-speaker-tuning.service`, rather than
 loading it into the audio daemon. The daemon only reads its own config at startup,
 so a daemon-loaded tuning could only be switched by restarting PipeWire — which
 drops every PulseAudio client's connection, and applications that do not reconnect
@@ -34,9 +34,9 @@ install. Matching itself deliberately does not consult the audio graph, so the
 LV2 dependency is still installed in the chroot.
 
 ```bash
-omarchy audio tuning on        # install the matching tuning
-omarchy audio tuning off       # remove it, back to raw speakers
-omarchy audio tuning status    # installed? in use? what matches?
+agent0s audio tuning on        # install the matching tuning
+agent0s audio tuning off       # remove it, back to raw speakers
+agent0s audio tuning status    # installed? in use? what matches?
 ```
 
 `match` and `fronted-sink` are also accepted; they exist for the install hooks
@@ -74,7 +74,7 @@ defining none never matches.
 
 `sink_pattern` is required whichever method you use, since the graph's target sink
 is substituted from it. The graph must also keep two fixed properties: the sink
-node is named `omarchy_speaker_tuning` (the install checks for that exact name,
+node is named `agent0s_speaker_tuning` (the install checks for that exact name,
 so renaming it silently fails verification), and its output stream sets
 `node.dont-fallback` alongside `node.dont-move`, so WirePlumber cannot link it
 somewhere else when the target sink is absent at host start.
@@ -99,7 +99,7 @@ It is not installed by default — almost nobody authoring a tuning, and it need
 python, ffmpeg and mpv.
 
 ```bash
-omarchy pkg add omarchy-audio-tuner
+agent0s pkg add omarchy-audio-tuner
 ```
 
 Its README is the walkthrough, and covers both cases: copying a reference that
@@ -131,7 +131,7 @@ real bugs:
   becomes the default output, and changing *its* volume would alter the level
   going into the processing — moving the display while the speakers stay put, and
   changing the tone of anything with a compressor or limiter in it.
-  `omarchy-audio-output-sink` is the single definition of "which sink does this
+  `agent0s-audio-output-sink` is the single definition of "which sink does this
   output's volume really use": it resolves a sink through any DSP sink to the
   physical one, and with no argument resolves the current default output. The
   volume keys, the output switcher's OSD and the audio panel all use it, so they
@@ -140,8 +140,8 @@ real bugs:
   tuning still exists.
 - **The fronted sink is hidden.** The tuning and the physical speakers both exist
   in the graph, and selecting the physical one would only bypass the tuning. So
-  `omarchy-audio-sink-availability` reports it unavailable and
-  `omarchy-audio-output-switch` skips it, leaving one speaker entry in the panel.
+  `agent0s-audio-sink-availability` reports it unavailable and
+  `agent0s-audio-output-switch` skips it, leaving one speaker entry in the panel.
   A WirePlumber smart filter would remove the need for both — it leaves the real
   device as the default output — but on PipeWire 1.6.8 / WirePlumber 0.5.15 the
   graph loads and links correctly as a smart filter and then passes audio through
@@ -154,5 +154,5 @@ real bugs:
   playback stream like any other, so anything rerouting "all streams" to a newly
   selected output would drag the processing with it — onto headphones, or into the
   tuning's own sink, which is a cycle. The tuning sets `node.dont-move`, and
-  `omarchy-audio-output-set-default` moves only streams that carry an
+  `agent0s-audio-output-set-default` moves only streams that carry an
   `application.name`.

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Detect ASUS Zenbook UX5406AA series laptops on Intel Panther Lake.
+
+agent0s-hw-match "ux5406aa" && agent0s-hw-intel-ptl

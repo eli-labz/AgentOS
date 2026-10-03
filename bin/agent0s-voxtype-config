@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# agent0s:summary=Open Voxtype configuration
+
+set -e
+
+agent0s-launch-floating-terminal-with-presentation "voxtype configure"
+agent0s-restart-shell

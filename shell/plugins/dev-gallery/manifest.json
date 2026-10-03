@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.dev-gallery",
+  "id": "agent0s.dev-gallery",
   "name": "Dev gallery",
   "version": "1.0.0",
-  "author": "Omarchy",
-  "description": "Visual reference for omarchy-shell common UI components. Summon with: omarchy-shell shell summon omarchy.dev-gallery '{}' (or run: omarchy dev ui-preview).",
+  "author": "Agent0S",
+  "description": "Visual reference for agent0s-shell common UI components. Summon with: agent0s-shell shell summon agent0s.dev-gallery '{}' (or run: agent0s dev ui-preview).",
   "kinds": [
     "panel"
   ],

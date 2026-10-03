@@ -9,7 +9,7 @@ if [[ -f $kitty_config ]]; then
   changed=false
 
   if [[ $(sha256sum "$kitty_config" | cut -d ' ' -f 1) == $stock_sha ]]; then
-    omarchy-refresh-config kitty/kitty.conf
+    agent0s-refresh-config kitty/kitty.conf
     changed=true
   elif grep -qE "$unrestricted" "$kitty_config"; then
     # Preserve customizations and ordering. An otherwise stock line can be an

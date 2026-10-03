@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Set the correct power profile on boot based on current AC/battery state.
+
+exec agent0s-powerprofiles-set autodetect

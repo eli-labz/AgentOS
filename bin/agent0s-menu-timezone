@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# agent0s:summary=Select and set the system timezone
+# agent0s:group=menu
+# agent0s:name=timezone
+
+set -e
+
+timezone=$(timedatectl list-timezones | agent0s-menu-select "Set timezone" -- --width 520 --maxheight 520) || exit 1
+sudo timedatectl set-timezone "$timezone"
+agent0s-shell -q agent0s.clock refresh
+agent0s-notification-send "Timezone is now set to $timezone"

@@ -1,1 +1,1 @@
-omarchy-apply-lock
+agent0s-apply-lock

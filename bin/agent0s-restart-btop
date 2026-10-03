@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Reload btop configuration (used by the Agent0S theme switching).
+
+pkill -SIGUSR2 btop

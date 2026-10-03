@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# agent0s:summary=Overwrite all the user Hyprland Lua configs in ~/.config/hypr with the Agent0S defaults.
+
+agent0s-refresh-config hypr/.luarc.json
+agent0s-refresh-config hypr/autostart.lua
+agent0s-refresh-config hypr/bindings.lua
+agent0s-refresh-config hypr/input.lua
+agent0s-refresh-config hypr/looknfeel.lua
+agent0s-refresh-config hypr/hyprland.lua
+agent0s-refresh-config hypr/monitors.lua
+
+mkdir -p ~/.local/state/agent0s/toggles/hypr
+cp "$AGENT0S_PATH/default/hypr/toggles/flags.lua" ~/.local/state/agent0s/toggles/hypr/

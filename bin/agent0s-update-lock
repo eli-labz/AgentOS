@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# agent0s:summary=Run a command while holding the Agent0S update lock
+# agent0s:args=<held|run> [command] [args...]
+# agent0s:hidden=true
+
+set -e
+
+lock_dir="${XDG_RUNTIME_DIR:-/tmp}"
+lock_path="$lock_dir/agent0s-update.lock"
+
+lock_is_held() {
+  local lock_fd_path=""
+
+  [[ -n ${AGENT0S_UPDATE_LOCK_FD:-} && -e /proc/$$/fd/$AGENT0S_UPDATE_LOCK_FD ]] || return 1
+
+  lock_fd_path=$(readlink -f "/proc/$$/fd/$AGENT0S_UPDATE_LOCK_FD" 2>/dev/null || true)
+  [[ $lock_fd_path == "$(readlink -m "$lock_path")" ]] &&
+    flock -n "$AGENT0S_UPDATE_LOCK_FD"
+}
+
+case "${1:-}" in
+  held)
+    lock_is_held
+    ;;
+  run)
+    shift
+    if (( $# == 0 )); then
+      echo "Usage: agent0s-update-lock run <command> [args...]" >&2
+      exit 2
+    fi
+
+    mkdir -p "$lock_dir" 2>/dev/null || true
+    exec {AGENT0S_UPDATE_LOCK_FD}>"$lock_path"
+    if ! flock -n "$AGENT0S_UPDATE_LOCK_FD"; then
+      echo "An Agent0S update is already running."
+      exit 1
+    fi
+
+    export AGENT0S_UPDATE_LOCK_FD
+    exec "$@"
+    ;;
+  *)
+    echo "Usage: agent0s-update-lock <held|run> [command] [args...]" >&2
+    exit 2
+    ;;
+esac

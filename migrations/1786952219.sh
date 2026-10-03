@@ -1,4 +1,4 @@
-echo "Switch mise to the mise-bin package from the Omarchy repo"
+echo "Switch mise to the mise-bin package from the Agent0S repo"
 
 # mise-bin carries mise's own release artifacts -- PGO+BOLT-optimized on x86_64,
 # glibc-native on both arches -- and takes over from Arch's mise, which it both
@@ -8,10 +8,10 @@ echo "Switch mise to the mise-bin package from the Omarchy repo"
 # omarchy-zsh and omarchy-fish, which depend on it; the provides is what keeps
 # them satisfied when mise-bin lands in the same transaction that drops mise.
 #
-# omarchy-pkg-add cannot do that swap: pacman answers its own conflict question
+# agent0s-pkg-add cannot do that swap: pacman answers its own conflict question
 # with No under --noconfirm and fails the whole transaction ("unresolvable
 # package conflicts detected"). --ask=4 is that one question, answered yes.
 
-if omarchy-pkg-missing mise-bin; then
+if agent0s-pkg-missing mise-bin; then
   sudo pacman -S --noconfirm --ask=4 mise-bin
 fi

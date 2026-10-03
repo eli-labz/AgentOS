@@ -1,6 +1,6 @@
 echo "Disable SSH password authentication, or sshd itself when no key is authorized"
 
-config=/etc/ssh/sshd_config.d/10-omarchy-hardening.conf
+config=/etc/ssh/sshd_config.d/10-agent0s-hardening.conf
 authorized_keys="$HOME/.ssh/authorized_keys"
 
 as_root() {
@@ -16,7 +16,7 @@ as_root() {
 # failing and holding up every migration queued behind it. Only missing
 # privileges stay pending below, because rerunning from a terminal fixes that.
 skip() {
-  echo "$1 SSH password authentication remains enabled; run omarchy-setup-security-sshd to harden manually."
+  echo "$1 SSH password authentication remains enabled; run agent0s-setup-security-sshd to harden manually."
   exit 0
 }
 
@@ -27,7 +27,7 @@ if [[ -e $config || -L $config ]]; then
 fi
 
 # Earlier versions enabled sshd before importing the key, but did not leave a
-# marker saying that Omarchy configured it. Limit the repair to a daemon that is
+# marker saying that Agent0S configured it. Limit the repair to a daemon that is
 # enabled or currently exposed and a user who already has a usable authorized
 # key. A machine that never set SSH up exits without prompting for privileges.
 if ! systemctl is-enabled --quiet sshd.service 2>/dev/null &&
@@ -63,15 +63,15 @@ fi
 
 # The old setup command enabled sshd before importing a key, so an aborted run
 # left a password-only server exposed. Without a usable key there is nothing to
-# harden: close the hole Omarchy opened by disabling the server. Omarchy is a
+# harden: close the hole Agent0S opened by disabling the server. Agent0S is a
 # desktop distro, so the console remains; re-enabling password SSH afterwards
 # is an intentional, informed choice the warning explains how to make.
 if [[ ! -f $authorized_keys ]] || ! has_usable_key; then
   if ! as_root systemctl disable --now sshd.service; then
-    echo "Administrator privileges are required to close the password-only SSH server. Run omarchy-migrate again from a terminal." >&2
+    echo "Administrator privileges are required to close the password-only SSH server. Run agent0s-migrate again from a terminal." >&2
     exit 1
   fi
-  echo "No usable SSH key is authorized, so sshd only accepted password logins. The SSH server has been disabled: run omarchy-setup-security-sshd to set it up with key-based authentication, or re-enable sshd to accept password logins anyway."
+  echo "No usable SSH key is authorized, so sshd only accepted password logins. The SSH server has been disabled: run agent0s-setup-security-sshd to set it up with key-based authentication, or re-enable sshd to accept password logins anyway."
   exit 0
 fi
 
@@ -89,13 +89,13 @@ fi
 
 echo "Disabling SSH password authentication on the existing key-based SSH setup..."
 if ! as_root install -Dm644 /dev/stdin "$config" <<'CONF'
-# Written by Omarchy once an SSH key was already authorized.
+# Written by Agent0S once an SSH key was already authorized.
 # Delete this file and reload sshd to allow password logins again.
 PasswordAuthentication no
 KbdInteractiveAuthentication no
 CONF
 then
-  echo "Administrator privileges are required to harden the existing SSH setup. Run omarchy-migrate again from a terminal." >&2
+  echo "Administrator privileges are required to harden the existing SSH setup. Run agent0s-migrate again from a terminal." >&2
   exit 1
 fi
 

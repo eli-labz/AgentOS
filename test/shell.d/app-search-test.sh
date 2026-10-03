@@ -56,7 +56,7 @@ const entries = [
 ]
 
 // Keep the packaged launcher when upstream rebuilds register their own entry.
-const configuredHides = new Set(fs.readFileSync(path.join(root, 'default/omarchy/launcher.hides'), 'utf8').trim().split(/\n/))
+const configuredHides = new Set(fs.readFileSync(path.join(root, 'default/agent0s/launcher.hides'), 'utf8').trim().split(/\n/))
 const hermesEntries = [{ name: 'Hermes', id: 'hermes' }, { name: 'Hermes', id: 'hermes-desktop' }]
 for (const query of ['', 'hermes']) {
   const visible = search.sortedEntries(hermesEntries, query, entry => configuredHides.has(entry.id))
@@ -102,7 +102,7 @@ assert(
 )
 
 assert(
-  /function remove\(desktopId, name\) \{[\s\S]*?omarchy-remove-launcher-entry[\s\S]*?\n  \}/.test(appLibraryQml),
+  /function remove\(desktopId, name\) \{[\s\S]*?agent0s-remove-launcher-entry[\s\S]*?\n  \}/.test(appLibraryQml),
   'app library remove runs the remover through the shell'
 )
 

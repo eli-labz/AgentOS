@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 715 329" font-family="ui-monospace,'Cascadia Mono','DejaVu Sans Mono',Menlo,Consolas,monospace" font-size="13">
-<title>Omarchy Server update screen mockup</title>
+<title>Agent0S Server update screen mockup</title>
 <rect x="1" y="1" width="713" height="327" rx="10" fill="#0e0e14" stroke="#414868" stroke-width="2"/>
 <rect x="22.0" y="39.0" width="670.8" height="17.0" fill="#7aa2f7"/>
 <text x="22" y="34.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6"></tspan><tspan fill="#a9b1d6">                                                                                      </tspan></text>
-<text x="22" y="51.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#0e0e14">  OMARCHY SERVER ▪ UPDATE</tspan><tspan fill="#0e0e14">                                   </tspan><tspan fill="#0e0e14">node «horizon» ▪ 22:15  </tspan><tspan fill="#a9b1d6">  </tspan></text>
+<text x="22" y="51.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#0e0e14">  AGENT0S SERVER ▪ UPDATE</tspan><tspan fill="#0e0e14">                                   </tspan><tspan fill="#0e0e14">node «horizon» ▪ 22:15  </tspan><tspan fill="#a9b1d6">  </tspan></text>
 <text x="22" y="68.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6"></tspan><tspan fill="#a9b1d6">                                                                                      </tspan></text>
 <text x="22" y="85.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6">  </tspan><tspan fill="#a9b1d6">Synchronizing package databases</tspan><tspan fill="#565f89"> ............ </tspan><tspan fill="#9ece6a">done</tspan><tspan fill="#a9b1d6">                                   </tspan></text>
 <text x="22" y="102.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6">  </tspan><tspan fill="#a9b1d6">Snapshot taken</tspan><tspan fill="#565f89"> ........................... </tspan><tspan fill="#0db9d7">pre-update 2026-08-16 22:15</tspan><tspan fill="#a9b1d6">              </tspan></text>

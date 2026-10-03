@@ -5,19 +5,19 @@ echo "Gate sudo and polkit fingerprint auth behind the lid state (password when 
 # block on the unreachable reader for the full pam_fprintd timeout before
 # offering the password. Insert a pam_exec gate before pam_fprintd that skips
 # fingerprint while the lid is closed. New setups already get this from
-# omarchy-setup-security-fingerprint.
+# agent0s-setup-security-fingerprint.
 #
-# The gate points at the fixed /usr/bin path the omarchy package always
+# The gate points at the fixed /usr/bin path the agent0s package always
 # provides, so it keeps working across package installs and dev-link (which
-# overlays $OMARCHY_PATH but leaves /usr/bin untouched). pam_exec needs a
+# overlays $AGENT0S_PATH but leaves /usr/bin untouched). pam_exec needs a
 # literal absolute path — it does not expand env vars.
 
-gate="auth      [success=1 default=ignore] pam_exec.so quiet /usr/bin/omarchy-hw-laptop-closed"
+gate="auth      [success=1 default=ignore] pam_exec.so quiet /usr/bin/agent0s-hw-laptop-closed"
 
 for pam in /etc/pam.d/sudo /etc/pam.d/polkit-1; do
   if [[ -f $pam ]] &&
     grep -q 'pam_fprintd\.so' "$pam" &&
-    ! grep -q 'omarchy-hw-laptop-closed' "$pam"; then
+    ! grep -q 'agent0s-hw-laptop-closed' "$pam"; then
     sudo sed -i "/pam_fprintd\.so/i $gate" "$pam"
   fi
 done

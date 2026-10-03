@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# agent0s:summary=Restore the default Agent0S Plymouth boot theme and SDDM login screen
+# agent0s:requires-sudo=true
+
+set -euo pipefail
+
+"$AGENT0S_PATH/bin/agent0s-refresh-plymouth"
+"$AGENT0S_PATH/bin/agent0s-refresh-sddm"

@@ -12,7 +12,7 @@ migration="$ROOT/migrations/1788745941.sh"
 mkdir -p "$(dirname "$kitty_config")" "$test_dir/bin"
 
 run_migration() {
-  env HOME="$test_home" OMARCHY_PATH="$ROOT" PATH="$ROOT/bin:$PATH" bash -euo pipefail "$migration"
+  env HOME="$test_home" AGENT0S_PATH="$ROOT" PATH="$ROOT/bin:$PATH" bash -euo pipefail "$migration"
 }
 
 cp "$legacy" "$kitty_config"
@@ -95,7 +95,7 @@ pass "custom dotfile symlinks survive the repair"
 rm "$kitty_config"
 
 # Exercise the real font commands without changing the running desktop.
-for command in pkill omarchy-restart-shell omarchy-hook omarchy-notification-send; do
+for command in pkill agent0s-restart-shell agent0s-hook agent0s-notification-send; do
   printf '#!/bin/bash\nexit 0\n' >"$test_dir/bin/$command"
 done
 printf '#!/bin/bash\nexit 1\n' >"$test_dir/bin/pgrep"
@@ -114,40 +114,40 @@ SH
 chmod +x "$test_dir/bin/"*
 
 run_command() {
-  env HOME="$test_home" OMARCHY_PATH="$ROOT" PATH="$test_dir/bin:$ROOT/bin:$PATH" "$ROOT/bin/$@"
+  env HOME="$test_home" AGENT0S_PATH="$ROOT" PATH="$test_dir/bin:$ROOT/bin:$PATH" "$ROOT/bin/$@"
 }
 
 cp "$ROOT/config/kitty/kitty.conf" "$kitty_config"
-output=$(run_command omarchy-display-text-size)
+output=$(run_command agent0s-display-text-size)
 [[ $output == *"terminal font: 9 pt"* ]] || fail "size report accounts for inherited Kitty default"
-run_command omarchy-font-set 'Test Font'
-run_command omarchy-display-text-size 16
+run_command agent0s-font-set 'Test Font'
+run_command agent0s-display-text-size 16
 grep -qx 'font_family Test Font' "$kitty_config" || fail "font command creates family override"
-run_command omarchy-font-set Font
+run_command agent0s-font-set Font
 grep -qx 'font_family Font' "$kitty_config" || fail "font command updates family override"
 [[ $(grep -c '^font_family ' "$kitty_config") == "1" ]] || fail "font update avoids duplicate overrides"
 grep -qx 'font_size 12.0' "$kitty_config" || fail "size command creates size override"
 grep -qx '# font_size 12' "$kitty_config" || fail "font commands keep commented instructions"
-run_command omarchy-display-text-size 18
+run_command agent0s-display-text-size 18
 [[ $(grep -c '^font_size ' "$kitty_config") == "1" ]] || fail "size update avoids duplicate overrides"
-run_command omarchy-display-text-size reset
+run_command agent0s-display-text-size reset
 grep -qx 'font_size 9.0' "$kitty_config" || fail "size reset restores default"
 pass "font controls add and update overrides in the minimal template"
 
 rm "$kitty_config"
-output=$(run_command omarchy-display-text-size)
+output=$(run_command agent0s-display-text-size)
 [[ $output == *"terminal font: 9 pt"* ]] || fail "size report handles absent Kitty config"
-run_command omarchy-font-set 'Test Font'
-run_command omarchy-display-text-size 16
+run_command agent0s-font-set 'Test Font'
+run_command agent0s-display-text-size 16
 grep -qx 'font_family Test Font' "$kitty_config" || fail "font command handles absent config"
 grep -qx 'font_size 12.0' "$kitty_config" || fail "size command handles absent setting"
 ! grep -q '^include ' "$kitty_config" || fail "font controls must not opt users back into theming"
 rm "$kitty_config"
-run_command omarchy-display-text-size 16
+run_command agent0s-display-text-size 16
 grep -qx 'font_size 12.0' "$kitty_config" || fail "size command handles absent config"
 pass "font controls create missing Kitty overrides without restoring the theme include"
 
-if "$ROOT/bin/omarchy-cmd-present" kitty; then
+if "$ROOT/bin/agent0s-cmd-present" kitty; then
   kitty +runpy "$(cat "$ROOT/test/shell.d/fixtures/kitty/check-config.py")"
 else
   pass "Kitty not installed; skipping native config parser checks"

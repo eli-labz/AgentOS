@@ -1,13 +1,13 @@
-# Omarchy Icon Font
+# Agent0S Icon Font
 
-Read this before adding a branded glyph to `default/fonts/omarchy/omarchy.ttf`.
+Read this before adding a branded glyph to `default/fonts/agent0s/agent0s.ttf`.
 
-The Omarchy icon font is a small private-use font carrying the marks Nerd
-Fonts does not have: the Omarchy logo and the agent and app brand marks. The
+The Agent0S icon font is a small private-use font carrying the marks Nerd
+Fonts does not have: the Agent0S logo and the agent and app brand marks. The
 menu draws one by naming the font on an entry:
 
 ```jsonc
-"setup.default.agent.grok": {"icon":"","iconFont":"omarchy","label":"Grok", ...}
+"setup.default.agent.grok": {"icon":"","iconFont":"agent0s","label":"Grok", ...}
 ```
 
 Without `iconFont`, an entry's `icon` is drawn in the menu font, so reach for
@@ -15,16 +15,16 @@ this font only when a Nerd Font glyph would misrepresent the thing. A generic
 robot for four different AI apps is the case that justifies a real mark; a
 folder or a microphone is not.
 
-`default/fonts/omarchy/README.md` lists every glyph with the URL its artwork
+`default/fonts/agent0s/README.md` lists every glyph with the URL its artwork
 came from. Keep that list accurate — it is the only record of provenance.
 
 ## Adding a glyph
 
-`omarchy dev font` does the work:
+`agent0s dev font` does the work:
 
 ```bash
-omarchy dev font list
-omarchy dev font add ollama https://simpleicons.org/icons/ollama.svg
+agent0s dev font list
+agent0s dev font add ollama https://simpleicons.org/icons/ollama.svg
 ```
 
 `add` fetches the SVG, scales it into the same 64..960 box the existing marks
@@ -48,15 +48,15 @@ Pick a source whose silhouette alone reads.
 
 The command prints these, and all of them matter:
 
-- Point the menu entry at the new codepoint with `"iconFont":"omarchy"`.
+- Point the menu entry at the new codepoint with `"iconFont":"agent0s"`.
 - Bump the charset range asserted in `test/shell.d/menu-test.sh`; that test
   pins the font's coverage and fails until it matches.
 - Check the README line the command added, and give it a proper display name
   with `--label` if the glyph name is not the brand's name.
 
-The font is package-owned: `omarchy-settings` installs it to
-`/usr/share/fonts/omarchy/omarchy.ttf`, so a new glyph reaches the desktop
-through a settings release, not through `omarchy update`. Between the merge and
+The font is package-owned: `agent0s-settings` installs it to
+`/usr/share/fonts/agent0s/agent0s.ttf`, so a new glyph reaches the desktop
+through a settings release, not through `agent0s update`. Between the merge and
 that release, a pulled checkout renders the new entry with no icon.
 
 ## Verifying
@@ -66,10 +66,10 @@ filled counters that a glyph list cannot show:
 
 ```bash
 python3 -c "open('/tmp/row.txt','w').write(' '.join(chr(c) for c in range(0xE900, 0xE910)))"
-magick -background white -fill black -font default/fonts/omarchy/omarchy.ttf \
+magick -background white -fill black -font default/fonts/agent0s/agent0s.ttf \
   -pointsize 110 label:@/tmp/row.txt /tmp/font-row.png
 ```
 
-Then confirm it in the running menu per [`visual-verification.md`](visual-verification.md). Avoid leaving two fonts with the `omarchy` family registered: Qt can use an old copy in `~/.local/share/fonts` even when `fc-match omarchy` reports the packaged font. For a preview, either replace the packaged file in the disposable VM or temporarily exclude it with a `<rejectfont>` rule in `~/.config/fontconfig/conf.d/` before loading the candidate.
+Then confirm it in the running menu per [`visual-verification.md`](visual-verification.md). Avoid leaving two fonts with the `agent0s` family registered: Qt can use an old copy in `~/.local/share/fonts` even when `fc-match agent0s` reports the packaged font. For a preview, either replace the packaged file in the disposable VM or temporarily exclude it with a `<rejectfont>` rule in `~/.config/fontconfig/conf.d/` before loading the candidate.
 
-Refresh the font cache and restart the shell afterwards — Qt reads the font database at startup, so `omarchy menu refresh` alone will not pick up a changed font. Remove temporary fonts and rules after verification.
+Refresh the font cache and restart the shell afterwards — Qt reads the font database at startup, so `agent0s menu refresh` alone will not pick up a changed font. Remove temporary fonts and rules after verification.

@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# agent0s:summary=Remove a supported browser and clean up Agent0S browser defaults
+# agent0s:args=<chrome|brave|brave-origin|edge|firefox|zen>
+# agent0s:examples=agent0s remove browser firefox | agent0s remove browser brave
+# agent0s:requires-sudo=true
+
+set_fallback_default_browser() {
+  local current_browser
+  current_browser=$(env -u BROWSER xdg-settings get default-web-browser)
+
+  if [[ $current_browser != $1 ]]; then
+    return
+  fi
+
+  if agent0s-cmd-present chromium; then
+    env -u BROWSER xdg-settings set default-web-browser chromium.desktop || true
+  fi
+}
+
+case $1 in
+chrome)
+  echo "Removing Chrome..."
+  set_fallback_default_browser google-chrome.desktop
+  agent0s-pkg-drop google-chrome
+  rm -f ~/.config/chrome-flags.conf
+  sudo rm -f /etc/opt/chrome/policies/managed/color.json
+  ;;
+edge)
+  echo "Removing Edge..."
+  set_fallback_default_browser microsoft-edge.desktop
+  agent0s-pkg-drop microsoft-edge-stable-bin
+  rm -f ~/.config/microsoft-edge-stable-flags.conf
+  sudo rm -f /etc/opt/edge/policies/managed/color.json
+  ;;
+brave)
+  echo "Removing Brave..."
+  set_fallback_default_browser brave-browser.desktop
+  agent0s-pkg-drop brave-bin
+  rm -f ~/.config/brave-flags.conf
+
+  if agent0s-pkg-missing brave-origin-bin; then
+    sudo rm -rf /etc/brave
+  fi
+  ;;
+brave-origin)
+  echo "Removing Brave Origin..."
+  set_fallback_default_browser brave-origin.desktop
+  agent0s-pkg-drop brave-origin-bin
+  rm -f ~/.config/brave-origin-flags.conf
+
+  if agent0s-pkg-missing brave-bin; then
+    sudo rm -rf /etc/brave
+  fi
+  ;;
+firefox)
+  echo "Removing Firefox..."
+  set_fallback_default_browser firefox.desktop
+  agent0s-pkg-drop firefox
+  ;;
+zen)
+  echo "Removing Zen..."
+  set_fallback_default_browser zen.desktop
+  agent0s-pkg-drop zen-browser-bin
+  ;;
+*)
+  echo "Usage: agent0s-remove-browser <chrome|brave|brave-origin|edge|firefox|zen>"
+  exit 1
+  ;;
+esac

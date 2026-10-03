@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle screensaver availability
+
+agent0s-toggle screensaver-off
+
+if agent0s-toggle-enabled screensaver-off; then
+  agent0s-notification-send -g 󱄄 "Screensaver disabled"
+else
+  agent0s-notification-send -g 󱄄 "Screensaver enabled"
+fi

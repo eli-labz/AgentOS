@@ -10,14 +10,14 @@ import "ImagePickerModel.js" as ImagePickerModel
 Item {
   id: root
 
-  // Injected by omarchy-shell; defaults to the session OMARCHY_PATH.
-  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
+  // Injected by agent0s-shell; defaults to the session AGENT0S_PATH.
+  property string agent0sPath: Quickshell.env("AGENT0S_PATH")
   property string stateHome: Quickshell.env("HOME") + "/.local/state"
-  property string imageDirs: Quickshell.env("OMARCHY_IMAGE_SELECTOR_DIRS") || Quickshell.env("OMARCHY_IMAGE_SELECTOR_DIR") || Quickshell.env("OMARCHY_STOCK_BACKGROUNDS_DIR") || (stateHome + "/omarchy/current/theme/backgrounds")
+  property string imageDirs: Quickshell.env("AGENT0S_IMAGE_SELECTOR_DIRS") || Quickshell.env("AGENT0S_IMAGE_SELECTOR_DIR") || Quickshell.env("AGENT0S_STOCK_BACKGROUNDS_DIR") || (stateHome + "/agent0s/current/theme/backgrounds")
   property string imageRows: ""
   property string loadedImageRows: ""
-  property string selectionFile: Quickshell.env("OMARCHY_IMAGE_SELECTOR_SELECTION_FILE") || Quickshell.env("OMARCHY_BACKGROUND_SELECTION_FILE")
-  property string selectedImage: Quickshell.env("OMARCHY_IMAGE_SELECTOR_SELECTED")
+  property string selectionFile: Quickshell.env("AGENT0S_IMAGE_SELECTOR_SELECTION_FILE") || Quickshell.env("AGENT0S_BACKGROUND_SELECTION_FILE")
+  property string selectedImage: Quickshell.env("AGENT0S_IMAGE_SELECTOR_SELECTED")
   property int selectedIndex: 0
   property bool imagesLoaded: false
   property bool opened: false
@@ -49,7 +49,7 @@ Item {
   onOpenedChanged: if (!opened) layoutSettled = false
 
   function scriptPath(name) {
-    return omarchyPath + "/shell/plugins/image-picker/" + name
+    return agent0sPath + "/shell/plugins/image-picker/" + name
   }
 
   function focusPicker() {
@@ -300,7 +300,7 @@ Item {
     }
   }
 
-  // Lifecycle hooks invoked by omarchy-shell summon/hide. shell.summon(id,
+  // Lifecycle hooks invoked by agent0s-shell summon/hide. shell.summon(id,
   // payloadJson) hands the JSON to open() here; shell.hide(id) calls close().
   // The shell host owns the stable `image-selector` IPC target and forwards
   // those lower-level positional calls here.
@@ -365,7 +365,7 @@ Item {
     visible: root.opened
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
-    WlrLayershell.namespace: "omarchy-image-selector"
+    WlrLayershell.namespace: "agent0s-image-selector"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: root.opened && root.imagesLoaded ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore

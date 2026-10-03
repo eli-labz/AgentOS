@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.menu",
-  "name": "Omarchy menu",
+  "id": "agent0s.menu",
+  "name": "Agent0S menu",
   "version": "1.0.0",
-  "author": "Omarchy",
-  "description": "Quickshell-powered Omarchy command menu",
+  "author": "Agent0S",
+  "description": "Quickshell-powered Agent0S command menu",
   "kinds": [
     "menu",
     "bar-widget"
@@ -15,8 +15,8 @@
     "barWidget": "BarWidget.qml"
   },
   "barWidget": {
-    "displayName": "Omarchy menu",
-    "description": "Launches the Omarchy menu",
+    "displayName": "Agent0S menu",
+    "description": "Launches the Agent0S menu",
     "category": "Compositor",
     "allowMultiple": false
   }

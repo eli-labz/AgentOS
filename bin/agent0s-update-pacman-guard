@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# agent0s:summary=Prevent direct pacman system upgrades from bypassing agent0s update.
+# agent0s:hidden=true
+
+set -euo pipefail
+
+if [[ ${AGENT0S_UPDATE_PACMAN:-} == "1" || ${AGENT0S_ALLOW_DIRECT_PACMAN:-} == "1" ]]; then
+  exit 0
+fi
+
+pacman_args=()
+if [[ -n ${AGENT0S_PACMAN_CMDLINE:-} ]]; then
+  read -r -a pacman_args <<<"$AGENT0S_PACMAN_CMDLINE"
+elif [[ -r /proc/$PPID/cmdline ]]; then
+  mapfile -d '' -t pacman_args <"/proc/$PPID/cmdline" || true
+fi
+
+is_system_upgrade=0
+has_sync=0
+has_sysupgrade=0
+
+for arg in "${pacman_args[@]}"; do
+  case "$arg" in
+    --sync)
+      has_sync=1
+      ;;
+    --sysupgrade)
+      has_sysupgrade=1
+      ;;
+    --*)
+      ;;
+    -*)
+      [[ $arg == *S* ]] && has_sync=1
+      [[ $arg == *u* ]] && has_sysupgrade=1
+      ;;
+  esac
+done
+
+if (( has_sync && has_sysupgrade )); then
+  is_system_upgrade=1
+fi
+
+(( is_system_upgrade )) || exit 0
+
+cat >&2 <<'MESSAGE'
+
+Woah partner...
+
+This looks like a direct pacman system upgrade. Agent0S updates should normally
+run through:
+
+  agent0s update
+
+That path handles the update transcript, snapshot, keyrings, package upgrade,
+migrations, post-update hooks, shell update state, and restart checks together.
+
+If you really meant to bypass Agent0S for this transaction, rerun pacman with:
+
+  sudo env AGENT0S_ALLOW_DIRECT_PACMAN=1 pacman -Syu
+
+MESSAGE
+
+exit 1

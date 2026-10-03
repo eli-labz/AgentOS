@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# agent0s:summary=Check whether all required commands are available
+
+for cmd in "$@"; do
+  command -v "$cmd" &>/dev/null || exit 1
+done
+
+exit 0

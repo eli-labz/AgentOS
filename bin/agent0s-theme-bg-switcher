@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# agent0s:summary=Open the Agent0S background switcher
+# agent0s:group=theme
+# agent0s:name=bg-switcher
+# agent0s:aliases=agent0s background
+
+theme_name=$(cat "$HOME/.local/state/agent0s/current/theme.name" 2>/dev/null)
+current_background=$(readlink -f "$HOME/.local/state/agent0s/current/background" 2>/dev/null)
+
+agent0s-menu-images \
+  --selected "$current_background" \
+  "$HOME/.local/state/agent0s/current/theme/backgrounds" \
+  "$HOME/.config/agent0s/backgrounds/$theme_name"

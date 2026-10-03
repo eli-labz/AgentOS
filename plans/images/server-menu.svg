@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 715 380" font-family="ui-monospace,'Cascadia Mono','DejaVu Sans Mono',Menlo,Consolas,monospace" font-size="13">
-<title>Omarchy Server BBS home menu mockup</title>
+<title>Agent0S Server BBS home menu mockup</title>
 <rect x="1" y="1" width="713" height="378" rx="10" fill="#0e0e14" stroke="#414868" stroke-width="2"/>
 <rect x="22.0" y="39.0" width="670.8" height="17.0" fill="#7aa2f7"/>
 <rect x="45.4" y="124.0" width="343.2" height="17.0" fill="#292e42"/>
 <text x="22" y="34.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6"></tspan><tspan fill="#a9b1d6">                                                                                      </tspan></text>
-<text x="22" y="51.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#0e0e14">  OMARCHY SERVER ▪ MAIN MENU</tspan><tspan fill="#0e0e14">                                </tspan><tspan fill="#0e0e14">node «horizon» ▪ 22:14  </tspan><tspan fill="#a9b1d6">  </tspan></text>
+<text x="22" y="51.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#0e0e14">  AGENT0S SERVER ▪ MAIN MENU</tspan><tspan fill="#0e0e14">                                </tspan><tspan fill="#0e0e14">node «horizon» ▪ 22:14  </tspan><tspan fill="#a9b1d6">  </tspan></text>
 <text x="22" y="68.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6"></tspan><tspan fill="#a9b1d6">                                                                                      </tspan></text>
 <text x="22" y="85.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6">  </tspan><tspan fill="#414868">┌─ </tspan><tspan fill="#bb9af7">MAIN</tspan><tspan fill="#414868"> ─────────────────────────────────────┐</tspan><tspan fill="#a9b1d6">  </tspan><tspan fill="#414868">┌─ </tspan><tspan fill="#bb9af7">SYSTEM</tspan><tspan fill="#414868"> ─────────────────────────┐</tspan></text>
 <text x="22" y="102.0" xml:space="preserve" textLength="670.8" lengthAdjust="spacingAndGlyphs"><tspan fill="#a9b1d6">  </tspan><tspan fill="#414868">│</tspan><tspan fill="#a9b1d6">                                            </tspan><tspan fill="#414868">│</tspan><tspan fill="#a9b1d6">  </tspan><tspan fill="#414868">│</tspan><tspan fill="#565f89">  Host    </tspan><tspan fill="#a9b1d6">horizon</tspan><tspan fill="#a9b1d6">                 </tspan><tspan fill="#414868">│</tspan></text>

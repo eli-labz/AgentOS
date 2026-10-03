@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# agent0s:summary=Check whether Tailscale is installed and running
+# agent0s:hidden=true
+
+set -euo pipefail
+
+if agent0s-cmd-present tailscale && tailscale status --json >/dev/null 2>&1; then
+  exit 0
+fi
+
+systemctl is-active --quiet tailscaled.service >/dev/null 2>&1 || pgrep -x tailscaled >/dev/null 2>&1

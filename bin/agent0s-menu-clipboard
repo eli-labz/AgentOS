@@ -1,0 +1,6 @@
+#!/bin/bash
+# agent0s:summary=Launch the clipboard manager
+# agent0s:group=menu
+# agent0s:examples=agent0s menu clipboard
+
+agent0s-shell shell toggle agent0s.clipboard

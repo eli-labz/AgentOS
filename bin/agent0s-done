@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# agent0s:summary=Check or mark completed Agent0S setup tasks
+# agent0s:args=<check|mark|ensure> <name>
+# agent0s:hidden=true
+
+set -e
+
+if (( $# != 2 )); then
+  echo "Usage: agent0s-done <check|mark|ensure> <name>" >&2
+  exit 1
+fi
+
+action=$1
+name=$2
+done_dir="$HOME/.local/state/agent0s/done"
+marker="$done_dir/$name"
+
+if [[ $name == */* || $name == "." || $name == ".." ]]; then
+  echo "Invalid done marker name: $name" >&2
+  exit 1
+fi
+
+case "$action" in
+  check)
+    [[ -f $marker ]]
+    ;;
+  mark)
+    mkdir -p "$done_dir"
+    touch "$marker"
+    ;;
+  ensure)
+    mkdir -p "$done_dir"
+    (set -o noclobber; : >"$marker") 2>/dev/null
+    ;;
+  *)
+    echo "Usage: agent0s-done <check|mark|ensure> <name>" >&2
+    exit 1
+    ;;
+esac

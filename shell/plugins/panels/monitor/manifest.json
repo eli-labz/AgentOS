@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.monitor",
+  "id": "agent0s.monitor",
   "name": "Display",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Brightness slider and laptop display controls",
   "kinds": [
     "bar-widget"

@@ -6,7 +6,7 @@
 #
 # The sshd section reconfigures the machine (enables sshd, opens the firewall,
 # disables password logins), so it demands explicit opt-in: it only runs when
-# OMARCHY_ACCEPTANCE_SUDO_PASSWORD is set, which omarchy-iso-test does for its
+# AGENT0S_ACCEPTANCE_SUDO_PASSWORD is set, which omarchy-iso-test does for its
 # throwaway VMs. A cached sudo timestamp alone never triggers it, so running
 # the suite on a machine you care about cannot reconfigure sshd by accident.
 
@@ -34,8 +34,8 @@ sudo_available() {
     return 0
   fi
 
-  if [[ -n ${OMARCHY_ACCEPTANCE_SUDO_PASSWORD:-} ]]; then
-    printf '%s\n' "$OMARCHY_ACCEPTANCE_SUDO_PASSWORD" | sudo -S -v 2>/dev/null
+  if [[ -n ${AGENT0S_ACCEPTANCE_SUDO_PASSWORD:-} ]]; then
+    printf '%s\n' "$AGENT0S_ACCEPTANCE_SUDO_PASSWORD" | sudo -S -v 2>/dev/null
     return $?
   fi
 
@@ -43,20 +43,20 @@ sudo_available() {
 }
 
 verify_asdcontrol_sudoers() {
-  # Omarchy used to ship a passwordless sudoers grant for asdcontrol; that
+  # Agent0S used to ship a passwordless sudoers grant for asdcontrol; that
   # authorization now belongs to the package alone.
-  if sudo -n test -e /etc/sudoers.d/omarchy-asdcontrol; then
-    fail "no omarchy asdcontrol sudoers grant is shipped" "/etc/sudoers.d/omarchy-asdcontrol exists"
+  if sudo -n test -e /etc/sudoers.d/agent0s-asdcontrol; then
+    fail "no agent0s asdcontrol sudoers grant is shipped" "/etc/sudoers.d/agent0s-asdcontrol exists"
   fi
-  pass "no omarchy asdcontrol sudoers grant is shipped"
+  pass "no agent0s asdcontrol sudoers grant is shipped"
 }
 
 verify_sshd_hardening() {
-  local key_file=/tmp/omarchy-acceptance-sshd-key
+  local key_file=/tmp/agent0s-acceptance-sshd-key
   local effective_config
 
   rm -f "$key_file" "$key_file.pub"
-  ssh-keygen -t ed25519 -N "" -q -C "omarchy-acceptance" -f "$key_file"
+  ssh-keygen -t ed25519 -N "" -q -C "agent0s-acceptance" -f "$key_file"
 
   # sudo keys its cached credential on the calling terminal and, absent one, on
   # the caller's parent process alone, so a timestamp validated in this shell
@@ -64,14 +64,14 @@ verify_sshd_hardening() {
   # without a terminal (omarchy-iso-test drives it over ssh with no pty). Give
   # the exercise a pseudo-terminal and validate the password on it first, so
   # every sudo underneath shares that terminal's credential.
-  if ! OMARCHY_ACCEPTANCE_SUDO_PASSWORD="$OMARCHY_ACCEPTANCE_SUDO_PASSWORD" \
-    OMARCHY_ACCEPTANCE_SSHD_KEY="$(cat "$key_file.pub")" SHELL=/bin/bash \
-    script -qec 'printf "%s\n" "$OMARCHY_ACCEPTANCE_SUDO_PASSWORD" | sudo -S -v 2>/dev/null &&
-      omarchy-setup-security-sshd --key="$OMARCHY_ACCEPTANCE_SSHD_KEY"' /dev/null \
+  if ! AGENT0S_ACCEPTANCE_SUDO_PASSWORD="$AGENT0S_ACCEPTANCE_SUDO_PASSWORD" \
+    AGENT0S_ACCEPTANCE_SSHD_KEY="$(cat "$key_file.pub")" SHELL=/bin/bash \
+    script -qec 'printf "%s\n" "$AGENT0S_ACCEPTANCE_SUDO_PASSWORD" | sudo -S -v 2>/dev/null &&
+      agent0s-setup-security-sshd --key="$AGENT0S_ACCEPTANCE_SSHD_KEY"' /dev/null \
     </dev/null >"$ARTIFACTS/setup-security-sshd.log" 2>&1; then
-    fail "omarchy-setup-security-sshd completes unattended" "$(tail -5 "$ARTIFACTS/setup-security-sshd.log")"
+    fail "agent0s-setup-security-sshd completes unattended" "$(tail -5 "$ARTIFACTS/setup-security-sshd.log")"
   fi
-  pass "omarchy-setup-security-sshd completes unattended"
+  pass "agent0s-setup-security-sshd completes unattended"
 
   systemctl is-active sshd.service >/dev/null || fail "sshd is running after setup"
   pass "sshd is running after setup"
@@ -89,7 +89,7 @@ verify_sshd_hardening() {
   grep -qixF "kbdinteractiveauthentication no" <<<"$effective_config" || fail "keyboard-interactive authentication is off"
   pass "keyboard-interactive authentication is off"
 
-  if omarchy-cmd-present ufw; then
+  if agent0s-cmd-present ufw; then
     sudo -n ufw status | grep -qE '^22/tcp\s+LIMIT' || fail "the SSH port is rate limited in the firewall"
     pass "the SSH port is rate limited in the firewall"
   fi
@@ -108,8 +108,8 @@ else
   pass "asdcontrol sudoers check skipped: sudo needs a password"
 fi
 
-if [[ -n ${OMARCHY_ACCEPTANCE_SUDO_PASSWORD:-} ]] && sudo_available; then
+if [[ -n ${AGENT0S_ACCEPTANCE_SUDO_PASSWORD:-} ]] && sudo_available; then
   verify_sshd_hardening
 else
-  pass "sshd hardening exercise skipped: set OMARCHY_ACCEPTANCE_SUDO_PASSWORD to run it"
+  pass "sshd hardening exercise skipped: set AGENT0S_ACCEPTANCE_SUDO_PASSWORD to run it"
 fi

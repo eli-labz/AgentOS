@@ -13,7 +13,7 @@ Item {
 
   readonly property string home: Quickshell.env("HOME")
   readonly property string stateHome: home + "/.local/state"
-  readonly property string currentBackgroundLink: stateHome + "/omarchy/current/background"
+  readonly property string currentBackgroundLink: stateHome + "/agent0s/current/background"
 
   property string currentBackground: ""
   property string displayedBackground: ""
@@ -35,9 +35,9 @@ Item {
   // Stop a video wallpaper's decoding whenever it is covered. Qt's FFmpeg
   // engine drives its own clock, so an unseen player keeps decoding until it
   // is told not to — a locked laptop would otherwise decode until it died.
-  readonly property var lockService: shell && shell.services ? shell.firstPartyServiceFor("omarchy.lock") : null
-  readonly property var idleService: shell && shell.services ? shell.firstPartyServiceFor("omarchy.idle") : null
-  readonly property var batteryService: shell && shell.services ? shell.firstPartyServiceFor("omarchy.battery") : null
+  readonly property var lockService: shell && shell.services ? shell.firstPartyServiceFor("agent0s.lock") : null
+  readonly property var idleService: shell && shell.services ? shell.firstPartyServiceFor("agent0s.idle") : null
+  readonly property var batteryService: shell && shell.services ? shell.firstPartyServiceFor("agent0s.battery") : null
   readonly property bool lockActive: lockService ? lockService.locked : false
   readonly property bool screensaverActive: idleService ? idleService.screensaverWindowCount > 0 : false
   readonly property bool powerSaverActive: batteryService ? batteryService.powerSaverOnBattery : false
@@ -138,13 +138,13 @@ Item {
 
   Process {
     id: bgSwitchProc
-    command: ["bash", "-c", "background=$(omarchy-theme-bg-switcher); [[ -n $background ]] && omarchy-theme-bg-set \"$background\""]
+    command: ["bash", "-c", "background=$(agent0s-theme-bg-switcher); [[ -n $background ]] && agent0s-theme-bg-set \"$background\""]
     onExited: root.refreshBackground()
   }
 
   Process {
     id: themeSwitchProc
-    command: ["bash", "-c", "theme=$(omarchy-theme-switcher); [[ -n $theme ]] && omarchy-theme-set \"$theme\" >/dev/null 2>&1 &"]
+    command: ["bash", "-c", "theme=$(agent0s-theme-switcher); [[ -n $theme ]] && agent0s-theme-set \"$theme\" >/dev/null 2>&1 &"]
     onExited: root.refreshBackground()
   }
 
@@ -224,7 +224,7 @@ Item {
       color: "transparent"
       // Keep render updates enabled. The background layer has been observed to
       // lose its committed buffer while parked with updatesEnabled=false,
-      // leaving a black desktop until omarchy-shell is restarted. A still
+      // leaving a black desktop until agent0s-shell is restarted. A still
       // wallpaper costs nothing to keep enabled, and a video one is throttled
       // by pausing playback rather than by parking the layer.
       updatesEnabled: true
@@ -254,7 +254,7 @@ Item {
         })
       }
 
-      WlrLayershell.namespace: "omarchy-background"
+      WlrLayershell.namespace: "agent0s-background"
       WlrLayershell.layer: WlrLayer.Background
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       exclusionMode: ExclusionMode.Ignore

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# agent0s:summary=Refresh the shell update status
+# agent0s:hidden=true
+
+set -e
+
+if agent0s-update-available >/dev/null; then
+  agent0s-shell -q agent0s.system-update refresh
+else
+  agent0s-shell -q agent0s.system-update clear
+fi

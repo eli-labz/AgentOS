@@ -1,8 +1,8 @@
 # Unattended Installs
 
-The Omarchy ISO can install itself with nobody at the keyboard. If the installer finds a second drive labeled `cidata` carrying its configuration files, it copies them off, skips the setup wizard entirely, and reboots into the finished system on its own. No special ISO build, no extra boot menu entry — with no such drive attached, nothing changes and you get the normal wizard.
+The Agent0S ISO can install itself with nobody at the keyboard. If the installer finds a second drive labeled `cidata` carrying its configuration files, it copies them off, skips the setup wizard entirely, and reboots into the finished system on its own. No special ISO build, no extra boot menu entry — with no such drive attached, nothing changes and you get the normal wizard.
 
-This makes Omarchy great as a base image for disposable dev environments: create a VM in Proxmox or with Packer, boot it, walk away, SSH in. `cidata` is the cloud-init `NoCloud` label, so all the common virtualization tooling already knows how to attach such a drive.
+This makes Agent0S great as a base image for disposable dev environments: create a VM in Proxmox or with Packer, boot it, walk away, SSH in. `cidata` is the cloud-init `NoCloud` label, so all the common virtualization tooling already knows how to attach such a drive.
 
 ## The configuration files
 
@@ -24,7 +24,7 @@ You can also drop in an empty file named `defer-provisioning` in place of `user_
 
 ## SSH access
 
-When `authorized_keys` is present, the install sets the keys up as the user's `~/.ssh/authorized_keys`, enables `sshd`, and opens the firewall for it. (A stock Omarchy install ships openssh with the service disabled and the port closed, so an unattended machine would otherwise be unreachable.) The install only adds your keys — it doesn't loosen any of the SSH daemon's other authentication settings.
+When `authorized_keys` is present, the install sets the keys up as the user's `~/.ssh/authorized_keys`, enables `sshd`, and opens the firewall for it. (A stock Agent0S install ships openssh with the service disabled and the port closed, so an unattended machine would otherwise be unreachable.) The install only adds your keys — it doesn't loosen any of the SSH daemon's other authentication settings.
 
 When `tailscale_authkey` is present, the machine joins your tailnet on first boot instead: Tailscale is installed from the ISO's bundled packages, the firewall allows the tailnet interface, and a background job runs the join as soon as the machine actually has network, retrying until it succeeds. Use a reusable, pre-authorized key so one drive image can serve many machines.
 
@@ -38,16 +38,16 @@ cp user_configuration.json user_credentials.json authorized_keys cidata/
 genisoimage -output cidata.iso -volid cidata -joliet -rock cidata/
 ```
 
-Then attach it to the VM alongside the Omarchy ISO. Here's a full Proxmox example:
+Then attach it to the VM alongside the Agent0S ISO. Here's a full Proxmox example:
 
 ```bash
-qm create 101 --name my-omarchy \
+qm create 101 --name my-agent0s \
   --bios ovmf --machine q35 --cpu host --cores 4 --memory 8192 \
   --ostype l26 --scsihw virtio-scsi-single \
   --efidisk0 local-lvm:0,efitype=4m,pre-enrolled-keys=0 \
   --scsi0 local-lvm:40,discard=on,iothread=1 \
   --net0 virtio,bridge=vmbr0 --vga virtio --serial0 socket \
-  --ide2 local:iso/omarchy.iso,media=cdrom \
+  --ide2 local:iso/agent0s.iso,media=cdrom \
   --ide3 local:iso/cidata.iso,media=cdrom \
   --boot order='scsi0;ide2'
 

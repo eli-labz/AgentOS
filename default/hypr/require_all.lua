@@ -1,8 +1,8 @@
 -- Require every *.lua file in a directory in sorted order.
--- Used for Omarchy extension-style folders such as default/hypr/apps,
--- default/hypr/bindings, and ~/.local/state/omarchy/toggles/hypr.
+-- Used for Agent0S extension-style folders such as default/hypr/apps,
+-- default/hypr/bindings, and ~/.local/state/agent0s/toggles/hypr.
 -- Pass a module prefix for normal package.path modules, e.g.
---   require_all.files(paths.omarchy_path .. "/default/hypr/apps", "default.hypr.apps")
+--   require_all.files(paths.agent0s_path .. "/default/hypr/apps", "default.hypr.apps")
 -- Pass nil as the prefix when the directory itself has been added to package.path.
 -- Pass options.exclude as a set of base names (without ".lua") to skip; a legacy
 -- file that must never be loaded as code stays on disk for a migration to remove.

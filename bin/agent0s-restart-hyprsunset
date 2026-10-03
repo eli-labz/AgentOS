@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Restart the hyprsunset service (used for blue light filtering/night light).
+
+agent0s-restart-app hyprsunset

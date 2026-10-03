@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# agent0s:summary=List available themes
+# agent0s:examples=agent0s theme list | agent0s theme set "Tokyo Night"
+
+{
+  find ~/.config/agent0s/themes/ -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -printf '%f\n'
+  find "$AGENT0S_PATH/themes/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n'
+} | sort -u | sed -E 's/(^|-)([a-z])/\1\u\2/g; s/-/ /g'

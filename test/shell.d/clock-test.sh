@@ -188,8 +188,8 @@ assert(!calendar.clockNeedsSeconds(''), 'clock sees no seconds in an empty forma
 assert(!calendar.clockNeedsSeconds(null), 'clock sees no seconds in a missing format')
 
 // ---- widget wiring
-assert(/moduleName: "omarchy\.clock"/.test(panelSource), 'calendar panel declares its module name')
-assert(/ipcTarget: "omarchy\.clock"/.test(panelSource), 'calendar panel registers its IPC target')
+assert(/moduleName: "agent0s\.clock"/.test(panelSource), 'calendar panel declares its module name')
+assert(/ipcTarget: "agent0s\.clock"/.test(panelSource), 'calendar panel registers its IPC target')
 assert(/manageIpc: false/.test(panelSource), 'calendar panel leaves the IPC target to the bar widget')
 assert(/anchorItem: root\.anchorItem/.test(panelSource), 'calendar panel anchors to the host widget button')
 assert(/function toggleWeekStart\(\)/.test(panelSource), 'calendar panel exposes a week start toggle')
@@ -240,7 +240,7 @@ assert(/readonly property string activeFormat: configuredFormat/.test(widgetSour
 assert(/entry\[vertical \? "verticalFormat" : "format"\] = next/.test(widgetSource) && /updateEntryInline/.test(widgetSource), 'clock writes a cycled format back to shell.json')
 assert(!/formatIndex/.test(widgetSource), 'clock keeps no session-only format position')
 assert(/else root\.togglePanel\(\)/.test(widgetSource), 'clock left click reveals the calendar')
-assert(/omarchy-menu-timezone/.test(widgetSource), 'clock keeps the timezone picker on middle click')
+assert(/agent0s-menu-timezone/.test(widgetSource), 'clock keeps the timezone picker on middle click')
 
 // The bar identifies a panel by the widget in its slot, so the nested panel
 // has to present the host widget rather than itself.
@@ -260,12 +260,12 @@ assert(/readonly property real labelWidth:/.test(fs.readFileSync(root + '/shell/
 assert(/if \(event\.angleDelta\.y === 0\) return/.test(panelSource), 'calendar ignores wheel events with no vertical delta')
 JS
 
-shell_json=$(cd "$ROOT" && jq -r '[.bar.layout.center[].id] | join(",")' config/omarchy/shell.json)
-[[ $shell_json == *"omarchy.clock"* ]] || fail "default bar layout includes the clock widget" "center: $shell_json"
-[[ $shell_json != *"omarchy.calendar"* ]] || fail "clock hosts the calendar instead of a second bar pill" "center: $shell_json"
+shell_json=$(cd "$ROOT" && jq -r '[.bar.layout.center[].id] | join(",")' config/agent0s/shell.json)
+[[ $shell_json == *"agent0s.clock"* ]] || fail "default bar layout includes the clock widget" "center: $shell_json"
+[[ $shell_json != *"agent0s.calendar"* ]] || fail "clock hosts the calendar instead of a second bar pill" "center: $shell_json"
 pass "default bar layout includes the clock widget"
 
-grep -q 'o.bind("SUPER + CTRL + ALT + D", "Calendar", "omarchy-shell shell toggle omarchy.clock")' \
+grep -q 'o.bind("SUPER + CTRL + ALT + D", "Calendar", "agent0s-shell shell toggle agent0s.clock")' \
   "$ROOT/default/hypr/bindings/utilities.lua" ||
   fail "SUPER+CTRL+ALT+D toggles the calendar panel"
 pass "SUPER+CTRL+ALT+D toggles the calendar panel"

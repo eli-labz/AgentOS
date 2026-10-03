@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.emojis",
+  "id": "agent0s.emojis",
   "name": "Emojis",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Search, copy, and type emojis",
   "kinds": [
     "overlay"

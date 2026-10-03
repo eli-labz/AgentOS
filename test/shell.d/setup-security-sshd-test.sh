@@ -10,11 +10,11 @@ trap 'rm -rf "$test_dir"' EXIT
 stub_bin="$test_dir/bin"
 mkdir -p "$stub_bin"
 
-cat >"$stub_bin/omarchy-pkg-add" <<'STUB'
+cat >"$stub_bin/agent0s-pkg-add" <<'STUB'
 #!/bin/bash
 printf 'pkg %s\n' "$*" >>"${CALL_LOG:?}"
 STUB
-cat >"$stub_bin/omarchy-cmd-missing" <<'STUB'
+cat >"$stub_bin/agent0s-cmd-missing" <<'STUB'
 #!/bin/bash
 exit 0
 STUB
@@ -77,11 +77,11 @@ run_setup() {
     SSHD_PASSWORD_AUTH="${SSHD_PASSWORD_AUTH:-no}" \
     SSHD_KBD_AUTH="${SSHD_KBD_AUTH:-no}" \
     PATH="$stub_bin:$PATH" \
-    bash "$ROOT/bin/omarchy-setup-security-sshd" --key="$public_key"
+    bash "$ROOT/bin/agent0s-setup-security-sshd" --key="$public_key"
 }
 
 output=$(run_setup success)
-config="$test_dir/success/root/etc/ssh/sshd_config.d/10-omarchy-hardening.conf"
+config="$test_dir/success/root/etc/ssh/sshd_config.d/10-agent0s-hardening.conf"
 grep -qxF "PasswordAuthentication no" "$config" || fail "SSH setup disables password authentication"
 grep -qxF "KbdInteractiveAuthentication no" "$config" || fail "SSH setup disables keyboard-interactive authentication"
 grep -qxF "systemctl reload sshd.service" "$test_dir/success.calls" || fail "SSH setup reloads the validated config"
@@ -89,7 +89,7 @@ grep -q "Password logins are off" <<<"$output" || fail "SSH setup reports harden
 pass "SSH setup authorizes a key and disables password logins"
 
 output=$(SSHD_DUMP_LOWERCASE=1 run_setup success-legacy)
-config="$test_dir/success-legacy/root/etc/ssh/sshd_config.d/10-omarchy-hardening.conf"
+config="$test_dir/success-legacy/root/etc/ssh/sshd_config.d/10-agent0s-hardening.conf"
 [[ -e $config ]] || fail "SSH setup accepts the lowercase sshd -T dump of OpenSSH 9.x"
 grep -q "Password logins are off" <<<"$output" || fail "SSH setup reports hardening on OpenSSH 9.x"
 pass "SSH setup verifies settings across sshd -T keyword casings"
@@ -97,7 +97,7 @@ pass "SSH setup verifies settings across sshd -T keyword casings"
 if SSHD_PASSWORD_AUTH=yes run_setup ineffective >"$test_dir/ineffective.output" 2>&1; then
   fail "SSH setup must fail when password authentication remains effective"
 fi
-[[ ! -e $test_dir/ineffective/root/etc/ssh/sshd_config.d/10-omarchy-hardening.conf ]] ||
+[[ ! -e $test_dir/ineffective/root/etc/ssh/sshd_config.d/10-agent0s-hardening.conf ]] ||
   fail "SSH setup removes an ineffective hardening config"
 ! grep -qF "systemctl reload sshd.service" "$test_dir/ineffective.calls" ||
   fail "SSH setup must not reload ineffective hardening"
@@ -108,7 +108,7 @@ pass "SSH setup verifies the effective daemon settings"
 if SSHD_SYNTAX_VALID=0 run_setup invalid >"$test_dir/invalid.output" 2>&1; then
   fail "SSH setup must fail when sshd rejects its config"
 fi
-[[ ! -e $test_dir/invalid/root/etc/ssh/sshd_config.d/10-omarchy-hardening.conf ]] ||
+[[ ! -e $test_dir/invalid/root/etc/ssh/sshd_config.d/10-agent0s-hardening.conf ]] ||
   fail "SSH setup removes a rejected hardening config"
 ! grep -qF "systemctl reload sshd.service" "$test_dir/invalid.calls" ||
   fail "SSH setup must not reload a rejected config"

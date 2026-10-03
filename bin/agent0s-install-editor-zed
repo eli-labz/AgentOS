@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# agent0s:summary=Install Zed Editor and configure it with the current Agent0S theme
+
+echo "Installing Zed Editor..."
+agent0s-pkg-add zed omazed
+
+# Apply Agent0S theme to Zed
+omazed setup
+
+setsid uwsm-app -- gtk-launch dev.zed.Zed >/dev/null 2>&1 &

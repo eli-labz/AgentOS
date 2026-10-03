@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# agent0s:summary=Print the active Agent0S dev-link git branch
+# agent0s:hidden=true
+
+agent0s_path=${AGENT0S_PATH:-/usr/share/agent0s}
+agent0s_path=${agent0s_path%/}
+
+[[ $agent0s_path != "/usr/share/agent0s" ]] || exit 1
+
+branch=$(git -C "$agent0s_path" branch --show-current 2>/dev/null || true)
+if [[ -z $branch ]]; then
+  hash=$(git -C "$agent0s_path" rev-parse --short HEAD 2>/dev/null || true)
+  [[ -n $hash ]] || exit 1
+  branch="detached@$hash"
+fi
+
+echo "$branch"

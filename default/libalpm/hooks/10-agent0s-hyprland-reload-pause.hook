@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = agent0s-settings
+Target = agent0s-settings-dev
+
+[Action]
+Description = Pausing Hyprland config auto-reload for Agent0S settings update...
+When = PreTransaction
+Depends = agent0s
+Exec = /usr/bin/agent0s-hyprland-reload-guard pause

@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell.Io
 
 // One agent's usage record, read straight off the data file that
-// omarchy-agent-usage-update maintains. The panel never learns how the
+// agent0s-agent-usage-update maintains. The panel never learns how the
 // numbers were made — a record that appears in the usage directory is an
 // agent, whoever wrote it.
 Item {

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# agent0s:summary=Print the installed Agent0S version
+
+agent0s_path=${AGENT0S_PATH:-/usr/share/agent0s}
+agent0s_path=${agent0s_path%/}
+
+if [[ $agent0s_path != "/usr/share/agent0s" ]]; then
+  hash=$(git -C "$agent0s_path" rev-parse --short HEAD 2>/dev/null || true)
+
+  if [[ -n $hash ]]; then
+    echo "dev ($hash)"
+  else
+    echo "dev"
+  fi
+
+  exit 0
+fi
+
+# The edge channel installs agent0s-dev instead of agent0s, so check both.
+for package in agent0s-dev agent0s; do
+  version=$(pacman -Q "$package" 2>/dev/null | awk '{ print $2 }')
+  [[ -n $version ]] && break
+done
+
+[[ -n $version ]] || exit 1
+
+echo "$version"

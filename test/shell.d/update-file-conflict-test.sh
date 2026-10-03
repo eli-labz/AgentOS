@@ -15,7 +15,7 @@ cat >"$stub_bin/sudo" <<'STUB'
 exec "$@"
 STUB
 
-# omarchy-update-pacman wraps the transaction in a real PID 1 scope; the tests
+# agent0s-update-pacman wraps the transaction in a real PID 1 scope; the tests
 # must stay inside the fixture, so drop the wrapper's options and run the command.
 cat >"$stub_bin/systemd-run" <<'STUB'
 #!/bin/bash
@@ -53,14 +53,14 @@ chmod +x "$stub_bin/sudo" "$stub_bin/systemd-run" "$stub_bin/pacman"
 replaced="$test_tmp/replaced"
 
 run_update() {
-  OMARCHY_REPLACED_DIR="$replaced" \
+  AGENT0S_REPLACED_DIR="$replaced" \
     RETRY_FAILS="${RETRY_FAILS:-}" \
     RETRY_INSTALLS="${RETRY_INSTALLS:-}" \
     PACMAN_ATTEMPTS="$test_tmp/attempts" \
     CONFLICT_REPORT="$test_tmp/report" \
     OWNED_PATHS="${OWNED_PATHS:-}" \
     PATH="$stub_bin:$ROOT/bin:$PATH" \
-    bash "$ROOT/bin/omarchy-update-system-pkgs"
+    bash "$ROOT/bin/agent0s-update-system-pkgs"
 }
 
 # $1 blamed package, $2 path, $3 optional owning package.
@@ -89,9 +89,9 @@ fresh_work() {
 
 # An unowned path one of the packages is taking over.
 fresh_work
-stray="$work/omarchy-fcitx5.service"
+stray="$work/agent0s-fcitx5.service"
 echo "stray content" >"$stray"
-write_report omarchy-settings-dev "$stray"
+write_report agent0s-settings-dev "$stray"
 run_update >"$test_tmp/out" 2>"$test_tmp/err" ||
   fail "an unowned file conflict is not resolved"
 [[ ! -e $stray ]] ||
@@ -106,11 +106,11 @@ grep -qx "stray content" "$replaced$stray" ||
   fail "the replaced file is destroyed rather than kept out of the way"
 pass "the replaced file is quarantined outside the directory it came from"
 
-# A real fight between packages, not Omarchy's leftovers. pacman appends
+# A real fight between packages, not Agent0S's leftovers. pacman appends
 # "(owned by ...)" here.
 fresh_work
 echo "theirs" >"$stray"
-write_report omarchy-settings-dev "$stray" someone-else
+write_report agent0s-settings-dev "$stray" someone-else
 if run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "a file owned by another package is silently taken"
 fi
@@ -122,7 +122,7 @@ pass "a conflict owned by another package stops the upgrade instead of being tak
 # between a retry and another package's file.
 fresh_work
 echo "theirs" >"$stray"
-write_report omarchy-settings-dev "$stray"
+write_report agent0s-settings-dev "$stray"
 if OWNED_PATHS="$stray" run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "pacman -Qo is not consulted before moving a file"
 fi
@@ -135,24 +135,24 @@ fresh_work
 echo "stray" >"$stray"
 write_report omarchy-chromium-bin "$stray"
 if run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
-  fail "an optional omarchy-prefixed package gets its conflicts auto-resolved"
+  fail "an optional agent0s-prefixed package gets its conflicts auto-resolved"
 fi
 pass "only the packages that own system paths get their conflicts resolved"
 
-# Not Omarchy's conflict to resolve.
+# Not Agent0S's conflict to resolve.
 fresh_work
 echo "stray" >"$stray"
 write_report some-other-pkg "$stray"
 if run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "a conflict from an unrelated package is auto-resolved"
 fi
-pass "a conflict from a non-Omarchy package is left for a human"
+pass "a conflict from a non-Agent0S package is left for a human"
 
 # The path is used literally, so glob characters in a name mean nothing.
 fresh_work
-globby="$work/omarchy-[1].conf"
+globby="$work/agent0s-[1].conf"
 echo "globby" >"$globby"
-write_report omarchy-settings-dev "$globby"
+write_report agent0s-settings-dev "$globby"
 run_update >"$test_tmp/out" 2>"$test_tmp/err" ||
   fail "a path whose name contains glob characters is not resolved"
 [[ -f "$replaced$globby" && ! -e "$globby" ]] ||
@@ -161,9 +161,9 @@ pass "a path whose name would act as a glob is moved literally"
 
 # A leftover directory is cleared the same way a file is.
 fresh_work
-conflict_dir="$work/omarchy-dir"
+conflict_dir="$work/agent0s-dir"
 mkdir -p "$conflict_dir"
-write_report omarchy-settings-dev "$conflict_dir"
+write_report agent0s-settings-dev "$conflict_dir"
 run_update >"$test_tmp/out" 2>"$test_tmp/err" ||
   fail "a conflicting directory is not cleared out of pacman's way"
 [[ -d "$replaced$conflict_dir" && ! -e $conflict_dir ]] ||
@@ -172,9 +172,9 @@ pass "a conflicting directory is moved away"
 
 # A space is legal in a package path; the parse must not truncate it.
 fresh_work
-spaced="$work/omarchy theme.conf"
+spaced="$work/agent0s theme.conf"
 echo "spaced" >"$spaced"
-write_report omarchy-settings-dev "$spaced"
+write_report agent0s-settings-dev "$spaced"
 run_update >"$test_tmp/out" 2>"$test_tmp/err" ||
   fail "a conflicting path containing a space is not resolved"
 [[ -f "$replaced$spaced" && ! -e "$spaced" ]] ||
@@ -186,7 +186,7 @@ fresh_work
 echo "current" >"$stray"
 mkdir -p "$replaced$work"
 echo "from an earlier run" >"$replaced$stray"
-write_report omarchy-settings-dev "$stray"
+write_report agent0s-settings-dev "$stray"
 run_update >"$test_tmp/out" 2>"$test_tmp/err" ||
   fail "a conflict with an existing quarantined copy is not resolved"
 grep -qrx "from an earlier run" "$replaced" ||
@@ -197,7 +197,7 @@ pass "an existing quarantined copy survives a later run needing the same name"
 fresh_work
 echo "ours" >"$stray"
 mkdir -p "$replaced$stray"
-write_report omarchy-settings-dev "$stray"
+write_report agent0s-settings-dev "$stray"
 run_update >"$test_tmp/out" 2>"$test_tmp/err" ||
   fail "a conflict whose destination is a directory is not resolved"
 [[ -f "$replaced$stray" ]] ||
@@ -209,7 +209,7 @@ pass "an existing destination directory is replaced, not moved into"
 fresh_work
 echo "ours" >"$stray"
 write_raw_report \
-  "omarchy-settings-dev: $stray exists in filesystem" \
+  "agent0s-settings-dev: $stray exists in filesystem" \
   "some-package: $work/theirs exists in filesystem (owned by other-package)"
 if run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "an upgrade with an unhealable conflict reports success"
@@ -221,7 +221,7 @@ pass "nothing moves unless every reported conflict is healable"
 # The retry can still fail for an unrelated reason. Leave nothing inactive.
 fresh_work
 echo "ours" >"$stray"
-write_report omarchy-settings-dev "$stray"
+write_report agent0s-settings-dev "$stray"
 if RETRY_FAILS=1 run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "a failed retry reports success"
 fi
@@ -237,7 +237,7 @@ pass "a failed retry puts the files back, without re-invoking the handler"
 # should not announce a restore it is not doing.
 fresh_work
 echo "ours" >"$stray"
-write_report omarchy-settings-dev "$stray"
+write_report agent0s-settings-dev "$stray"
 if RETRY_FAILS=1 RETRY_INSTALLS="$stray" run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "a failed retry reports success"
 fi
@@ -251,7 +251,7 @@ pass "no restore is announced when there is nothing to put back"
 # resolves from inside the quarantine must still be recognised and put back.
 fresh_work
 ln -s ./neighbour "$stray"
-write_report omarchy-settings-dev "$stray"
+write_report agent0s-settings-dev "$stray"
 if RETRY_FAILS=1 run_update >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "a failed retry reports success"
 fi
@@ -263,9 +263,9 @@ pass "a dangling symlink is restored rather than stranded in the quarantine"
 # live files aside for an upgrade that is not happening.
 fresh_work
 echo "ours" >"$stray"
-write_report omarchy-settings-dev "$stray"
-if PATH="$stub_bin:$ROOT/bin:$PATH" OMARCHY_REPLACED_DIR="$replaced" \
-  bash "$ROOT/bin/omarchy-update-system-pkgs-when-conflicted" "$test_tmp/report" \
+write_report agent0s-settings-dev "$stray"
+if PATH="$stub_bin:$ROOT/bin:$PATH" AGENT0S_REPLACED_DIR="$replaced" \
+  bash "$ROOT/bin/agent0s-update-system-pkgs-when-conflicted" "$test_tmp/report" \
   >"$test_tmp/out" 2>"$test_tmp/err"; then
   fail "the handler acts on a report handed to it outside an update"
 fi

@@ -9,38 +9,38 @@ monitors=$(hyprctl -j monitors | jq 'length')
 (( monitors >= 1 )) || fail "compositor reports a monitor"
 pass "compositor reports a monitor"
 
-# The Omarchy shell is running and responsive
-wait_until "omarchy-shell responds to ping" 60 omarchy-shell shell ping
+# The Agent0S shell is running and responsive
+wait_until "agent0s-shell responds to ping" 60 agent0s-shell shell ping
 
 # Core shell plugins are loaded
-plugins=$(omarchy-shell shell listPlugins)
+plugins=$(agent0s-shell shell listPlugins)
 for plugin in \
-  omarchy.audio omarchy.background omarchy.bar omarchy.bluetooth \
-  omarchy.clipboard omarchy.emojis omarchy.menu \
-  omarchy.monitor omarchy.network omarchy.notifications omarchy.power \
-  omarchy.reminders omarchy.weather; do
+  agent0s.audio agent0s.background agent0s.bar agent0s.bluetooth \
+  agent0s.clipboard agent0s.emojis agent0s.menu \
+  agent0s.monitor agent0s.network agent0s.notifications agent0s.power \
+  agent0s.reminders agent0s.weather; do
   [[ $plugins == *"$plugin"* ]] || fail "shell plugin is loaded: $plugin" "loaded plugins: $plugins"
   pass "shell plugin is loaded: $plugin"
 done
 
 # The bar and background are actually on screen
-wait_until "bar layer is on screen" 30 layer_on_screen "omarchy-bar"
-wait_until "background layer is on screen" 30 layer_on_screen "omarchy-background"
+wait_until "bar layer is on screen" 30 layer_on_screen "agent0s-bar"
+wait_until "background layer is on screen" 30 layer_on_screen "agent0s-background"
 
 # Hiding parks the bar off-screen without unmapping its layer surface, and
 # revealing brings that same surface back on-screen.
 restore_bar_visibility() {
-  omarchy-toggle-bar off >/dev/null 2>&1 || true
+  agent0s-toggle-bar off >/dev/null 2>&1 || true
 }
 trap restore_bar_visibility EXIT
 
-omarchy-toggle-bar on
-wait_until "hidden bar layer stays mapped" 15 layer_present "omarchy-bar"
-wait_until "hidden bar layer parks off screen" 15 layer_off_screen "omarchy-bar"
+agent0s-toggle-bar on
+wait_until "hidden bar layer stays mapped" 15 layer_present "agent0s-bar"
+wait_until "hidden bar layer parks off screen" 15 layer_off_screen "agent0s-bar"
 screenshot "success-bar-hidden"
 
-omarchy-toggle-bar off
-wait_until "revealed bar layer returns on screen" 15 layer_on_screen "omarchy-bar"
+agent0s-toggle-bar off
+wait_until "revealed bar layer returns on screen" 15 layer_on_screen "agent0s-bar"
 screenshot "success-bar-revealed"
 trap - EXIT
 
@@ -51,15 +51,15 @@ wait_until "pipewire is running" 30 wpctl status
 [[ $(findmnt -no FSTYPE /) == "btrfs" ]] || fail "root filesystem is btrfs"
 pass "root filesystem is btrfs"
 
-# Omarchy reports its version
-omarchy-version >/dev/null || fail "omarchy-version works"
-pass "omarchy-version works"
+# Agent0S reports its version
+agent0s-version >/dev/null || fail "agent0s-version works"
+pass "agent0s-version works"
 
-# No failed units, system or user. OMARCHY_ACCEPTANCE_IGNORE_UNITS can hold a
+# No failed units, system or user. AGENT0S_ACCEPTANCE_IGNORE_UNITS can hold a
 # regex of units to overlook (useful on dev machines; a fresh VM should be clean).
 failed_units() {
   systemctl "$@" --failed --no-legend --plain | awk '{print $1}' |
-    grep -Ev "${OMARCHY_ACCEPTANCE_IGNORE_UNITS:-^$}" || true
+    grep -Ev "${AGENT0S_ACCEPTANCE_IGNORE_UNITS:-^$}" || true
 }
 
 failed_system=$(failed_units --system)

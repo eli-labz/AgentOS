@@ -1,9 +1,9 @@
 echo "Normalize Snapper snapshot services"
 
-OMARCHY_PATH="${OMARCHY_PATH:-/usr/share/omarchy}"
-snapper_config_script=/usr/share/omarchy/install/config/snapper.sh
+AGENT0S_PATH="${AGENT0S_PATH:-/usr/share/agent0s}"
+snapper_config_script=/usr/share/agent0s/install/config/snapper.sh
 if [[ ! -f $snapper_config_script ]]; then
-  snapper_config_script="$OMARCHY_PATH/install/config/snapper.sh"
+  snapper_config_script="$AGENT0S_PATH/install/config/snapper.sh"
 fi
 
 as_root() {
@@ -36,4 +36,4 @@ fi
 
 (( needs_repair )) || exit 0
 
-as_root env OMARCHY_PATH="$OMARCHY_PATH" bash -euo pipefail "$snapper_config_script"
+as_root env AGENT0S_PATH="$AGENT0S_PATH" bash -euo pipefail "$snapper_config_script"

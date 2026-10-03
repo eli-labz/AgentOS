@@ -1,7 +1,7 @@
 echo "Expose the Elgato Cam Link 4K as a 16:9 virtual camera"
 
-if omarchy-hw-elgato-camlink-4k; then
-  source "$OMARCHY_PATH/install/hardware/fix-elgato-camlink-4k.sh"
+if agent0s-hw-elgato-camlink-4k; then
+  source "$AGENT0S_PATH/install/hardware/fix-elgato-camlink-4k.sh"
 
   sudo systemctl daemon-reload
   sudo udevadm control --reload

@@ -2,7 +2,7 @@ echo "Drop Kvantum now that Qt apps follow the theme through the GTK platform th
 
 # QT_STYLE_OVERRIDE is gone, so Kvantum is no longer painting anything -- Qt
 # falls back to built-in Fusion and takes its palette from
-# QT_QPA_PLATFORMTHEME=gtk3, which actually tracks the Omarchy theme. Kvantum
+# QT_QPA_PLATFORMTHEME=gtk3, which actually tracks the Agent0S theme. Kvantum
 # never did; we have never shipped a .kvconfig for it to read.
 #
 # kvantum-qt5 has to go in the same transaction: it is the only thing that

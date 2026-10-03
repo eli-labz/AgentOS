@@ -7,4 +7,4 @@ echo "Invite existing installs to pick a default agent"
 #
 # Post-update hooks run later in this same update, so the invitation appears
 # without waiting for another one. The hook decides whether to notify.
-omarchy-hook-install post-update "$OMARCHY_PATH/install/user/first-run/setup-agent.hook"
+agent0s-hook-install post-update "$AGENT0S_PATH/install/user/first-run/setup-agent.hook"

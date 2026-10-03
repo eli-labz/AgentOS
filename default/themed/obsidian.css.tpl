@@ -1,4 +1,4 @@
-/* Omarchy Theme for Obsidian */
+/* Agent0S Theme for Obsidian */
 
 .theme-dark, .theme-light {
   /* Core colors */

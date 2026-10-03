@@ -7,11 +7,11 @@ export TERMINAL=xdg-terminal-exec
 # refuse to change the default browser, which breaks the browsers' own "Set as
 # default" buttons. Interactive shells get BROWSER from default/bash/envs instead.
 
-# Used by terminal programs to open files with the selected Omarchy default editor
-export EDITOR="omarchy-launch-editor --inline"
+# Used by terminal programs to open files with the selected Agent0S default editor
+export EDITOR="agent0s-launch-editor --inline"
 
 # Use a custom directory for screenshots (remember to make the directory!)
-# export OMARCHY_SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
+# export AGENT0S_SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
 
 # Use a custom directory for screenrecordings (remember to make the directory!)
-# export OMARCHY_SCREENRECORD_DIR="$HOME/Videos/Screencasts"
+# export AGENT0S_SCREENRECORD_DIR="$HOME/Videos/Screencasts"

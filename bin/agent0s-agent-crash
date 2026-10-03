@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# agent0s:summary=Diagnose a crashed process with the default coding agent
+# agent0s:args=<pid> [comm] [exe] [signal]
+# agent0s:examples=agent0s agent crash 1516893
+
+# Clicked from a "Process crashed:" notification, or run by hand against any PID
+# in `coredumpctl list`. The method lives in the diagnose-crash skill so it is
+# edited in one place and works with whichever agent is default; this only
+# gathers the facts and points at it.
+
+set -euo pipefail
+
+pid=${1:?usage: agent0s-agent-crash <pid> [comm] [exe] [signal]}
+
+if [[ ! $pid =~ ^[0-9]+$ ]]; then
+  echo "Not a PID: $pid" >&2
+  echo "Usage: agent0s agent crash <pid>   (see: coredumpctl list)" >&2
+  exit 1
+fi
+
+comm=${2:-unknown}
+exe=${3:-unknown}
+signal=${4:-unknown}
+
+skill="$AGENT0S_PATH/default/agents/skills/diagnose-crash/SKILL.md"
+
+# Looked up live so a hand-run PID still gets a timestamp. A rotated-away core
+# only costs the timestamp, so failure is tolerated.
+when=$(coredumpctl list "$pid" --no-pager --no-legend 2>/dev/null | tail -1 | cut -d' ' -f1-4) || true
+when=${when:-unknown}
+
+prompt=$(
+  cat <<PROMPT
+A process crashed on this Agent0S machine and I want to know why.
+
+What systemd-coredump recorded:
+  process:  $comm
+  PID:      $pid
+  binary:   $exe
+  signal:   $signal
+  time:     $when
+
+Use the diagnose-crash skill: it covers how to investigate, what to report, and
+when a crash is worth reporting upstream to Agent0S. If your harness has no skill
+mechanism, read the skill files directly and follow them instead:
+
+  $skill
+PROMPT
+)
+
+exec agent0s-agent --prompt "$prompt"

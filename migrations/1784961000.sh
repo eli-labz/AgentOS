@@ -6,7 +6,7 @@ echo "Tune reclaim for swap on zram"
 
 # Load our file specifically rather than --system, which returns nonzero for
 # any invalid key in any admin sysctl file on the machine.
-sudo sysctl -p /etc/sysctl.d/99-omarchy-sysctl.conf >/dev/null || true
+sudo sysctl -p /etc/sysctl.d/99-agent0s-sysctl.conf >/dev/null || true
 
 if sudo systemctl daemon-reload; then
   # Resizing swaps the device off first, which faults every stored page back
@@ -21,4 +21,4 @@ if sudo systemctl daemon-reload; then
   fi
 fi
 
-omarchy-state set reboot-required
+agent0s-state set reboot-required

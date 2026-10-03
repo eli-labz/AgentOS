@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# agent0s:summary=Open the Plymouth unlock screen switcher
+
+preview_dir="${XDG_CACHE_HOME:-$HOME/.cache}/agent0s/unlock-selector/previews"
+
+rm -rf "$preview_dir"
+mkdir -p "$preview_dir"
+
+ln -s "$AGENT0S_PATH/default/plymouth/preview-unlock.png" "$preview_dir/default.png"
+
+agent0s-plymouth-list | while read -r name; do
+  ln -s "$(agent0s-theme-dir "$name")/preview-unlock.png" "$preview_dir/$name.png" 2>/dev/null
+done
+
+current=$(agent0s-plymouth-current)
+selected=""
+[[ -n $current && -e $preview_dir/$current.png ]] && selected="$preview_dir/$current.png"
+
+exec agent0s-menu-images --print-name --show-labels --selected "$selected" "$preview_dir"

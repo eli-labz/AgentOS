@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle the current weather panel
+
+agent0s-shell shell toggle agent0s.weather

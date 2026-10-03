@@ -2,7 +2,7 @@ echo "Remove the tmux alert hooks and its bar indicator"
 
 tmux_config="$HOME/.config/tmux/tmux.conf"
 
-# Drop only the hooks Omarchy installed, wherever the migrations that wrote
+# Drop only the hooks Agent0S installed, wherever the migrations that wrote
 # them left them, and only the blank run around what goes: every other line
 # comes through untouched.
 if [[ -f $tmux_config ]]; then
@@ -24,8 +24,8 @@ if [[ -f $tmux_config ]]; then
     # The heading only belongs to the block when a removed hook follows it.
     /^[[:space:]]*# Alerts$/ && header == "" { header = $0; next }
 
-    /^[[:space:]]*set-hook -g alert-(bell|activity|silence) .*omarchy\.indicators refresh/ ||
-    /^[[:space:]]*set-hook -g (after-select-window|client-session-changed|client-focus-(in|out))(\[[0-9]+\])? .*(omarchy-tmux-alert track|omarchy\.indicators refresh)/ {
+    /^[[:space:]]*set-hook -g alert-(bell|activity|silence) .*agent0s\.indicators refresh/ ||
+    /^[[:space:]]*set-hook -g (after-select-window|client-session-changed|client-focus-(in|out))(\[[0-9]+\])? .*(agent0s-tmux-alert track|agent0s\.indicators refresh)/ {
       header = ""
       dropped = 1
       next
@@ -51,7 +51,7 @@ if [[ -f $tmux_config ]]; then
       # Write through the path instead of replacing it, so a tmux.conf
       # symlinked out of a dotfiles repo keeps pointing where it pointed.
       cat "$tmp" >"$tmux_config"
-      omarchy-restart-tmux
+      agent0s-restart-tmux
     fi
   else
     echo "Could not rewrite $tmux_config; remove the tmux alert hooks by hand."
@@ -69,19 +69,19 @@ if tmux has-session 2>/dev/null; then
     [[ -n $hook ]] || continue
     tmux set-hook -gu "$hook" 2>/dev/null || true
   done < <(tmux show-hooks -g 2>/dev/null |
-    awk '$0 ~ /omarchy-tmux-alert|omarchy\.indicators refresh/ { print $1 }')
+    awk '$0 ~ /agent0s-tmux-alert|agent0s\.indicators refresh/ { print $1 }')
 
   # The removed track subcommand stamped this on every window it saw.
   while read -r window; do
     [[ -n $window ]] || continue
-    tmux set-option -wqu -t "$window" @omarchy_unfocused_activity 2>/dev/null || true
+    tmux set-option -wqu -t "$window" @agent0s_unfocused_activity 2>/dev/null || true
   done < <(tmux list-windows -a -F '#{window_id}' 2>/dev/null)
 fi
 
 # Only a hand-picked indicator list names TmuxAlert; the default list lives in
 # the widget. An emptied list would read as "show them all", so a widget that
 # has nothing left to show goes with it.
-config_file="$HOME/.config/omarchy/shell.json"
+config_file="$HOME/.config/agent0s/shell.json"
 
 if [[ -s $config_file ]] && grep -q 'TmuxAlert' "$config_file"; then
   tmp=$(mktemp)
@@ -103,10 +103,10 @@ if [[ -s $config_file ]] && grep -q 'TmuxAlert' "$config_file"; then
       else null end;
 
     def cleaned:
-      if type == "object" and .id == "omarchy.indicators" then stripped("items") | stripped("indicators") else . end;
+      if type == "object" and .id == "agent0s.indicators" then stripped("items") | stripped("indicators") else . end;
 
     def emptied:
-      type == "object" and .id == "omarchy.indicators" and
+      type == "object" and .id == "agent0s.indicators" and
       picked != null and (cleaned | picked) == null;
 
     walk(if type == "array" then map(select(emptied | not)) | map(cleaned) else . end)

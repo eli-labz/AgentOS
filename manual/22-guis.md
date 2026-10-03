@@ -16,11 +16,11 @@ Obsidian is free for all purposes, including personal, commercial, and non-profi
 
 Obsidian also offers a [commercial add-on for syncing](https://obsidian.md/sync) with mobile apps on iOS and Android. (https://obsidian.md/pricing).
 
-You start Obsidian with `Super + Shift + O`. To use theme syncing, you must select the `Omarchy` theme under settings.
+You start Obsidian with `Super + Shift + O`. To use theme syncing, you must select the `Agent0S` theme under settings.
 
 ## Omawrite
 
-[Omawrite](https://github.com/omacom-io/omawrite) is Omarchy's own dead-simple Markdown writing app. No vaults, no plugins, just you and the words.
+[Omawrite](https://github.com/omacom-io/omawrite) is Agent0S's own dead-simple Markdown writing app. No vaults, no plugins, just you and the words.
 
 You start Omawrite with `Super + Shift + W`.
 
@@ -40,18 +40,18 @@ You start Aether via the application launcher (`Super + Space`).
 
 [LocalSend](https://localsend.org/) lets you send files to other devices on the same network running the app, like Apple's AirDrop. It's cross-platform, though, so you can send files to and from Windows, macOS, Android, iOS, and of course Linux.
 
-You can open the Share menu on `Super + Ctrl + S` or under _Trigger > Share_ in the Omarchy menu. It gives you four options:
+You can open the Share menu on `Super + Ctrl + S` or under _Trigger > Share_ in the Agent0S menu. It gives you four options:
 
 - **Clipboard** sends whatever you've copied as a text file. Great for getting a link or a snippet onto your phone without emailing yourself.
 - **File** opens a file picker where you can select several at once.
 - **Folder** sends an entire directory.
 - **Receive** opens LocalSend proper so another device can send something to you.
 
-The same thing works from the terminal with `omarchy share clipboard`, `omarchy share file [path]`, and `omarchy share folder [path]`. Leave the path off and you get the picker.
+The same thing works from the terminal with `agent0s share clipboard`, `agent0s share file [path]`, and `agent0s share folder [path]`. Leave the path off and you get the picker.
 
 You can also send straight from the file manager: right-click any selection in Nautilus and pick _Send via LocalSend_.
 
-Omarchy's firewall is closed by default except for LocalSend's port, so this works out of the box on a fresh install. See [security](48-security.md).
+Agent0S's firewall is closed by default except for LocalSend's port, so this works out of the box on a fresh install. See [security](48-security.md).
 
 ## LibreOffice
 
@@ -61,7 +61,7 @@ You start LibreOffice via the application launcher (`Super + Space`).
 
 ## Omacalc
 
-[Omacalc](https://github.com/omacom-io/omacalc) is Omarchy's own dead-simple calculator, which opens in a floating window.
+[Omacalc](https://github.com/omacom-io/omacalc) is Agent0S's own dead-simple calculator, which opens in a floating window.
 
 You start Omacalc with `Super + Ctrl + Q` (or the calculator key, if your keyboard has one).
 
@@ -69,7 +69,7 @@ You start Omacalc with `Super + Ctrl + Q` (or the calculator key, if your keyboa
 
 [Signal](https://signal.org/) is the pioneer of E2E encrypted messaging, and a great communication option for anyone who'd prefer not to go through one of the big tech conglomerates.
 
-You start Signal with `Super + Shift + G`. It's not part of the base install, so the first time you hit that, Omarchy will offer to install it for you (it's also under _Install > Service_ in the Omarchy menu).
+You start Signal with `Super + Shift + G`. It's not part of the base install, so the first time you hit that, Agent0S will offer to install it for you (it's also under _Install > Service_ in the Agent0S menu).
 
 ## mpv
 
@@ -79,7 +79,7 @@ You start mpv via the application launcher (`Super + Space`) or just double-clic
 
 ## OBS Studio
 
-[OBS Studio](https://obsproject.com/) lets you record or stream video from multiple inputs. You can mix a screencast with a webcam with a microphone input. It's what was used to record the Omarchy screencasts.
+[OBS Studio](https://obsproject.com/) lets you record or stream video from multiple inputs. You can mix a screencast with a webcam with a microphone input. It's what was used to record the Agent0S screencasts.
 
 You start OBS Studio via the application launcher (`Super + Space`).
 
@@ -91,6 +91,6 @@ You start Kdenlive via the application launcher (`Super + Space`).
 
 ## Omacut
 
-[Omacut](https://github.com/omacom-io/omacut) is Omarchy's own dead-simple video trimmer. When all you need is to cut the start and end off a clip, it beats firing up a full video editor.
+[Omacut](https://github.com/omacom-io/omacut) is Agent0S's own dead-simple video trimmer. When all you need is to cut the start and end off a clip, it beats firing up a full video editor.
 
 You start Omacut via the application launcher (`Super + Space`).

@@ -5,7 +5,7 @@ function copyUrl(url) {
   if (!url) return;
 
   // The native host owns both the Wayland clipboard and confirmation toast.
-  chrome.runtime.sendNativeMessage('com.omarchy.copy_url', { url }, () => {
+  chrome.runtime.sendNativeMessage('com.agent0s.copy_url', { url }, () => {
     void chrome.runtime.lastError;
   });
 }

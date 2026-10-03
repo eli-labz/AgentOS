@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# agent0s:summary=Returns true when the laptop lid is closed
+# agent0s:hidden=true
+
+for state in /proc/acpi/button/lid/*/state; do
+  [[ -r $state ]] || continue
+  [[ $(< "$state") == *"closed"* ]] && exit 0
+done
+
+exit 1

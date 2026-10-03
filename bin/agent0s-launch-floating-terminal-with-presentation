@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# agent0s:summary=Launch a floating terminal with the Agent0S presentation wrapper
+# agent0s:args=<command>
+
+# Export the current theme's gum styling so gum widgets match the active theme
+# even after a theme switch (the inherited environment is captured at login).
+source agent0s-restart-gum
+
+cmd="$*"
+# 130 is the user bailing with Ctrl-C; anything else gets the Done/Failed prompt.
+presentation_script="agent0s-show-logo; $cmd; code=\$?; if (( code != 130 )); then agent0s-show-done \$code; fi"
+
+exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.agent0s.terminal --title=Agent0S -e bash -c "$presentation_script"

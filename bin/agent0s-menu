@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# agent0s:summary=Control the Agent0S menu (toggle / summon / close / refresh)
+# agent0s:args=[toggle|summon|close|refresh|ping] [route]
+# agent0s:examples=agent0s menu | agent0s menu toggle system | agent0s menu summon style.theme | agent0s menu refresh
+
+# Thin wrapper around the standard plugin IPC surface. The menu is the
+# first-party `agent0s.menu` plugin; routes are passed as JSON payload.
+
+set -euo pipefail
+
+verb="${1-toggle}"
+route="${2-root}"
+
+menu_payload() {
+  jq -nc --arg menu "$1" '{ menu: $menu }'
+}
+
+case "$verb" in
+  toggle)
+    exec agent0s-shell shell toggle agent0s.menu "$(menu_payload "$route")"
+    ;;
+  summon)
+    exec agent0s-shell shell summon agent0s.menu "$(menu_payload "$route")"
+    ;;
+  close)
+    exec agent0s-shell shell hide agent0s.menu
+    ;;
+  refresh | ping)
+    exec agent0s-shell shell call agent0s.menu "$verb" "{}"
+    ;;
+  -h | --help | help)
+    cat <<USAGE
+Usage: agent0s menu [verb] [route]
+
+Verbs:
+  toggle [route]   Open the menu at <route>, or close it if already open. Default verb.
+  summon [route]   Always open the menu (no close-if-visible toggle).
+  close            Close the menu if it is visible.
+  refresh          Re-parse the menu JSONC files.
+  ping             Health check.
+
+Route is an item id (e.g. setup.power) or alias (e.g. power). Defaults to
+"root", which opens the top-level menu.
+USAGE
+    exit 0
+    ;;
+  *)
+    echo "agent0s-menu: unknown verb '$verb'. Try 'agent0s menu --help'." >&2
+    exit 2
+    ;;
+esac

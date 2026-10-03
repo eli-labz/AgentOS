@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.dropbox",
+  "id": "agent0s.dropbox",
   "name": "Dropbox",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "license": "MIT",
-  "description": "Dropbox status, storage usage, login, and recent synced files in the Omarchy bar.",
+  "description": "Dropbox status, storage usage, login, and recent synced files in the Agent0S bar.",
   "kinds": [
     "bar-widget"
   ],

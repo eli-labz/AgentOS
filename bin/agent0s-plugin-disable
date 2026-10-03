@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# agent0s:summary=Disable a shell plugin
+# agent0s:group=plugin
+# agent0s:args=<id>
+
+set -euo pipefail
+
+fail() {
+  echo "agent0s-plugin-disable: $*" >&2
+  exit 1
+}
+
+if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
+  echo "Usage: agent0s plugin disable <id>"
+  exit 0
+fi
+
+id="${1:-}"
+[[ -n $id ]] || fail "plugin id is required"
+
+result=$(agent0s-shell shell setPluginEnabled "$id" false)
+[[ $result == "ok" ]] ||
+  fail "plugin '$id' is not known; run: agent0s-shell shell rescanPlugins"
+
+echo "Disabled $id"

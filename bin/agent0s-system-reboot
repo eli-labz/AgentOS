@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# agent0s:summary=Reboot after closing application windows
+# agent0s:examples=agent0s reboot | agent0s system reboot
+# agent0s:aliases=agent0s reboot
+
+# Schedule the reboot in the user manager so closing the terminal's systemd
+# scope cannot terminate it before it runs.
+systemd-run --user --collect --quiet --on-active="2s" --timer-property=AccuracySec=100ms systemctl reboot --no-wall || exit 1
+
+agent0s-osd -i reboot -m "Rebooting" -d 5000
+
+agent0s-state clear re*-required
+
+# Now close all windows
+agent0s-hyprland-window-close-all
+sleep 1 # Allow apps like Chrome to shutdown correctly

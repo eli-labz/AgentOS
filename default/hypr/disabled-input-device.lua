@@ -4,10 +4,10 @@
 local paths = require("default.hypr.paths")
 
 return function(kind)
-  -- Hardcoded to ~/.local/state to match omarchy-toggle-input-device and the
+  -- Hardcoded to ~/.local/state to match agent0s-toggle-input-device and the
   -- sibling bash toggle tools, which all write there regardless of
   -- XDG_STATE_HOME.
-  local file = io.open(paths.home .. "/.local/state/omarchy/toggles/hypr/" .. kind .. "-disabled-name", "r")
+  local file = io.open(paths.home .. "/.local/state/agent0s/toggles/hypr/" .. kind .. "-disabled-name", "r")
   if not file then
     return
   end

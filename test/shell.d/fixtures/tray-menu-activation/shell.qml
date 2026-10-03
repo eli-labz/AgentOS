@@ -5,7 +5,7 @@ import Quickshell.Services.SystemTray
 ShellRoot {
   id: root
 
-  property string resultPath: Quickshell.env("OMARCHY_QML_TEST_RESULT")
+  property string resultPath: Quickshell.env("AGENT0S_QML_TEST_RESULT")
   property var trayItem: null
   property int attempts: 0
   property string lastState: ""
@@ -26,7 +26,7 @@ ShellRoot {
     var ids = []
     for (var i = 0; i < values.length; i++) {
       ids.push(String(values[i].id || ""))
-      if (String(values[i].id || "") === "omarchy-test-tray") return values[i]
+      if (String(values[i].id || "") === "agent0s-test-tray") return values[i]
     }
     lastState = "items=" + ids.join(",")
     return null

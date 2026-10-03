@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Check whether a webcam is available
+
+[[ -n $(agent0s-capture-webcam-list) ]]

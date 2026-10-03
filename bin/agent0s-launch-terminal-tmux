@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Launch or attach to the Work tmux session in a terminal
+
+exec agent0s-launch-terminal bash -c "tmux attach || tmux new -s Work"

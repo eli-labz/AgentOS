@@ -1,6 +1,6 @@
 # Filling out PDFs
 
-Omarchy ships with a nice, basic PDF viewer called Document Viewer. This is the program that'll open any PDFs you just double click on.
+Agent0S ships with a nice, basic PDF viewer called Document Viewer. This is the program that'll open any PDFs you just double click on.
 
 But you can only use Document Viewer to fill out PDFs that have been setup as forms. If you need to fill out PDFs that haven't, or you need to sign a PDF, you'll have to right-click the file, select _Open With..._, and pick Xournal++.
 

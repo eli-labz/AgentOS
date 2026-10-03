@@ -28,7 +28,7 @@ cat >"$stub_bin/gpasswd" <<'STUB'
 #!/bin/bash
 printf '%s\n' "$*" >>"${GPASSWD_CALLS:?}"
 STUB
-cat >"$stub_bin/omarchy-state" <<'STUB'
+cat >"$stub_bin/agent0s-state" <<'STUB'
 #!/bin/bash
 printf '%s\n' "$*" >>"${STATE_CALLS:?}"
 STUB

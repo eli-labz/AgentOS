@@ -22,7 +22,7 @@ def check(condition, description):
     raise SystemExit("not ok - " + description)
   print("ok - " + description, flush=True)
 
-drop_in = root / "default/systemd/system/plocate-updatedb.service.d/10-omarchy.conf"
+drop_in = root / "default/systemd/system/plocate-updatedb.service.d/10-agent0s.conf"
 directives = [line.strip() for line in drop_in.read_text().splitlines() if line.strip() and not line.startswith("#")]
 check(len(directives) == 3 and directives[:2] == ["[Service]", "ExecStart="] and directives[2].startswith("ExecStart="),
       "locate drop-in replaces the command and preserves upstream service restrictions")
@@ -38,11 +38,11 @@ for directory in ("bin", "install", "migrations"):
   for path in (root / directory).rglob("*"):
     if path.is_file():
       content = path.read_text()
-      if "OMARCHY_UPDATEDB_CONF_PATH" in content or "config/locate.sh" in content:
+      if "AGENT0S_UPDATEDB_CONF_PATH" in content or "config/locate.sh" in content:
         raise SystemExit("not ok - retired locate configuration path remains in " + str(path))
 check(True, "runtime and installation no longer reference the configuration rewrite")
 
-with tempfile.TemporaryDirectory(prefix="omarchy-locate-") as scratch:
+with tempfile.TemporaryDirectory(prefix="agent0s-locate-") as scratch:
   scratch = Path(scratch)
   fake_bin = scratch / "bin"
   fake_bin.mkdir()
@@ -51,8 +51,8 @@ with tempfile.TemporaryDirectory(prefix="omarchy-locate-") as scratch:
     "sudo": 'exec "$@"',
     "fzf": 'cat >/dev/null\nprintf "%s\\n" test-package',
     "yay": 'if [[ ${1:-} == "-Slqa" ]]; then printf "%s\\n" test-package; fi',
-    "omarchy-sudo-keepalive": ':',
-    "omarchy-show-done": ':',
+    "agent0s-sudo-keepalive": ':',
+    "agent0s-show-done": ':',
   }
   for name, body in stubs.items():
     path = fake_bin / name
@@ -60,7 +60,7 @@ with tempfile.TemporaryDirectory(prefix="omarchy-locate-") as scratch:
     path.chmod(0o755)
   calls = scratch / "updatedb-arguments"
   env = dict(os.environ, PATH=str(fake_bin) + ":" + os.environ["PATH"], TEST_CALLS=str(calls))
-  for relative in ("install/post-install/localdb.sh", "bin/omarchy-pkg-aur-install"):
+  for relative in ("install/post-install/localdb.sh", "bin/agent0s-pkg-aur-install"):
     subprocess.run(["bash", "-euo", "pipefail", str(root / relative)], env=env, check=True)
     check(calls.read_text().splitlines() == options,
           relative + " passes the scheduled service options directly")

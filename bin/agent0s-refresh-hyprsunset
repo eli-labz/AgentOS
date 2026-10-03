@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Overwrite the user config for hyprsunset with the Agent0S default and restart the service.
+
+agent0s-refresh-config hypr/hyprsunset.conf
+agent0s-restart-hyprsunset

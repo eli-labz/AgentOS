@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# agent0s:summary=Match Dell XPS systems with LG OLED panel on Intel Panther Lake (Xe3) GPU.
+
+agent0s-hw-match "XPS" \
+  && agent0s-hw-intel-ptl \
+  && test "$(od -An -tx1 -j8 -N2 /sys/class/drm/card*-eDP-*/edid 2>/dev/null | tr -d ' \n')" = "30e4"

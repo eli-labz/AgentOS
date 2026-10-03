@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# agent0s:summary=Show idle, screensaver, and lock diagnostics
+# agent0s:group=debug
+# agent0s:args=[log-lines]
+# agent0s:examples=agent0s debug idle | agent0s-debug-idle 400
+
+lines=${1:-200}
+if [[ ! $lines =~ ^[0-9]+$ ]]; then
+  lines=200
+fi
+
+section() {
+  printf '\n== %s ==\n' "$1"
+}
+
+section "Time"
+date -Is
+
+section "Idle IPC status"
+agent0s-shell idle status 2>&1 | jq . 2>/dev/null || agent0s-shell idle status 2>&1 || true
+
+section "Quickshell instances"
+quickshell list -p "$AGENT0S_PATH/shell" --any-display 2>&1 || true
+
+section "Recent idle logs"
+quickshell --no-color log -p "$AGENT0S_PATH/shell" --any-display --tail "$lines" --log-times -r 'quickshell.wayland.idle_notify=true' 2>&1 \
+  | grep -Ei 'agent0s idle|idle_notify|screensaver|lock|error|warn|failed' || true
+
+section "Persisted shell log"
+journalctl -t agent0s-shell -n "$lines" --no-pager --quiet 2>/dev/null || true
+
+section "Relevant processes"
+ps -eo pid=,args= \
+  | grep -E 'quickshell -n -p|agent0s-system-sleep-monitor|systemd-inhibit.*Lock screen before suspend|org\.agent0s\.screensaver|agent0s-screensaver|(^|/| )ttfx( |$)' \
+  | grep -v grep || true
+
+section "Sleep lock service"
+systemctl --user status agent0s-sleep-lock.service --no-pager 2>/dev/null || true
+
+section "Hyprland screensaver clients"
+hyprctl clients -j 2>/dev/null \
+  | jq -r '.[] | select(.class == "org.agent0s.screensaver" or .initialClass == "org.agent0s.screensaver") | [.pid,.class,.initialClass,.title,.focusHistoryID] | @tsv' || true
+
+section "Idle inhibitors"
+hyprctl clients -j 2>/dev/null \
+  | jq -r '.[] | select(.inhibitingIdle == true or ((.tags // []) | index("noidle"))) | [.pid,.class,.title,((.tags // []) | join(",")),.inhibitingIdle] | @tsv' || true
+
+section "Screensaver detector"
+if hyprctl clients -j 2>/dev/null | jq -e '.[] | select(.class == "org.agent0s.screensaver" or .initialClass == "org.agent0s.screensaver")' >/dev/null; then
+  echo "running-window"
+elif pgrep -f '[o]rg.agent0s.screensaver' >/dev/null; then
+  echo "running-process"
+elif agent0s-toggle-enabled screensaver-off; then
+  echo "disabled"
+else
+  echo "stopped"
+fi
+
+section "Lock detector"
+agent0s-shell lock status 2>&1 | jq . 2>/dev/null || agent0s-shell lock status 2>&1 || true

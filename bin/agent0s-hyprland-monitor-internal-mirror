@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# agent0s:summary=Enable, disable, toggle, or recover mirroring the internal display to an external monitor
+# agent0s:args=<on|off|toggle|recover>
+
+TOGGLE="internal-monitor-mirror"
+TOGGLE_FLAG="$HOME/.local/state/agent0s/toggles/hypr/$TOGGLE.lua"
+DISABLE_TOGGLE="internal-monitor-disable"
+
+INTERNAL=$(agent0s-hyprland-monitor-laptop)
+# The first active external monitor
+EXTERNAL=$(hyprctl monitors -j | jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)-") | not).name' | head -n 1)
+
+on() {
+  if [[ -z $EXTERNAL ]]; then
+    agent0s-notification-send -g 󰍹 "No external monitors found for mirror"
+    exit 1
+  fi
+
+  if [[ -z $INTERNAL ]]; then
+    agent0s-notification-send -g 󰍹 "No laptop monitor found to mirror"
+    exit 1
+  fi
+
+  # Both names are written into generated Lua below, so only plain connector
+  # names may pass; a user-created headless output can carry any name.
+  for output in "$INTERNAL" "$EXTERNAL"; do
+    if [[ ! $output =~ ^[A-Za-z0-9._-]+$ ]]; then
+      agent0s-notification-send -g 󰍹 "Refusing unsafe monitor name"
+      exit 1
+    fi
+  done
+
+  agent0s-hyprland-toggle $DISABLE_TOGGLE off
+
+  if agent0s-hyprland-toggle-disabled $TOGGLE; then
+    printf 'hl.monitor({ output = "%s", mode = "preferred", position = "auto", scale = 1, mirror = "%s" })\n' "$EXTERNAL" "$INTERNAL" >"$TOGGLE_FLAG"
+    agent0s-notification-send -g 󰍹 "Mirroring enabled ($EXTERNAL)"
+    hyprctl reload
+  fi
+}
+
+off() {
+  if agent0s-hyprland-toggle-enabled $TOGGLE; then
+    agent0s-hyprland-toggle $TOGGLE off
+    agent0s-notification-send -g 󰍹 "Extended mode restored"
+  fi
+}
+
+toggle() {
+  if agent0s-hyprland-toggle-enabled $TOGGLE; then
+    off
+  else
+    on
+  fi
+}
+
+recover() {
+  if ! agent0s-hyprland-monitor-external-active && agent0s-hyprland-toggle-enabled $TOGGLE; then
+    agent0s-hyprland-toggle $TOGGLE off
+  fi
+}
+
+case "$1" in
+  on) on ;;
+  off) off ;;
+  toggle) toggle ;;
+  recover) recover ;;
+  *)
+    echo "Usage: $(basename "$0") {on|off|toggle|recover}" >&2
+    exit 1
+    ;;
+esac

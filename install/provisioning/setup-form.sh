@@ -1,8 +1,8 @@
-# The setup form: every question Omarchy asks a human to describe their machine
+# The setup form: every question Agent0S asks a human to describe their machine
 # — keyboard, account, hostname, timezone — plus the rules those answers are
 # checked against. Shared by the two places that ask them: the ISO
 # configurator's user step and this package's first-boot owner setup
-# (omarchy-provision-owner). Sourced by both, so the copies cannot drift the way
+# (agent0s-provision-owner). Sourced by both, so the copies cannot drift the way
 # the keyboard list already did.
 #
 # Every prompt reports one of three statuses, and both callers read them the
@@ -21,15 +21,15 @@
 # the variables these prompts write: keyboard, keyboard_label, username,
 # password, password_confirmation, full_name, email_address, hostname, timezone.
 
-OMARCHY_FORM_BACK=1
-OMARCHY_FORM_SIGNAL=130
+AGENT0S_FORM_BACK=1
+AGENT0S_FORM_SIGNAL=130
 
 # The English layouts lead, then everything else alphabetically. gum choose
 # paginates in --height-sized pages and jumps to the page holding --selected,
 # so an alphabetical English (US) landed deep enough to sit alone at the edge
 # of a page of layouts nobody scanning for it reads. Up here the default and
 # its variants are the first thing on screen no matter how the list grows.
-OMARCHY_KEYBOARD_LAYOUTS=$'English (US)|us
+AGENT0S_KEYBOARD_LAYOUTS=$'English (US)|us
 English (UK)|uk
 English (US, Dvorak)|dvorak
 English (US, Colemak)|colemak
@@ -78,39 +78,39 @@ Tajik|tj_alt-UTF8
 Turkish|trq
 Ukrainian|ua'
 
-OMARCHY_USERNAME_PATTERN='^[a-z_][a-z0-9_-]*[$]?$'
-OMARCHY_RESERVED_USERNAMES='^(root|bin|daemon|mail|ftp|http|nobody|dbus|systemd-coredump|systemd-network|systemd-oom|systemd-journal-remote|systemd-resolve|systemd-timesync|tss|uuidd|alpm|git|avahi|cups|cups-browsed|lp|_talkd|polkitd|rtkit|qemu|brltty|gluster|rpc|libvirt-qemu|pcscd|nvidia-persistenced|sddm)$'
-OMARCHY_HOSTNAME_PATTERN='^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?$'
-OMARCHY_HOSTNAME_DEFAULT='omarchy'
+AGENT0S_USERNAME_PATTERN='^[a-z_][a-z0-9_-]*[$]?$'
+AGENT0S_RESERVED_USERNAMES='^(root|bin|daemon|mail|ftp|http|nobody|dbus|systemd-coredump|systemd-network|systemd-oom|systemd-journal-remote|systemd-resolve|systemd-timesync|tss|uuidd|alpm|git|avahi|cups|cups-browsed|lp|_talkd|polkitd|rtkit|qemu|brltty|gluster|rpc|libvirt-qemu|pcscd|nvidia-persistenced|sddm)$'
+AGENT0S_HOSTNAME_PATTERN='^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?$'
+AGENT0S_HOSTNAME_DEFAULT='agent0s'
 
 # Installer targets are empty, so any account is fair game; first-boot setup
 # overrides this because its machine already has users.
-omarchy_username_taken() { return 1; }
+agent0s_username_taken() { return 1; }
 
 # `x=$(gum ...) && status=0 || status=$?` rather than a bare assignment followed
 # by `status=$?`: one caller runs under `set -e`, where a cancelled prompt is a
 # failing assignment that would kill the script before the status is read.
 
-omarchy_prompt_keyboard() {
+agent0s_prompt_keyboard() {
   local choice status
-  choice=$(printf '%s\n' "$OMARCHY_KEYBOARD_LAYOUTS" | cut -d'|' -f1 |
+  choice=$(printf '%s\n' "$AGENT0S_KEYBOARD_LAYOUTS" | cut -d'|' -f1 |
     gum choose --height 10 --selected "English (US)" --header "Select keyboard layout") && status=0 || status=$?
   ((status == 0)) || return $status
 
   keyboard_label="$choice"
-  keyboard=$(printf '%s\n' "$OMARCHY_KEYBOARD_LAYOUTS" | awk -F'|' -v c="$choice" '$1==c{print $2; exit}')
+  keyboard=$(printf '%s\n' "$AGENT0S_KEYBOARD_LAYOUTS" | awk -F'|' -v c="$choice" '$1==c{print $2; exit}')
 }
 
-omarchy_prompt_username() {
+agent0s_prompt_username() {
   local status
   while true; do
     username=$(gum input --placeholder "Alphanumeric without spaces (like dhh)" --prompt.foreground="#845DF9" --prompt "Username> ") && status=0 || status=$?
     ((status == 0)) || return $status
 
-    if [[ "$username" =~ $OMARCHY_USERNAME_PATTERN ]]; then
-      if [[ "$username" =~ $OMARCHY_RESERVED_USERNAMES ]]; then
+    if [[ "$username" =~ $AGENT0S_USERNAME_PATTERN ]]; then
+      if [[ "$username" =~ $AGENT0S_RESERVED_USERNAMES ]]; then
         notice "Username is reserved for system" 1
-      elif omarchy_username_taken "$username"; then
+      elif agent0s_username_taken "$username"; then
         notice "That username already exists on this machine" 1
       else
         return 0
@@ -121,7 +121,7 @@ omarchy_prompt_username() {
   done
 }
 
-omarchy_prompt_password() {
+agent0s_prompt_password() {
   local status
   while true; do
     password=$(gum input --placeholder "Used for user + root, and disk encryption when enabled" --prompt.foreground="#845DF9" --password --prompt "Password> ") && status=0 || status=$?
@@ -141,7 +141,7 @@ omarchy_prompt_password() {
 
 # Both fields are skippable with Return, so an empty value is a real answer and
 # only Esc/Ctrl+C end the prompt early.
-omarchy_prompt_identity() {
+agent0s_prompt_identity() {
   local status
   full_name=$(gum input --placeholder "Used for git authentication (hit return to skip)" --prompt.foreground="#845DF9" --prompt "Full name> ") && status=0 || status=$?
   ((status == 0)) || return $status
@@ -149,16 +149,16 @@ omarchy_prompt_identity() {
   return $status
 }
 
-omarchy_prompt_hostname() {
+agent0s_prompt_hostname() {
   local status
   while true; do
-    hostname=$(gum input --placeholder "Letters, digits, and dashes (or return for 'omarchy')" --prompt.foreground="#845DF9" --prompt "Hostname> ") && status=0 || status=$?
+    hostname=$(gum input --placeholder "Letters, digits, and dashes (or return for 'agent0s')" --prompt.foreground="#845DF9" --prompt "Hostname> ") && status=0 || status=$?
     ((status == 0)) || return $status
 
     if [[ -z $hostname ]]; then
-      hostname="$OMARCHY_HOSTNAME_DEFAULT"
+      hostname="$AGENT0S_HOSTNAME_DEFAULT"
       return 0
-    elif [[ "$hostname" =~ $OMARCHY_HOSTNAME_PATTERN ]]; then
+    elif [[ "$hostname" =~ $AGENT0S_HOSTNAME_PATTERN ]]; then
       return 0
     else
       notice "Hostname must be 1-63 letters, digits, or dashes, and cannot start or end with a dash" 1
@@ -168,7 +168,7 @@ omarchy_prompt_hostname() {
 
 # A fresh machine often hasn't joined a network yet, so the geo guess fails
 # often; guard it or a `set -e` caller dies before the filter fallback.
-omarchy_prompt_timezone() {
+agent0s_prompt_timezone() {
   local guess status
   guess=$(tzupdate -p 2>/dev/null) || guess=""
 

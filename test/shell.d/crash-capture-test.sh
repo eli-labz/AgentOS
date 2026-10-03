@@ -15,42 +15,42 @@ cat >"$TMPDIR/bin/systemctl" <<'SH'
 printf '%s\n' "$*" >>"$SYSTEMCTL_LOG"
 SH
 
-cat >"$TMPDIR/bin/omarchy-notification-send" <<'SH'
+cat >"$TMPDIR/bin/agent0s-notification-send" <<'SH'
 #!/bin/bash
 exit 0
 SH
 
-chmod +x "$TMPDIR/bin/systemctl" "$TMPDIR/bin/omarchy-notification-send"
+chmod +x "$TMPDIR/bin/systemctl" "$TMPDIR/bin/agent0s-notification-send"
 
 test_home="$TMPDIR/home"
-flag="$test_home/.local/state/omarchy/toggles/crash-capture-off"
+flag="$test_home/.local/state/agent0s/toggles/crash-capture-off"
 
 toggle_crash_capture() {
   PATH="$TMPDIR/bin:$ROOT/bin:$PATH" \
   SYSTEMCTL_LOG="$SYSTEMCTL_LOG" \
   HOME="$test_home" \
-    "$ROOT/bin/omarchy-toggle-crash-capture"
+    "$ROOT/bin/agent0s-toggle-crash-capture"
 }
 
 toggle_crash_capture
 [[ -f $flag ]] || fail "crash capture toggle disables the watcher"
-grep -Fqx -- "--user stop omarchy-crash-watch.service" "$SYSTEMCTL_LOG" ||
+grep -Fqx -- "--user stop agent0s-crash-watch.service" "$SYSTEMCTL_LOG" ||
   fail "crash capture toggle stops the running watcher, so disabling takes effect before the next login"
 pass "crash capture toggle disables the watcher"
 
 : >"$SYSTEMCTL_LOG"
 toggle_crash_capture
 [[ ! -f $flag ]] || fail "crash capture toggle re-enables the watcher"
-grep -Fqx -- "--user start omarchy-crash-watch.service" "$SYSTEMCTL_LOG" ||
+grep -Fqx -- "--user start agent0s-crash-watch.service" "$SYSTEMCTL_LOG" ||
   fail "crash capture toggle starts the watcher, so enabling takes effect before the next login"
 pass "crash capture toggle re-enables the watcher"
 
-service="$ROOT/default/systemd/user/omarchy-crash-watch.service"
-grep -Fx 'ConditionPathExists=!%h/.local/state/omarchy/toggles/crash-capture-off' "$service" >/dev/null ||
+service="$ROOT/default/systemd/user/agent0s-crash-watch.service"
+grep -Fx 'ConditionPathExists=!%h/.local/state/agent0s/toggles/crash-capture-off' "$service" >/dev/null ||
   fail "the watcher is pulled back in at every login, so disabling it never survives a logout"
 pass "crash watcher stays disabled across logins"
 
-grep -F 'omarchy-crash-watch.service' "$ROOT/install/user/first-run/enable-user-units.sh" >/dev/null ||
+grep -F 'agent0s-crash-watch.service' "$ROOT/install/user/first-run/enable-user-units.sh" >/dev/null ||
   fail "crash capture is no longer on by default for new installs"
 pass "crash capture is on by default"
 
@@ -71,23 +71,23 @@ cat >"$watch_bin/journalctl" <<'SH'
 cat "$JOURNAL_ENTRIES"
 SH
 
-cat >"$watch_bin/omarchy-default-agent" <<'SH'
+cat >"$watch_bin/agent0s-default-agent" <<'SH'
 #!/bin/bash
 echo claude
 SH
 
-cat >"$watch_bin/omarchy-notification-wait" <<'SH'
+cat >"$watch_bin/agent0s-notification-wait" <<'SH'
 #!/bin/bash
 exit 0
 SH
 
-cat >"$watch_bin/omarchy-notification-send" <<'SH'
+cat >"$watch_bin/agent0s-notification-send" <<'SH'
 #!/bin/bash
 printf '%s\n' "$*" >>"$NOTIFY_LOG"
 SH
 
-chmod +x "$watch_bin/journalctl" "$watch_bin/omarchy-default-agent" \
-  "$watch_bin/omarchy-notification-wait" "$watch_bin/omarchy-notification-send"
+chmod +x "$watch_bin/journalctl" "$watch_bin/agent0s-default-agent" \
+  "$watch_bin/agent0s-notification-wait" "$watch_bin/agent0s-notification-send"
 
 reset_entries() {
   : >"$JOURNAL_ENTRIES"
@@ -116,7 +116,7 @@ run_watch() {
   JOURNAL_ENTRIES="$JOURNAL_ENTRIES" \
   NOTIFY_LOG="$NOTIFY_LOG" \
   HOME="$watch_home" \
-    "$ROOT/bin/omarchy-crash-watch" || status=$?
+    "$ROOT/bin/agent0s-crash-watch" || status=$?
 
   (( status == 0 )) ||
     fail "the watcher exited $status rather than carrying on, so a mute takes the service down with it"
@@ -127,7 +127,7 @@ run_watch() {
 # reads have not drifted apart.
 mute() {
   HOME="$watch_home" PATH="$ROOT/bin:$PATH" \
-    "$ROOT/bin/omarchy-crash-mute" "$1" "$2" >/dev/null
+    "$ROOT/bin/agent0s-crash-mute" "$1" "$2" >/dev/null
 }
 
 announced() {
@@ -198,7 +198,7 @@ pass "a muted crash does not stop the watcher reading the next one"
 # for dropping all of them.
 reset_entries
 crash_entry a/../bar-off -
-sibling_flag="$watch_home/.local/state/omarchy/toggles/bar-off"
+sibling_flag="$watch_home/.local/state/agent0s/toggles/bar-off"
 touch "$sibling_flag"
 run_watch
 announced bar-off ||
@@ -252,18 +252,18 @@ run_watch
 pass "the fallback name can be muted like any other"
 mute unknown off
 
-# What omarchy-crash-mute does on its own. That it agrees with the watcher is
+# What agent0s-crash-mute does on its own. That it agrees with the watcher is
 # already covered above, which drives it for every mute it makes.
 mute_home="$TMPDIR/mute-home"
 mkdir -p "$mute_home"
 
 crash_mute() {
-  HOME="$mute_home" PATH="$ROOT/bin:$PATH" "$ROOT/bin/omarchy-crash-mute" "$@"
+  HOME="$mute_home" PATH="$ROOT/bin:$PATH" "$ROOT/bin/agent0s-crash-mute" "$@"
 }
 
 mute_flag() {
   [[ $1 == "--" ]] && shift
-  printf '%s' "$mute_home/.local/state/omarchy/toggles/crash-ignore/$1"
+  printf '%s' "$mute_home/.local/state/agent0s/toggles/crash-ignore/$1"
 }
 
 crash_mute | grep -Fq "No programs muted" ||
@@ -323,7 +323,7 @@ grep -Fq "Not an action" <<<"$refusal" ||
 pass "the command names the action it refused"
 
 crash_mute ../bar-off >/dev/null
-[[ ! -e "$mute_home/.local/state/omarchy/toggles/bar-off" ]] ||
+[[ ! -e "$mute_home/.local/state/agent0s/toggles/bar-off" ]] ||
   fail "a name that climbs out writes a sibling toggle, so muting a crash could turn off the bar instead"
 pass "the command cannot be talked into writing outside crash-ignore/"
 
@@ -358,15 +358,15 @@ rmdir "$(mute_flag notactuallymuted)"
 # command can print success for a flag that was never created.
 failing_bin="$TMPDIR/failing-bin"
 mkdir -p "$failing_bin"
-cat >"$failing_bin/omarchy-toggle" <<'SH'
+cat >"$failing_bin/agent0s-toggle" <<'SH'
 #!/bin/bash
 exit 1
 SH
-chmod +x "$failing_bin/omarchy-toggle"
+chmod +x "$failing_bin/agent0s-toggle"
 
 status=0
 refusal=$(HOME="$mute_home" PATH="$failing_bin:$ROOT/bin:$PATH" \
-  "$ROOT/bin/omarchy-crash-mute" hyprland 2>&1) || status=$?
+  "$ROOT/bin/agent0s-crash-mute" hyprland 2>&1) || status=$?
 (( status != 0 )) ||
   fail "a mute that could not be written exits zero, so nothing downstream learns it failed"
 ! grep -Fq "Muted crash notifications" <<<"$refusal" ||
@@ -374,23 +374,23 @@ refusal=$(HOME="$mute_home" PATH="$failing_bin:$ROOT/bin:$PATH" \
 pass "a mute that could not be written is not reported as one"
 
 skill="$ROOT/default/agents/skills/diagnose-crash/SKILL.md"
-grep -Fq 'omarchy-crash-mute' "$skill" ||
+grep -Fq 'agent0s-crash-mute' "$skill" ||
   fail "the diagnosis no longer names the command that mutes, so the offer it makes cannot be carried out"
 pass "the diagnosis names the command that mutes"
 
-grep -Fq 'GROUP_DESCRIPTIONS[crash]' "$ROOT/bin/omarchy" ||
+grep -Fq 'GROUP_DESCRIPTIONS[crash]' "$ROOT/bin/agent0s" ||
   fail "the crash group has no description, so the router lists a group it cannot describe"
 pass "the crash group is described in the router"
 
 run_node_test <<'JS'
 const fs = require('fs')
 const menu = requireFromRoot('shell/plugins/menu/MenuModel.js')
-const items = menu.parseMenuJsonc(fs.readFileSync(path.join(root, 'default/omarchy/omarchy-menu.jsonc'), 'utf8'))
+const items = menu.parseMenuJsonc(fs.readFileSync(path.join(root, 'default/agent0s/agent0s-menu.jsonc'), 'utf8'))
 const byId = Object.fromEntries(items.map(item => [item.id, item]))
 
 assertEqual(
   byId['trigger.toggle.crash-capture'].action,
-  'omarchy-toggle-crash-capture',
+  'agent0s-toggle-crash-capture',
   'menu toggles crash capture from Trigger > Toggle'
 )
 JS

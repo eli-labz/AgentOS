@@ -1,8 +1,8 @@
 # Navigation
 
-Everything in Omarchy happens via the keyboard — _EVERYTHING!_ When the system first starts, you literally can't do a thing with the mouse alone. But you can hit `Super + Space` to reveal the Omarchy Menu and from here you to do just about everything.
+Everything in Agent0S happens via the keyboard — _EVERYTHING!_ When the system first starts, you literally can't do a thing with the mouse alone. But you can hit `Super + Space` to reveal the Agent0S Menu and from here you to do just about everything.
 
-But the Omarchy menu is not even intended to be the main way to operate the system most of the time. We can get faster than that! All the most important applications are bound directly to individual hotkeys. You start the terminal with `Super + Return` and a browser with `Super + Shift + Return`. Try doing one after the other, and you'll see the magic of Hyprland's tiling in action:
+But the Agent0S menu is not even intended to be the main way to operate the system most of the time. We can get faster than that! All the most important applications are bound directly to individual hotkeys. You start the terminal with `Super + Return` and a browser with `Super + Shift + Return`. Try doing one after the other, and you'll see the magic of Hyprland's tiling in action:
 
  ![navigation-browser-terminal](images/navigation-browser-terminal.webp)
 
@@ -28,7 +28,7 @@ You can also go full screen with `Super + F` or even just full-width (keeping th
 
 ### Dwindle vs scrolling layout
 
-Omarchy's default layout is called dwindle. It keeps all the windows you open on a single workspace visible at all time, even if it has to shrink them down.
+Agent0S's default layout is called dwindle. It keeps all the windows you open on a single workspace visible at all time, even if it has to shrink them down.
 
  ![navigation-dwindle-layout](images/navigation-dwindle-layout.webp)
 
@@ -36,7 +36,7 @@ But you can also choose to turn a workspace into the scrolling layout where wind
 
  ![navigation-scrolling-layout](images/navigation-scrolling-layout.webp)
 
-The choice is per workspace, and it sticks. So you can keep workspace 1 on dwindle for browsing and workspace 2 on scrolling for code, and they'll come back that way after a restart. (The same toggle is under _Trigger > Toggle > Workspace Layout_ in the Omarchy menu).
+The choice is per workspace, and it sticks. So you can keep workspace 1 on dwindle for browsing and workspace 2 on scrolling for code, and they'll come back that way after a restart. (The same toggle is under _Trigger > Toggle > Workspace Layout_ in the Agent0S menu).
 
 If you wish to use the scrolling layout as the default, you can set that in `~/.config/hypr/looknfeel.lua`:
 

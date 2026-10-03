@@ -12,25 +12,25 @@ test_home="$test_tmp/home"
 mkdir -p "$mock_bin"
 
 # Keep package-path checks scoped to the fixture, even with a live app open.
-python3 - "$ROOT/bin/omarchy-remove-ai-hermes" "$test_tmp" <<'PY'
+python3 - "$ROOT/bin/agent0s-remove-ai-hermes" "$test_tmp" <<'PY'
 from pathlib import Path
 import sys
 source, scratch = map(Path, sys.argv[1:])
 (scratch / 'remover').write_text(source.read_text().replace('/opt/hermes-desktop', str(scratch / 'package')))
 PY
 
-cat >"$mock_bin/omarchy-pkg-drop" <<'SH'
+cat >"$mock_bin/agent0s-pkg-drop" <<'SH'
 #!/bin/bash
-printf '%s\0' "$@" >>"$OMARCHY_TEST_DROP_LOG"
+printf '%s\0' "$@" >>"$AGENT0S_TEST_DROP_LOG"
 SH
 
 # The CLI teardown is the installer's own, exercised in hermes-cli-test.sh; here
 # it is mocked to a logger so this test stays about what Remove Hermes does with
 # ~/.hermes, and to keep real mise out of a run with HOME pointed at a fixture.
-cat >"$mock_bin/omarchy-install-hermes-cli" <<'SH'
+cat >"$mock_bin/agent0s-install-hermes-cli" <<'SH'
 #!/bin/bash
-printf '%s\0' "$@" >>"$OMARCHY_TEST_INSTALLER_LOG"
-exit "${OMARCHY_TEST_INSTALLER_STATUS:-0}"
+printf '%s\0' "$@" >>"$AGENT0S_TEST_INSTALLER_LOG"
+exit "${AGENT0S_TEST_INSTALLER_STATUS:-0}"
 SH
 
 # The remover asks through gum whether the user's data should go too. The stub
@@ -39,20 +39,20 @@ SH
 # very data loss the default-no exists to prevent.
 cat >"$mock_bin/gum" <<'SH'
 #!/bin/bash
-printf '%s\0' "$@" >>"$OMARCHY_TEST_GUM_LOG"
-if [[ -n ${OMARCHY_TEST_PROMPT_GATE:-} ]]; then
-  touch "$OMARCHY_TEST_PROMPT_GATE.started"
+printf '%s\0' "$@" >>"$AGENT0S_TEST_GUM_LOG"
+if [[ -n ${AGENT0S_TEST_PROMPT_GATE:-} ]]; then
+  touch "$AGENT0S_TEST_PROMPT_GATE.started"
   for (( attempt=0; attempt<500; attempt++ )); do
-    [[ ! -e $OMARCHY_TEST_PROMPT_GATE.continue ]] || exit 0
+    [[ ! -e $AGENT0S_TEST_PROMPT_GATE.continue ]] || exit 0
     sleep 0.01
   done
   exit 1
 fi
-exit "${OMARCHY_TEST_GUM_STATUS:-1}"
+exit "${AGENT0S_TEST_GUM_STATUS:-1}"
 SH
 cat >"$mock_bin/systemctl" <<'SH'
 #!/bin/bash
-echo "systemctl $*" >>"$OMARCHY_TEST_SYSTEMCTL_LOG"
+echo "systemctl $*" >>"$AGENT0S_TEST_SYSTEMCTL_LOG"
 SH
 
 chmod +x "$mock_bin"/*
@@ -80,11 +80,11 @@ remove() {
   : >"$test_tmp/installer-log"
   : >"$test_tmp/gum-log"
   : >"$test_tmp/systemctl-log"
-  OMARCHY_TEST_DROP_LOG="$test_tmp/drop-log" \
-    OMARCHY_TEST_INSTALLER_LOG="$test_tmp/installer-log" \
-    OMARCHY_TEST_INSTALLER_STATUS="${OMARCHY_TEST_INSTALLER_STATUS:-0}" \
-    OMARCHY_TEST_SYSTEMCTL_LOG="$test_tmp/systemctl-log" \
-    OMARCHY_TEST_GUM_LOG="$test_tmp/gum-log" \
+  AGENT0S_TEST_DROP_LOG="$test_tmp/drop-log" \
+    AGENT0S_TEST_INSTALLER_LOG="$test_tmp/installer-log" \
+    AGENT0S_TEST_INSTALLER_STATUS="${AGENT0S_TEST_INSTALLER_STATUS:-0}" \
+    AGENT0S_TEST_SYSTEMCTL_LOG="$test_tmp/systemctl-log" \
+    AGENT0S_TEST_GUM_LOG="$test_tmp/gum-log" \
     HOME="$test_home" PATH="$mock_bin:$PATH" \
     bash "$test_tmp/remover" </dev/null >"$test_tmp/output" 2>&1
 }
@@ -95,11 +95,11 @@ remove_tty() {
   : >"$test_tmp/installer-log"
   : >"$test_tmp/gum-log"
   : >"$test_tmp/systemctl-log"
-  OMARCHY_TEST_DROP_LOG="$test_tmp/drop-log" \
-    OMARCHY_TEST_INSTALLER_LOG="$test_tmp/installer-log" \
-    OMARCHY_TEST_SYSTEMCTL_LOG="$test_tmp/systemctl-log" \
-    OMARCHY_TEST_GUM_LOG="$test_tmp/gum-log" \
-    OMARCHY_TEST_GUM_STATUS="${OMARCHY_TEST_GUM_STATUS:-1}" \
+  AGENT0S_TEST_DROP_LOG="$test_tmp/drop-log" \
+    AGENT0S_TEST_INSTALLER_LOG="$test_tmp/installer-log" \
+    AGENT0S_TEST_SYSTEMCTL_LOG="$test_tmp/systemctl-log" \
+    AGENT0S_TEST_GUM_LOG="$test_tmp/gum-log" \
+    AGENT0S_TEST_GUM_STATUS="${AGENT0S_TEST_GUM_STATUS:-1}" \
     HOME="$test_home" PATH="$mock_bin:$PATH" \
     script -qec "bash '$test_tmp/remover'" /dev/null >"$test_tmp/output" 2>&1
 }
@@ -114,7 +114,7 @@ remove || fail "remove succeeds"
 [[ ! -d $test_home/.hermes/node ]] || fail "the node the app installed is removed"
 pass "removal takes the whole runtime the app installed"
 
-grep -Fxq 'systemctl --user stop omarchy-hermes-theme.service' "$test_tmp/systemctl-log" ||
+grep -Fxq 'systemctl --user stop agent0s-hermes-theme.service' "$test_tmp/systemctl-log" ||
   fail "the unit the installer left waiting to hand over the theme is stopped" "$(cat "$test_tmp/systemctl-log")"
 pass "removal stops the installer's theme hand-over"
 
@@ -208,7 +208,7 @@ pass "removal asks on a terminal and declining keeps the data"
 
 # An explicit yes is the one path that takes the data too.
 seed_install
-OMARCHY_TEST_GUM_STATUS=0 remove_tty || fail "remove succeeds when the data goes too"
+AGENT0S_TEST_GUM_STATUS=0 remove_tty || fail "remove succeeds when the data goes too"
 [[ ! -e $test_home/.hermes && ! -e $test_home/.config/Hermes ]] ||
   fail "a yes deletes ~/.hermes and ~/.config/Hermes"
 pass "removal deletes the user's data only on an explicit yes"
@@ -229,7 +229,7 @@ pass "removal asks without the marker and declining keeps everything"
 # unowned runtime and all -- that is what was asked and answered.
 seed_install
 rm -f "$test_home/.hermes/hermes-agent/.hermes-bootstrap-complete"
-OMARCHY_TEST_GUM_STATUS=0 remove_tty ||
+AGENT0S_TEST_GUM_STATUS=0 remove_tty ||
   fail "remove succeeds when the data goes too without the marker"
 [[ ! -e $test_home/.hermes && ! -e $test_home/.config/Hermes ]] ||
   fail "a yes takes ~/.hermes whole when the marker never appeared"
@@ -241,7 +241,7 @@ pass "removal honors a yes on the named paths without the marker"
 seed_install
 printf '%s\n' "#!/bin/bash" "exec $test_home/.hermes/hermes-agent/venv/bin/hermes \"\$@\"" \
   >"$test_home/.local/bin/hermes"
-OMARCHY_TEST_INSTALLER_STATUS=1 remove && fail "a failed CLI teardown surfaces in the exit code"
+AGENT0S_TEST_INSTALLER_STATUS=1 remove && fail "a failed CLI teardown surfaces in the exit code"
 [[ ! -d $test_home/.hermes/hermes-agent ]] ||
   fail "a failed CLI teardown does not stop the runtime removal"
 pass "a failed CLI teardown is reported after the runtime is handled"
@@ -275,11 +275,11 @@ def setup(name):
     (runtime / '.hermes-bootstrap-complete').touch()
     (home / '.config/Hermes').mkdir(parents=True)
     env = {**os.environ, 'HOME': str(home), 'PATH': f"{scratch / 'bin'}:/usr/bin:/bin",
-           'OMARCHY_TEST_GUM_STATUS': '0'}
+           'AGENT0S_TEST_GUM_STATUS': '0'}
     for key in ('DROP', 'INSTALLER', 'SYSTEMCTL', 'GUM'):
         log = home / (key + '.log')
         log.touch()
-        env['OMARCHY_TEST_' + key + '_LOG'] = str(log)
+        env['AGENT0S_TEST_' + key + '_LOG'] = str(log)
     return home, runtime, env
 
 def writer(db):
@@ -356,7 +356,7 @@ print('ok - unrelated database holders are left alone')
 
 home, runtime, env = setup('prompt-race')
 gate = home / 'prompt'
-env['OMARCHY_TEST_PROMPT_GATE'] = str(gate)
+env['AGENT0S_TEST_PROMPT_GATE'] = str(gate)
 master, slave = pty.openpty()
 remover = subprocess.Popen(['bash', str(scratch / 'remover')], env=env, stdin=slave,
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

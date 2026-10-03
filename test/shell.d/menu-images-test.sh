@@ -42,7 +42,7 @@ for name in one two three; do
   printf 'image-%s' "$name" >"$images/$name.png"
 done
 
-cache_dir="$cache_home/omarchy/image-selector"
+cache_dir="$cache_home/agent0s/image-selector"
 mkdir -p "$cache_dir"
 
 stale_tmp=""
@@ -63,7 +63,7 @@ printf 'v2\n%s:%s\n' "$images" "$(stat -Lc '%Y' "$images")" >"$cache_dir/$cache_
 printf 'v1\n%s:%s\n' "$images" "$(stat -Lc '%Y' "$images")" >"$cache_dir/$cache_key.fast-signature"
 
 PATH="$stub_bin:$PATH" XDG_CACHE_HOME="$cache_home" \
-  "$ROOT/bin/omarchy-menu-images" --cache-only "$images"
+  "$ROOT/bin/agent0s-menu-images" --cache-only "$images"
 
 (( $(find "$cache_dir" -maxdepth 1 -name '*.jpg' -type f | wc -l) == 3 )) ||
   fail "image menu recovers thumbnails from stranded locks"
@@ -80,7 +80,7 @@ mkdir -p "$cache_dir"
 mkdir "$live_lock"
 
 PATH="$stub_bin:$PATH" XDG_CACHE_HOME="$cache_home" \
-  "$ROOT/bin/omarchy-menu-images" --cache-only "$images"
+  "$ROOT/bin/agent0s-menu-images" --cache-only "$images"
 
 (( $(find "$cache_dir" -maxdepth 1 -name '*.jpg' -type f | wc -l) == 2 )) ||
   fail "image menu skips a thumbnail whose fresh legacy lock may still be owned"
@@ -95,9 +95,9 @@ mkdir -p "$cache_home"
 printf '%s\n' "$images/two.png" >"$tmp/failures"
 
 PATH="$stub_bin:$PATH" XDG_CACHE_HOME="$cache_home" VIPSTHUMBNAIL_FAIL_FILE="$tmp/failures" \
-  "$ROOT/bin/omarchy-menu-images" --cache-only "$images"
+  "$ROOT/bin/agent0s-menu-images" --cache-only "$images"
 
-cache_dir="$cache_home/omarchy/image-selector"
+cache_dir="$cache_home/agent0s/image-selector"
 [[ ! -e $cache_dir/$cache_key.rows ]] || fail "image menu does not cache incomplete rows"
 [[ ! -e $cache_dir/$cache_key.signature ]] || fail "image menu does not sign incomplete rows"
 [[ ! -e $cache_dir/$cache_key.fast-signature ]] || fail "image menu does not fast-cache incomplete rows"
@@ -105,7 +105,7 @@ pass "image menu leaves failed thumbnail batches uncached"
 
 rm "$tmp/failures"
 PATH="$stub_bin:$PATH" XDG_CACHE_HOME="$cache_home" \
-  "$ROOT/bin/omarchy-menu-images" --cache-only "$images"
+  "$ROOT/bin/agent0s-menu-images" --cache-only "$images"
 
 (( $(find "$cache_dir" -maxdepth 1 -name '*.jpg' -type f | wc -l) == 3 )) ||
   fail "image menu retries a previously failed thumbnail"
@@ -123,7 +123,7 @@ pids=()
 for run in 1 2; do
   PATH="$stub_bin:$PATH" XDG_CACHE_HOME="$cache_home" \
     VIPSTHUMBNAIL_CALLS_FILE="$tmp/calls" VIPSTHUMBNAIL_DELAY=0.25 \
-    "$ROOT/bin/omarchy-menu-images" --cache-only "$images" &
+    "$ROOT/bin/agent0s-menu-images" --cache-only "$images" &
   pids+=($!)
 done
 for pid in "${pids[@]}"; do
@@ -135,7 +135,7 @@ done
 rm -f "$cache_dir"/*.jpg
 rm -f "$cache_dir/$cache_key.rows" "$cache_dir/$cache_key.signature" "$cache_dir/$cache_key.fast-signature"
 PATH="$stub_bin:$PATH" XDG_CACHE_HOME="$cache_home" VIPSTHUMBNAIL_CALLS_FILE="$tmp/calls" \
-  "$ROOT/bin/omarchy-menu-images" --cache-only "$images"
+  "$ROOT/bin/agent0s-menu-images" --cache-only "$images"
 
 (( $(wc -l <"$tmp/calls") == 6 )) || fail "image menu releases thumbnail locks after generation"
 pass "image menu owns locks for exactly one generator lifetime"

@@ -1,5 +1,5 @@
 // weather.json holds {"name": ..., "latitude": ..., "longitude": ...} (see
-// omarchy-weather-location, which owns the format). Missing, blank, or
+// agent0s-weather-location, which owns the format). Missing, blank, or
 // unparseable means the location is auto-detected from the IP address.
 function parseLocationFile(raw) {
   var unset = { name: "", latitude: null, longitude: null }

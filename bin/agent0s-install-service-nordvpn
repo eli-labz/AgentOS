@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# agent0s:summary=Install the NordVPN service with optional GUI.
+# agent0s:requires-sudo=true
+
+echo "Installing NordVPN..."
+agent0s-pkg-add nordvpn-bin
+
+echo "Enabling NordVPN daemon..."
+sudo systemctl enable --now nordvpnd
+
+echo "Adding user to nordvpn group..."
+sudo usermod -aG nordvpn "$USER"
+
+echo -e "\nNordVPN installed! After reboot, run 'nordvpn login' to authenticate."
+
+echo
+gum confirm "Reboot now to make NordVPN usable?" && agent0s-system-reboot

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Show the current battery status notification
+
+agent0s-notification-send -g 󰁹 -u low "$(agent0s-battery-status)"

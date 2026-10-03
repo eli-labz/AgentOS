@@ -3,7 +3,7 @@
 source "$(dirname "$0")/base-test.sh"
 
 # The hook guards on the real /etc/pam.d path, which can't be mocked via PATH.
-if [[ -f /etc/pam.d/omarchy-lock-fingerprint ]]; then
+if [[ -f /etc/pam.d/agent0s-lock-fingerprint ]]; then
   pass "fingerprint invitation test skipped: host already has fingerprint auth configured"
   exit 0
 fi
@@ -12,7 +12,7 @@ test_home=$(mktemp -d)
 test_bin=$(mktemp -d)
 log_file=$(mktemp)
 hw_marker=$(mktemp -u)
-hook_path="$test_home/.config/omarchy/hooks/post-update.d/setup-fingerprint.hook"
+hook_path="$test_home/.config/agent0s/hooks/post-update.d/setup-fingerprint.hook"
 
 cleanup() {
   rm -rf "$test_home" "$test_bin"
@@ -22,13 +22,13 @@ trap cleanup EXIT
 
 mkdir -p "$(dirname "$hook_path")"
 
-cat >"$test_bin/omarchy-hw-fingerprint" <<'EOF'
+cat >"$test_bin/agent0s-hw-fingerprint" <<'EOF'
 #!/bin/bash
 [[ -f $TEST_HW_MARKER ]]
 EOF
-chmod +x "$test_bin/omarchy-hw-fingerprint"
+chmod +x "$test_bin/agent0s-hw-fingerprint"
 
-cat >"$test_bin/omarchy-notification-send" <<'EOF'
+cat >"$test_bin/agent0s-notification-send" <<'EOF'
 #!/bin/bash
 echo notification >>"$TEST_LOG"
 exec_args=()
@@ -38,7 +38,7 @@ while (($# > 0)); do
 done
 ((${#exec_args[@]})) && echo "exec:${exec_args[*]}" >>"$TEST_LOG"
 EOF
-chmod +x "$test_bin/omarchy-notification-send"
+chmod +x "$test_bin/agent0s-notification-send"
 
 # The shell runs the click command, so the invitation must not need a unit of its
 # own to keep a blocked sender alive until the toast is answered.
@@ -55,16 +55,16 @@ run_invitation_hook() {
 
 run_invitation_hook
 
-[[ ! -f $test_home/.local/state/omarchy/done/fingerprint-setup-invitation ]] || fail "fingerprint invitation stays pending without a reader"
+[[ ! -f $test_home/.local/state/agent0s/done/fingerprint-setup-invitation ]] || fail "fingerprint invitation stays pending without a reader"
 [[ ! -s $log_file ]] || fail "fingerprint invitation does nothing without a reader"
 
 touch "$hw_marker"
 run_invitation_hook
 
-[[ -f $test_home/.local/state/omarchy/done/fingerprint-setup-invitation ]] || fail "fingerprint invitation records completion"
+[[ -f $test_home/.local/state/agent0s/done/fingerprint-setup-invitation ]] || fail "fingerprint invitation records completion"
 [[ -f $hook_path ]] || fail "fingerprint invitation keeps its hook installed"
 [[ $(grep -c '^notification$' "$log_file") -eq 1 ]] || fail "fingerprint invitation sends one notification"
-grep -qx 'exec:omarchy-launch-floating-terminal-with-presentation omarchy-setup-security-fingerprint' "$log_file" ||
+grep -qx 'exec:agent0s-launch-floating-terminal-with-presentation agent0s-setup-security-fingerprint' "$log_file" ||
   fail "fingerprint invitation attaches the setup to the notification"
 grep -q '^systemd-run:' "$log_file" && fail "fingerprint invitation needs no unit to hold an unanswered toast"
 

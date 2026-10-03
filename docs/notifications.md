@@ -21,9 +21,9 @@ it — new text deserves a full look. Left-click invokes the default action,
 right-click or the hover-revealed close button dismisses.
 
 Every on-screen popup is mirrored to its own file under
-`~/.local/state/omarchy/notifications/` (one JSON line per file, named
+`~/.local/state/agent0s/notifications/` (one JSON line per file, named
 `<timestamp>-<id>.json`), so live toasts survive the shell restart that
-`omarchy-update` performs. When a toast leaves the screen — expiry, dismissal,
+`agent0s-update` performs. When a toast leaves the screen — expiry, dismissal,
 or click — its file moves into `notifications/history/`, trimmed to the newest
 ten. That directory *is* the history: `showHistory` replays exactly what has
 been moved in there. Referenced avatars/images are copied into
@@ -40,16 +40,16 @@ fresh notification reusing an old id must not dismiss or replace them.
 ## Silencing
 
 Do-not-disturb is a single boolean, persisted as the `dnd` key in
-`~/.local/state/omarchy/notifications.json` and toggled via shell IPC
-(`omarchy-shell notifications toggleDnd` / `setDnd` / `dndState`).
-`omarchy-toggle-notification-silencing` wraps the toggle and refreshes the
-bar's `omarchy.indicators` widget, whose Dnd indicator binds directly to the
+`~/.local/state/agent0s/notifications.json` and toggled via shell IPC
+(`agent0s-shell notifications toggleDnd` / `setDnd` / `dndState`).
+`agent0s-toggle-notification-silencing` wraps the toggle and refreshes the
+bar's `agent0s.indicators` widget, whose Dnd indicator binds directly to the
 service's `doNotDisturb` property.
 
 Two kinds of notification punch through DND, chosen to be intentional and
 rare:
 
-- `app_name` = `omarchy-action` — Omarchy's own user-action confirmation
+- `app_name` = `agent0s-action` — Agent0S's own user-action confirmation
   toasts ("Theme changed"). The user just did something; their feedback shows.
 - urgency critical *and* `app_name` = `notify-send` — bare-CLI emergency
   alerts. Critical alone is not enough, because chat apps abuse it to force
@@ -58,11 +58,11 @@ rare:
 A silenced notification that anyone might look back at is written straight
 into history — "what did I miss while silenced" is what history is for.
 Ephemeral ones (the freedesktop `transient` hint, or an `app_name` of
-`notify-send`/`omarchy-action`) are dropped entirely.
+`notify-send`/`agent0s-action`) are dropped entirely.
 
 ## The sender contract
 
-`bin/omarchy-notification-send` is the one way Omarchy code sends
+`bin/agent0s-notification-send` is the one way Agent0S code sends
 notifications — never raw `notify-send`. It calls
 `org.freedesktop.Notifications.Notify` directly over the session bus (via
 `busctl --user`), so each value is one typed D-Bus parameter and there is no
@@ -71,11 +71,11 @@ flags map onto that call:
 
 | Flag | Becomes | Meaning |
 |---|---|---|
-| `-g` / `--glyph` | hint `omarchy-glyph` | Nerd Font glyph for the icon slot when no image icon resolves |
-| `--exec <program> [args…]` | hint `omarchy-exec-argv` | the click command; consumes the rest of the line, so it comes last. Each word is a discrete argument the shell runs without re-parsing (see below) |
+| `-g` / `--glyph` | hint `agent0s-glyph` | Nerd Font glyph for the icon slot when no image icon resolves |
+| `--exec <program> [args…]` | hint `agent0s-exec-argv` | the click command; consumes the rest of the line, so it comes last. Each word is a discrete argument the shell runs without re-parsing (see below) |
 | `--image` | hint `image-path` | the standard freedesktop image hint |
 | `-i` / `--icon` | `app_icon` | themed icon name for the toast |
-| `--app-name` | `app_name` | defaults to `omarchy-action` |
+| `--app-name` | `app_name` | defaults to `agent0s-action` |
 | `-u` / `--urgency` | hint `urgency` (byte) | `low`/`normal`/`critical`; defaults to `low` |
 | `-t` / `--expire-time` | `expire_timeout` | milliseconds on screen; server default otherwise |
 
@@ -83,7 +83,7 @@ Unknown flags are a hard error, not a silent pass-through: `--exec` is the only
 door to a click command, and there is no generic option pass-through to smuggle
 one through.
 
-The defaults are the point: an unadorned `omarchy-notification-send "Done"`
+The defaults are the point: an unadorned `agent0s-notification-send "Done"`
 is a low-urgency user-action toast that pops through DND and is treated as
 ephemeral noise when silenced.
 
@@ -96,7 +96,7 @@ keeps with the popup, which the persistence files preserve: a restored toast
 clicks through exactly like a live one, and oneshot senders can exit
 immediately. For third-party clients the click falls back to the libnotify
 `default` action while the sender is alive, then to focusing the sender's
-window by class via `omarchy-hyprland-focus-app` — chat apps rarely register
+window by class via `agent0s-hyprland-focus-app` — chat apps rarely register
 an action and just expect click-to-jump.
 
 ### Click commands are argv, never shell strings
@@ -104,7 +104,7 @@ an action and just expect click-to-jump.
 `--exec` consumes the rest of the line as the click command:
 
 ```bash
-omarchy-notification-send "Download complete" "$title" --exec mpv -- "$file"
+agent0s-notification-send "Download complete" "$title" --exec mpv -- "$file"
 ```
 
 The caller's shell has already split those words into discrete arguments, and a
@@ -141,21 +141,21 @@ caller. Because it calls `Notify` directly, the headline and description are
 typed string parameters — a relayed value like `--hint=…` or `-rf` is the
 summary or body, never an option or a hint, and there is no argv/option layer
 (no `notify-send`) left to reinterpret it. `--exec` is the only thing that can
-build the `omarchy-exec-argv` hint. (The leading `--` on the `busctl` call is a
+build the `agent0s-exec-argv` hint. (The leading `--` on the `busctl` call is a
 belt for `busctl`'s own getopt, which would otherwise read a dash-leading value
 as a `busctl` option; the summary/body themselves are never parsed as options.)
 
 ## Helper commands
 
-- `omarchy-notification-wait [timeout]` — polls until the shell answers IPC
+- `agent0s-notification-wait [timeout]` — polls until the shell answers IPC
   *and* has claimed the bus name. Anything sending near session start or a
   shell restart uses it, or the toast is sent into the void.
-- `omarchy-notification-dismiss <summary>` — dismiss by summary substring,
+- `agent0s-notification-dismiss <summary>` — dismiss by summary substring,
   used by the first-run toasts once their action has been clicked.
-- `omarchy-notification-time` / `-battery` — the hotkey notices: one-line
-  low-urgency glyph toasts wrapping `date` and `omarchy-battery-status`.
-- `omarchy-notification-weather` — despite the name, not a sender: it toggles
-  the `omarchy.weather` shell panel.
+- `agent0s-notification-time` / `-battery` — the hotkey notices: one-line
+  low-urgency glyph toasts wrapping `date` and `agent0s-battery-status`.
+- `agent0s-notification-weather` — despite the name, not a sender: it toggles
+  the `agent0s.weather` shell panel.
 
 Keybindings live in `default/hypr/bindings/utilities.lua`: `Super+comma`
 variants map to the IPC methods `dismissOne`, `dismissAll`, `invokeLast`,
@@ -165,35 +165,35 @@ variants map to the IPC methods `dismissOne`, `dismissAll`, `invokeLast`,
 
 Everything goes through the same sender contract, so the pieces are small:
 
-- **Low battery** — `omarchy-battery-low` sends a critical toast and runs the
+- **Low battery** — `agent0s-battery-low` sends a critical toast and runs the
   `battery-low` hook.
-- **Crash capture** — `omarchy-crash-watch` follows the systemd-coredump
+- **Crash capture** — `agent0s-crash-watch` follows the systemd-coredump
   journal stream and announces each crashed program (deduped per minute) as a
-  critical toast whose click runs `omarchy-agent-crash` (via `--exec`, so a
+  critical toast whose click runs `agent0s-agent-crash` (via `--exec`, so a
   hostile process name stays a discrete argument). It waits for the
   server first: a shell crash takes the notification server down with it, and
   that crash is the one most worth reporting.
-- **Pending migrations** — `omarchy-migrate-notify` (from its user service
+- **Pending migrations** — `agent0s-migrate-notify` (from its user service
   after `graphical-session.target`) waits for the server, then sends a
-  critical toast whose click opens a terminal running `omarchy-migrate`,
+  critical toast whose click opens a terminal running `agent0s-migrate`,
   falling back to printing in the terminal if the hand-off fails.
 
 ## Reminders
 
 Reminders ride on notifications rather than being their own daemon.
-`bin/omarchy-reminder <minutes> [message]` creates a transient systemd user
+`bin/agent0s-reminder <minutes> [message]` creates a transient systemd user
 timer via `systemd-run --user --collect --on-active=<minutes>m` under the
-unit name `omarchy-reminder-<minutes>m-<epoch>`; the timer's payload sends the
+unit name `agent0s-reminder-<minutes>m-<epoch>`; the timer's payload sends the
 reminder toast, deletes its message file, and refreshes the bar indicator.
-Custom messages are stashed in `$XDG_RUNTIME_DIR/omarchy-reminders/<unit>.message`
+Custom messages are stashed in `$XDG_RUNTIME_DIR/agent0s-reminders/<unit>.message`
 since a unit name cannot carry arbitrary text. `--collect` means fired timers
 leave nothing behind.
 
 The state therefore lives entirely in systemd: `show` and `clear` enumerate
-`systemctl --user list-timers "omarchy-reminder-*.timer"` — `show` as a
+`systemctl --user list-timers "agent0s-reminder-*.timer"` — `show` as a
 summary toast, `show --json` as the JSON the bar's Reminder indicator polls
-(refreshed by the same `omarchy-shell -q omarchy.indicators refresh` call the
-timers and mutations make). `omarchy-reminder -i` summons the
-`omarchy.reminders` overlay (`shell/plugins/reminders/ReminderFlow.qml`), a
-two-step minutes/message prompt that shells back out to `omarchy-reminder` to
+(refreshed by the same `agent0s-shell -q agent0s.indicators refresh` call the
+timers and mutations make). `agent0s-reminder -i` summons the
+`agent0s.reminders` overlay (`shell/plugins/reminders/ReminderFlow.qml`), a
+two-step minutes/message prompt that shells back out to `agent0s-reminder` to
 do the setting.

@@ -1,6 +1,6 @@
 echo "Stop world-writable Chromium and Firefox policy directories"
 
-source "$OMARCHY_PATH/install/helpers/browser-policy.sh"
+source "$AGENT0S_PATH/install/helpers/browser-policy.sh"
 
 repaired=0
 for dir in "${BROWSER_POLICY_MANAGED_DIRS[@]}"; do
@@ -13,7 +13,7 @@ done
 # Under bash -euo pipefail a failure here would abort the migration before the
 # Firefox directories below are hardened, and the marker would never be written.
 if (( repaired )); then
-  omarchy-theme-set-browser || true
+  agent0s-theme-set-browser || true
 fi
 
 for dir in "${BROWSER_POLICY_FIREFOX_DIRS[@]}"; do

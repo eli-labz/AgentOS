@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# agent0s:summary=Apply the current theme keyboard color to ASUS ROG keyboards
+# agent0s:hidden=true
+
+ASUSCTL_THEME=$HOME/.local/state/agent0s/current/theme/keyboard.rgb
+
+if agent0s-cmd-present asusctl && [[ -f $ASUSCTL_THEME ]]; then
+  color=$(sed 's/^#//' "$ASUSCTL_THEME")
+  [[ $color =~ ^[0-9A-Fa-f]{6}$ ]] || exit 0
+  asusctl aura effect static -c "$color"
+fi

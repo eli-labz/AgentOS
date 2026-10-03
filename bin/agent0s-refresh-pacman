@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# agent0s:summary=Overwrite the package configuration for /etc/pacman with the Agent0S default of using its dedicated mirrors and repositories, then update all packages.
+# agent0s:requires-sudo=true
+
+sudo cp -f /etc/pacman.conf /etc/pacman.conf.bak
+sudo cp -f /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+
+channel="${1:-stable}"
+
+if [[ $channel != "stable" && $channel != "rc" && $channel != "edge" ]]; then
+  echo "Error: Invalid channel '$channel'. Must be one of: stable, rc, edge"
+  exit 1
+fi
+
+echo "Setting channel to $channel"
+echo
+
+sudo cp -f "$AGENT0S_PATH/default/pacman/pacman-$channel.conf" /etc/pacman.conf
+sudo cp -f "$AGENT0S_PATH/default/pacman/mirrorlist-$channel" /etc/pacman.d/mirrorlist
+
+# Allow user customization of /etc/pacman.conf before the upgrade runs
+agent0s-hook pre-refresh-pacman
+
+# Reset all package DBs and then update
+agent0s-update-pacman -Syyuu --noconfirm

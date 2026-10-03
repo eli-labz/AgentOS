@@ -3,7 +3,7 @@
 # The fingerprint setup installs libfprint-git in place of stock libfprint. The
 # two conflict, so the swap has to happen inside one --ask 4 transaction, and a
 # rerun with everything installed must not touch pacman at all. The real
-# omarchy-pkg-missing runs; pacman and the privileged calls are stubbed.
+# agent0s-pkg-missing runs; pacman and the privileged calls are stubbed.
 
 set -euo pipefail
 
@@ -15,7 +15,7 @@ mkdir -p "$scratch/bin"
 export CALL_LOG="$scratch/calls"
 export PATH="$scratch/bin:$ROOT/bin:$PATH"
 
-cat > "$scratch/bin/omarchy-hw-fingerprint" <<'STUB'
+cat > "$scratch/bin/agent0s-hw-fingerprint" <<'STUB'
 #!/bin/bash
 exit "${HARDWARE_STATUS:-0}"
 STUB
@@ -53,7 +53,7 @@ chmod +x "$scratch/bin/"*
 
 run_setup() {
   : > "$CALL_LOG"
-  if "$ROOT/bin/omarchy-setup-security-fingerprint" > "$scratch/output" 2>&1; then
+  if "$ROOT/bin/agent0s-setup-security-fingerprint" > "$scratch/output" 2>&1; then
     fail "setup stops on the simulated enrollment or installation failure"
   fi
   if grep -q 'Unexpected privileged call' "$CALL_LOG"; then

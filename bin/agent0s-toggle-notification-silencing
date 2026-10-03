@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle notification do-not-disturb mode
+
+state=$(agent0s-shell notifications toggleDnd 2>/dev/null || echo "")
+agent0s-shell -q agent0s.indicators refresh

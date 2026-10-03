@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# agent0s:summary=Sync Agent0S theme to all Obsidian vaults
+# agent0s:hidden=true
+
+CURRENT_THEME_DIR="$HOME/.local/state/agent0s/current/theme"
+
+[[ -f $CURRENT_THEME_DIR/obsidian.css ]] || exit 0
+
+jq -r '.vaults | values[].path' ~/.config/obsidian/obsidian.json 2>/dev/null | while read -r vault_path; do
+  [[ -d $vault_path/.obsidian ]] || continue
+
+  theme_dir="$vault_path/.obsidian/themes/Agent0S"
+  mkdir -p "$theme_dir"
+
+  [[ -f $theme_dir/manifest.json ]] || cat >"$theme_dir/manifest.json" <<'EOF'
+{
+  "name": "Agent0S",
+  "version": "1.0.0",
+  "minAppVersion": "0.16.0",
+  "description": "Automatically syncs with your current Agent0S system theme colors and fonts",
+  "author": "Agent0S",
+  "authorUrl": "https://omarchy.org"
+}
+EOF
+
+  cp "$CURRENT_THEME_DIR/obsidian.css" "$theme_dir/theme.css"
+done

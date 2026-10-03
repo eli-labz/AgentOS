@@ -1,9 +1,9 @@
 echo "Temporarily remove automatic printer discovery"
 
-machine_marker="${OMARCHY_CUPS_BROWSED_REMOVAL_MARKER:-/var/lib/omarchy/migrations/1788009111}"
+machine_marker="${AGENT0S_CUPS_BROWSED_REMOVAL_MARKER:-/var/lib/agent0s/migrations/1788009111}"
 
 [[ ! -e $machine_marker ]] || exit 0
-omarchy-pkg-present cups-browsed || exit 0
+agent0s-pkg-present cups-browsed || exit 0
 
 # Check the full removal transaction before changing the service or queues.
 pacman -Rs --print cups-browsed >/dev/null
@@ -38,7 +38,7 @@ generated_queues=$(printf '%s\n' "$queue_report" |
 while IFS= read -r queue; do
   [[ -n $queue ]] || continue
 
-  if ! reject_error=$(sudo cupsreject -r "Printer discovery has been removed from Omarchy" "$queue" 2>&1); then
+  if ! reject_error=$(sudo cupsreject -r "Printer discovery has been removed from Agent0S" "$queue" 2>&1); then
     if LC_ALL=C lpstat -p "$queue" >/dev/null 2>&1; then
       printf '%s\n' "$reject_error" >&2
       exit 1
@@ -68,5 +68,5 @@ while IFS= read -r queue; do
   fi
 done <<<"$generated_queues"
 
-omarchy-pkg-drop cups-browsed >/dev/null
+agent0s-pkg-drop cups-browsed >/dev/null
 sudo install -Dm644 /dev/null "$machine_marker"

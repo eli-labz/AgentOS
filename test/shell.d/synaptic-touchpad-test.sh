@@ -49,7 +49,7 @@ run_fix() {
 
   MODPROBE_LOG="$modprobe_log" \
     PATH="$test_tmp/bin:$PATH" \
-    OMARCHY_SYNAPTIC_INPUT_DEVICES="$test_tmp/devices" \
+    AGENT0S_SYNAPTIC_INPUT_DEVICES="$test_tmp/devices" \
     TEST_LOADED_MODULES="${1:-}" \
     TEST_MODPROBE_STATUS="${2:-0}" \
     TEST_MODPROBE_RESOLVES="${3:-0}" \

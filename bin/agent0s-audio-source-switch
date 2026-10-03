@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# agent0s:summary=Cycle to the next media source and transfer playback when the current source is playing
+# agent0s:args=[next|previous]
+# agent0s:examples=agent0s audio source switch | agent0s-audio-source-switch previous
+
+direction="${1:-next}"
+
+case "$direction" in
+  next)
+    agent0s-shell media sourceSwitch
+    ;;
+  previous)
+    agent0s-shell media sourceSwitchPrevious
+    ;;
+  *)
+    echo "Usage: agent0s-audio-source-switch [next|previous]" >&2
+    exit 1
+    ;;
+esac

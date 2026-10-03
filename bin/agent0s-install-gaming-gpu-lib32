@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# agent0s:summary=Install lib32 graphics drivers (Vulkan + NVIDIA) for any detected GPUs.
+# agent0s:group=install
+# agent0s:name=gaming gpu-lib32
+# agent0s:requires-sudo=true
+
+set -e
+
+echo "Installing lib32 graphics drivers..."
+
+PACKAGES=()
+
+declare -A VULKAN_DRIVERS=(
+  [Intel]=lib32-vulkan-intel
+  [AMD]=lib32-vulkan-radeon
+)
+for vendor in "${!VULKAN_DRIVERS[@]}"; do
+  if lspci | grep -iE "(VGA|Display).*$vendor" >/dev/null; then
+    PACKAGES+=("${VULKAN_DRIVERS[$vendor]}")
+  fi
+done
+
+if agent0s-hw-nvidia-gsp; then
+  PACKAGES+=(lib32-nvidia-utils)
+elif agent0s-hw-nvidia-without-gsp; then
+  PACKAGES+=(lib32-nvidia-580xx-utils)
+fi
+
+(( ${#PACKAGES[@]} > 0 )) && agent0s-pkg-add "${PACKAGES[@]}"

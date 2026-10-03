@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle suspend availability in the system menu
+
+agent0s-toggle suspend-off
+
+if agent0s-toggle-enabled suspend-off; then
+  agent0s-notification-send -g 󰒲 "Suspend removed from system menu"
+else
+  agent0s-notification-send -g 󰒲 "Suspend now available in system menu"
+fi

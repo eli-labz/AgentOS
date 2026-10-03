@@ -7,7 +7,7 @@ set -e
 # will wake after suspend in Hybrid mode, even if the system was in Integrated mode before
 # suspending.
 
-restore_marker=/run/omarchy-force-igpu-integrated
+restore_marker=/run/agent0s-force-igpu-integrated
 sleep_action=${SYSTEMD_SLEEP_ACTION:-$2}
 [[ -x /usr/bin/supergfxctl ]] || exit 0
 

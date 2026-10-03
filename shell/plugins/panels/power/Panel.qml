@@ -8,8 +8,8 @@ import "Model.js" as Model
 
 Panel {
   id: root
-  moduleName: "omarchy.power"
-  ipcTarget: "omarchy.power"
+  moduleName: "agent0s.power"
+  ipcTarget: "agent0s.power"
   // manageIpc: false so this panel can own the single IpcHandler the target
   // permits — needed for the togglePercentage method below.
   manageIpc: false
@@ -165,7 +165,7 @@ Panel {
 
   function setProfile(profile) {
     if (!profile || actionProc.running) return
-    actionProc.command = ["omarchy-powerprofiles-set", root.discharging ? "battery" : "ac", profile]
+    actionProc.command = ["agent0s-powerprofiles-set", root.discharging ? "battery" : "ac", profile]
     actionProc.running = true
   }
 
@@ -175,7 +175,7 @@ Panel {
   }
 
   IpcHandler {
-    target: "omarchy.power"
+    target: "agent0s.power"
 
     function open() { root.open() }
     function close() { root.close() }
@@ -207,19 +207,19 @@ Panel {
 
   Process {
     id: batteryProc
-    command: ["omarchy-battery-status", "--shell"]
+    command: ["agent0s-battery-status", "--shell"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.updateKeyValue(text, "battery") }
   }
 
   Process {
     id: profilesProc
-    command: ["omarchy-powerprofiles-list", "--active-state"]
+    command: ["agent0s-powerprofiles-list", "--active-state"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.updateProfiles(text) }
   }
 
   Process {
     id: systemProc
-    command: ["omarchy-system-stats"]
+    command: ["agent0s-system-stats"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.updateKeyValue(text, "system") }
   }
 

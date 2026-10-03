@@ -4,7 +4,7 @@
 # apply command runs explicitly here: a failed cleanup or boot-image rebuild has
 # to reach the caller rather than hide behind a successfully registered package.
 
-if omarchy-hw-dell-xps13-sidecar-amps; then
-  omarchy-pkg-add dell-xps13-sidecar-amps &&
+if agent0s-hw-dell-xps13-sidecar-amps; then
+  agent0s-pkg-add dell-xps13-sidecar-amps &&
     sudo dell-xps13-sidecar-amps-apply
 fi

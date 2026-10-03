@@ -2,7 +2,7 @@ echo "Take ownership of the FIDO2 authfile so it cannot be rewritten without roo
 
 authfile="/etc/fido2/fido2"
 
-# omarchy-migrate records this migration as complete whenever it exits zero, so
+# agent0s-migrate records this migration as complete whenever it exits zero, so
 # a line printed here scrolls past once in the update terminal and is never
 # shown again. The states below cannot be repaired without deciding what to do
 # with a file we do not own, and they are exactly the ones where the authfile
@@ -11,7 +11,7 @@ authfile="/etc/fido2/fido2"
 report_unrepairable() {
   echo "  $1"
   echo "  $2"
-  omarchy-notification-send -u critical -g  "FIDO2 authfile needs attention" "$1 $2" || true
+  agent0s-notification-send -u critical -g  "FIDO2 authfile needs attention" "$1 $2" || true
 }
 
 # Nothing to repair on any machine that never set FIDO2 up, which is almost all

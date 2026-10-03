@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# agent0s:summary=Remove the xpadneo Xbox controller driver and undo its module/blacklist config.
+# agent0s:group=remove
+# agent0s:name=gaming xbox-controllers
+# agent0s:requires-sudo=true
+
+set -e
+
+agent0s-pkg-drop xpadneo-dkms
+
+sudo rm -f /etc/modprobe.d/blacklist-xpad.conf /etc/modules-load.d/xpadneo.conf
+
+echo ""
+echo "Xbox controller support removed. Reboot to fully unload xpadneo and restore xpad."

@@ -32,64 +32,64 @@ SH
 }
 
 for command in \
-  omarchy-toggle-idle \
+  agent0s-toggle-idle \
   pkexec \
   systemd-inhibit \
-  omarchy-update-pkg-prune \
-  omarchy-update-dev \
-  omarchy-update-keyring \
-  omarchy-update-system-pkgs \
-  omarchy-migrate \
-  omarchy-update-aur-pkgs \
-  omarchy-update-mise \
-  omarchy-update-orphan-pkgs \
-  omarchy-hook \
-  omarchy-update-analyze-logs \
-  omarchy-shell \
-  omarchy-update-restart; do
+  agent0s-update-pkg-prune \
+  agent0s-update-dev \
+  agent0s-update-keyring \
+  agent0s-update-system-pkgs \
+  agent0s-migrate \
+  agent0s-update-aur-pkgs \
+  agent0s-update-mise \
+  agent0s-update-orphan-pkgs \
+  agent0s-hook \
+  agent0s-update-analyze-logs \
+  agent0s-shell \
+  agent0s-update-restart; do
   write_stub "$command" 'exit 0'
 done
-write_stub omarchy-update-available 'exit 1'
+write_stub agent0s-update-available 'exit 1'
 write_stub pkexec 'exec "$@"'
 
-# omarchy-update should hold the lock before snapshotting, so a second update
+# agent0s-update should hold the lock before snapshotting, so a second update
 # cannot even enter its pre-update snapshot.
 update_snapshot_marker="$test_tmp/update-snapshot-started"
-write_stub omarchy-snapshot 'echo started >"$TEST_MARKER"; sleep 2; exit 0'
+write_stub agent0s-snapshot 'echo started >"$TEST_MARKER"; sleep 2; exit 0'
 
-OMARCHY_UPDATE_LOGGED=1 TEST_MARKER="$update_snapshot_marker" run_with_lock_env "$ROOT/bin/omarchy-update" -y >"$test_tmp/update-first.out" 2>&1 &
+AGENT0S_UPDATE_LOGGED=1 TEST_MARKER="$update_snapshot_marker" run_with_lock_env "$ROOT/bin/agent0s-update" -y >"$test_tmp/update-first.out" 2>&1 &
 update_pid=$!
 
 for _ in {1..50}; do
   [[ -f $update_snapshot_marker ]] && break
   sleep 0.05
 done
-[[ -f $update_snapshot_marker ]] || fail "first omarchy-update reached snapshot under lock"
+[[ -f $update_snapshot_marker ]] || fail "first agent0s-update reached snapshot under lock"
 
 set +e
-OMARCHY_UPDATE_LOGGED=1 TEST_MARKER="$test_tmp/update-second-snapshot-started" run_with_lock_env "$ROOT/bin/omarchy-update" -y >"$test_tmp/update-second.out" 2>&1
+AGENT0S_UPDATE_LOGGED=1 TEST_MARKER="$test_tmp/update-second-snapshot-started" run_with_lock_env "$ROOT/bin/agent0s-update" -y >"$test_tmp/update-second.out" 2>&1
 update_second_status=$?
 set -e
 
 wait "$update_pid"
 
-[[ $update_second_status -ne 0 ]] || fail "second omarchy-update exits non-zero while update lock is held"
-grep -q "already running" "$test_tmp/update-second.out" || fail "second omarchy-update reports held update lock"
-[[ ! -f $test_tmp/update-second-snapshot-started ]] || fail "second omarchy-update did not snapshot while lock was held"
-pass "omarchy-update prevents overlapping top-level updates"
+[[ $update_second_status -ne 0 ]] || fail "second agent0s-update exits non-zero while update lock is held"
+grep -q "already running" "$test_tmp/update-second.out" || fail "second agent0s-update reports held update lock"
+[[ ! -f $test_tmp/update-second-snapshot-started ]] || fail "second agent0s-update did not snapshot while lock was held"
+pass "agent0s-update prevents overlapping top-level updates"
 
 # The sleep inhibitor deliberately outlives the step that starts it, so it must
 # not inherit the update lock. An update killed before restore_update_inhibitors
 # would otherwise leave the inhibitor holding the flock forever, blocking every
-# later update and silencing omarchy-migrate-notify, which reads the same lock.
+# later update and silencing agent0s-migrate-notify, which reads the same lock.
 inhibit_pid_file="$test_tmp/inhibit-pid"
 keyring_marker="$test_tmp/keyring-started"
-write_stub omarchy-snapshot 'exit 0'
+write_stub agent0s-snapshot 'exit 0'
 write_stub systemd-inhibit 'echo "$$" >"$INHIBIT_PID_FILE"; exec sleep 30'
-write_stub omarchy-update-keyring 'echo started >"$TEST_MARKER"; sleep 3; exit 0'
+write_stub agent0s-update-keyring 'echo started >"$TEST_MARKER"; sleep 3; exit 0'
 
-OMARCHY_UPDATE_LOGGED=1 TEST_MARKER="$keyring_marker" INHIBIT_PID_FILE="$inhibit_pid_file" \
-  run_with_lock_env "$ROOT/bin/omarchy-update" -y >"$test_tmp/update-inhibit.out" 2>&1 &
+AGENT0S_UPDATE_LOGGED=1 TEST_MARKER="$keyring_marker" INHIBIT_PID_FILE="$inhibit_pid_file" \
+  run_with_lock_env "$ROOT/bin/agent0s-update" -y >"$test_tmp/update-inhibit.out" 2>&1 &
 inhibit_update_pid=$!
 
 for _ in {1..100}; do
@@ -101,7 +101,7 @@ done
 inhibitor_pid=$(<"$inhibit_pid_file")
 kill -0 "$inhibitor_pid" 2>/dev/null || fail "sleep inhibitor is still running when its descriptors are inspected"
 
-lock_target=$(readlink -f "$runtime_dir/omarchy-update.lock")
+lock_target=$(readlink -f "$runtime_dir/agent0s-update.lock")
 inhibitor_holds_lock=0
 for fd in /proc/"$inhibitor_pid"/fd/*; do
   [[ -e $fd ]] || continue
@@ -111,11 +111,11 @@ done
 wait "$inhibit_update_pid"
 
 (( inhibitor_holds_lock == 0 )) || fail "update keeps the update lock out of the sleep inhibitor it leaves running"
-pass "omarchy-update keeps the update lock out of its sleep inhibitor"
+pass "agent0s-update keeps the update lock out of its sleep inhibitor"
 
 kill -0 "$inhibitor_pid" 2>/dev/null &&
   fail "update waits for its sleep inhibitor to stop before continuing"
-pass "omarchy-update waits for its sleep inhibitor to stop"
+pass "agent0s-update waits for its sleep inhibitor to stop"
 
 if (( EUID != 0 )); then
   sudo_log="$test_tmp/sudo.log"
@@ -135,7 +135,7 @@ exec "$@"'
   terminal_driver="$test_tmp/terminal-stay-awake"
   cat >"$terminal_driver" <<'SH'
 #!/bin/bash
-omarchy-update-stay-awake start
+agent0s-update-stay-awake start
 for _ in {1..200}; do
   grep -q '^systemd-inhibit ' "$SUDO_LOG" && break
   sleep 0.05
@@ -149,16 +149,16 @@ SH
   grep -qx -- '-v' "$sudo_log" || fail "terminal sleep inhibition validates sudo in the foreground"
   grep -q '^systemd-inhibit ' "$sudo_log" || fail "terminal sleep inhibition runs through sudo"
   [[ ! -e $pkexec_marker ]] || fail "terminal sleep inhibition does not use pkexec"
-  run_with_lock_env "$ROOT/bin/omarchy-update-stay-awake" stop
+  run_with_lock_env "$ROOT/bin/agent0s-update-stay-awake" stop
   pass "terminal updates use sudo instead of Polkit for sleep inhibition"
 fi
 
 # Update-owned Stay Awake state must be cleared before the restart helper can
 # reboot the machine, rather than relying on an EXIT trap during shutdown.
-write_stub omarchy-snapshot 'exit 0'
-write_stub omarchy-update-keyring 'exit 0'
-write_stub omarchy-toggle-idle '
-state_file="$HOME/.local/state/omarchy/indicators/stay-awake"
+write_stub agent0s-snapshot 'exit 0'
+write_stub agent0s-update-keyring 'exit 0'
+write_stub agent0s-toggle-idle '
+state_file="$HOME/.local/state/agent0s/indicators/stay-awake"
 case "$1" in
   stay-awake)
     mkdir -p "$(dirname "$state_file")"
@@ -168,33 +168,33 @@ case "$1" in
     rm -f "$state_file"
     ;;
 esac'
-write_stub omarchy-update-restart '
-state_file="$HOME/.local/state/omarchy/indicators/stay-awake"
+write_stub agent0s-update-restart '
+state_file="$HOME/.local/state/agent0s/indicators/stay-awake"
 if [[ ${EXPECT_STAY_AWAKE:-0} == "1" ]]; then
   [[ -f $state_file ]]
 else
   [[ ! -f $state_file ]]
 fi'
 
-rm -f "$test_home/.local/state/omarchy/indicators/stay-awake"
-OMARCHY_UPDATE_LOGGED=1 run_with_lock_env "$ROOT/bin/omarchy-update" -y
-[[ ! -f $test_home/.local/state/omarchy/indicators/stay-awake ]] || fail "update clears its Stay Awake state before restart handling"
+rm -f "$test_home/.local/state/agent0s/indicators/stay-awake"
+AGENT0S_UPDATE_LOGGED=1 run_with_lock_env "$ROOT/bin/agent0s-update" -y
+[[ ! -f $test_home/.local/state/agent0s/indicators/stay-awake ]] || fail "update clears its Stay Awake state before restart handling"
 
-mkdir -p "$test_home/.local/state/omarchy/indicators"
-touch "$test_home/.local/state/omarchy/indicators/stay-awake"
-OMARCHY_UPDATE_LOGGED=1 EXPECT_STAY_AWAKE=1 run_with_lock_env "$ROOT/bin/omarchy-update" -y
-[[ -f $test_home/.local/state/omarchy/indicators/stay-awake ]] || fail "update preserves pre-existing Stay Awake state"
-pass "omarchy-update restores only its own Stay Awake state before restart handling"
+mkdir -p "$test_home/.local/state/agent0s/indicators"
+touch "$test_home/.local/state/agent0s/indicators/stay-awake"
+AGENT0S_UPDATE_LOGGED=1 EXPECT_STAY_AWAKE=1 run_with_lock_env "$ROOT/bin/agent0s-update" -y
+[[ -f $test_home/.local/state/agent0s/indicators/stay-awake ]] || fail "update preserves pre-existing Stay Awake state"
+pass "agent0s-update restores only its own Stay Awake state before restart handling"
 
 # Stale cleanup state from a killed update must not override a Stay Awake choice
 # the user made afterward.
-stay_awake_helper_state="$runtime_dir/omarchy-update-stay-awake"
-stay_awake_state="$test_home/.local/state/omarchy/indicators/stay-awake"
+stay_awake_helper_state="$runtime_dir/agent0s-update-stay-awake"
+stay_awake_state="$test_home/.local/state/agent0s/indicators/stay-awake"
 mkdir -p "$stay_awake_helper_state" "$(dirname "$stay_awake_state")"
 printf '%s\n' "old-update-owner" >"$stay_awake_helper_state/idle-owner"
 printf '%s\n' "user-choice" >"$stay_awake_state"
 
-run_with_lock_env "$ROOT/bin/omarchy-update-stay-awake" stop
+run_with_lock_env "$ROOT/bin/agent0s-update-stay-awake" stop
 [[ $(<"$stay_awake_state") == "user-choice" ]] ||
   fail "stale update ownership does not remove a newer Stay Awake choice"
 pass "stale update ownership preserves a newer Stay Awake choice"
@@ -206,7 +206,7 @@ unrelated_start_time=$(awk '{ print $22 }' "/proc/$unrelated_pid/stat")
 mkdir -p "$stay_awake_helper_state"
 printf '%s %s\n' "$unrelated_pid" "$((unrelated_start_time + 1))" >"$stay_awake_helper_state/inhibit-pid"
 
-run_with_lock_env "$ROOT/bin/omarchy-update-stay-awake" stop
+run_with_lock_env "$ROOT/bin/agent0s-update-stay-awake" stop
 kill -0 "$unrelated_pid" 2>/dev/null ||
   fail "stale inhibitor state does not terminate a reused PID"
 kill "$unrelated_pid"

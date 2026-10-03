@@ -1,7 +1,7 @@
 echo "Remember Bluetooth on and off through the rfkill soft block"
 
-marker="${OMARCHY_BLUETOOTH_MIGRATION_MARKER:-/var/lib/omarchy/migrations/1786380259}"
-main_conf="${OMARCHY_BLUETOOTH_MAIN_CONF:-/etc/bluetooth/main.conf}"
+marker="${AGENT0S_BLUETOOTH_MIGRATION_MARKER:-/var/lib/agent0s/migrations/1786380259}"
+main_conf="${AGENT0S_BLUETOOTH_MAIN_CONF:-/etc/bluetooth/main.conf}"
 
 # Machine-wide work, but migration completion is recorded per user, so a second
 # account would run it again and undo whatever an administrator changed in
@@ -18,17 +18,17 @@ fi
 # sudo because this runs machine-wide and /dev/rfkill is only writable without it
 # from an active graphical seat — an update over SSH would otherwise abort here,
 # before the marker, and abort again on every retry.
-if omarchy-bluetooth-power is-on; then
-  sudo omarchy-bluetooth-power on
+if agent0s-bluetooth-power is-on; then
+  sudo agent0s-bluetooth-power on
 else
-  sudo omarchy-bluetooth-power off
+  sudo agent0s-bluetooth-power off
 fi
 
-# Omarchy set AutoEnable=false believing bluetoothd would then restore the last
+# Agent0S set AutoEnable=false believing bluetoothd would then restore the last
 # power state. It has no such behaviour, so all the flag ever did was keep
 # Bluetooth off at every boot. Left in place it would also stop bluetoothd from
 # powering the adapter up when the block above is lifted. Only the exact line
-# Omarchy wrote is reverted, so a hand-edited opt-out survives.
+# Agent0S wrote is reverted, so a hand-edited opt-out survives.
 if [[ -f $main_conf ]]; then
   sudo sed -i 's/^AutoEnable=false$/#AutoEnable=true/' "$main_conf"
 fi

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# agent0s:summary=Update user-installed git themes
+
+mapfile -t themes < <(agent0s-theme-extras)
+
+for theme in "${themes[@]}"; do
+  echo "Updating: $(basename "$theme")"
+  git -C "$theme" pull
+done

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# agent0s:summary=Open HEY webmail and translate mailto links
+# agent0s:args=[url]
+
+url="$1"
+web_url="https://app.hey.com"
+
+# Handle mailto: URLs
+if [[ $url =~ ^mailto: ]]; then
+  email=$(echo "$url" | sed 's/mailto://')
+  web_url="https://app.hey.com/messages/new?to=$email"
+fi
+
+exec agent0s-launch-webapp "$web_url"

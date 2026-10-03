@@ -22,7 +22,7 @@ target="\${*: -1}"
 mv "$WORKDIR/outbox/"* "\$target/"
 SH
 
-cat >"$WORKDIR/bin/omarchy-notification-send" <<SH
+cat >"$WORKDIR/bin/agent0s-notification-send" <<SH
 #!/bin/bash
 printf '%s\n' "\$*" >>"$WORKDIR/notifications"
 SH
@@ -34,7 +34,7 @@ receive() {
   shift
 
   : >"$WORKDIR/notifications"
-  PATH="$WORKDIR/bin:$PATH" "$@" "$ROOT/bin/omarchy-tailscale-receive" --once "$downloads"
+  PATH="$WORKDIR/bin:$PATH" "$@" "$ROOT/bin/agent0s-tailscale-receive" --once "$downloads"
 
   for _ in {1..50}; do
     (($(wc -l <"$WORKDIR/notifications") >= expected)) && break
@@ -95,6 +95,6 @@ grep -q "browser-download.iso" <<<"$notifications" &&
   fail "taildrop receive ignores downloads that arrive while it waits" "$notifications"
 pass "taildrop receive ignores downloads that arrive while it waits"
 
-[[ -z $(ls -A "$downloads/.omarchy-taildrop") ]] ||
-  fail "taildrop receive empties its staging directory" "$(ls -A "$downloads/.omarchy-taildrop")"
+[[ -z $(ls -A "$downloads/.agent0s-taildrop") ]] ||
+  fail "taildrop receive empties its staging directory" "$(ls -A "$downloads/.agent0s-taildrop")"
 pass "taildrop receive empties its staging directory"

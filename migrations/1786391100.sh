@@ -5,8 +5,8 @@ echo "Run the WPA handshake in software on Macs with Broadcom Wi-Fi"
 # cannot join a WPA2/WPA3 transition-mode network. See
 # install/hardware/apple/fix-brcmfmac-supplicant.sh for the failure it fixes and
 # for where this list of brcmfmac PCI IDs comes from.
-dmi_vendor="${OMARCHY_BRCMFMAC_DMI_VENDOR:-/sys/class/dmi/id/sys_vendor}"
-conf="${OMARCHY_BRCMFMAC_CONF:-/etc/modprobe.d/brcmfmac.conf}"
+dmi_vendor="${AGENT0S_BRCMFMAC_DMI_VENDOR:-/sys/class/dmi/id/sys_vendor}"
+conf="${AGENT0S_BRCMFMAC_CONF:-/etc/modprobe.d/brcmfmac.conf}"
 
 sys_vendor="$(cat "$dmi_vendor" 2>/dev/null || true)"
 
@@ -40,4 +40,4 @@ EOF
 # modprobe only reads this when the module loads. Reloading brcmfmac here would
 # drop a Wi-Fi connection that works on the network the user is on right now,
 # including the one carrying this update.
-omarchy-state set reboot-required
+agent0s-state set reboot-required

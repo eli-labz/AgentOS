@@ -117,13 +117,13 @@ function summaryStartsWithGlyph(summary) {
 
 function shouldBypassDnd(notification, criticalUrgency) {
   var appName = String((notification && notification.appName) || "")
-  if (appName === "omarchy-action") return true
+  if (appName === "agent0s-action") return true
   return appName === "notify-send" && notification && notification.urgency === criticalUrgency
 }
 
 function isEphemeralApp(appName) {
   var name = String(appName || "")
-  return name === "notify-send" || name === "omarchy-action"
+  return name === "notify-send" || name === "agent0s-action"
 }
 
 function stringHint(hints, name) {
@@ -138,19 +138,19 @@ function stringHint(hints, name) {
 }
 
 function glyphFromHints(hints) {
-  return stringHint(hints, "omarchy-glyph")
+  return stringHint(hints, "agent0s-glyph")
 }
 
-// The click action: a JSON argv string from omarchy-notification-send
+// The click action: a JSON argv string from agent0s-notification-send
 // --exec. Carried as data so a toast restored after a shell restart stays
 // clickable (a libnotify action can't — its sender is gone). Run via
 // Util.execArgv as bash positional parameters, never a shell string, so
 // attacker-controlled values (a title, a filename) can't become commands.
 function execArgvFromHints(hints) {
-  return stringHint(hints, "omarchy-exec-argv")
+  return stringHint(hints, "agent0s-exec-argv")
 }
 
-// Validate a persisted omarchy-exec-argv into a runnable argv, or null. This is
+// Validate a persisted agent0s-exec-argv into a runnable argv, or null. This is
 // a STRUCTURAL check only: it fails closed on a malformed hint (non-array, a
 // non-string or empty program, or a leading-dash program that argv would read as
 // an option). It does not judge intent — a well-formed ["bash","-c",…] is
@@ -275,8 +275,8 @@ function parseSettings(raw) {
 // ---------------------------------------------------- popup persistence
 //
 // Each on-screen popup is mirrored to its own file under
-// ~/.local/state/omarchy/notifications/ so toasts survive shell restarts
-// (e.g. the restart `omarchy-update` performs). The file exists exactly as
+// ~/.local/state/agent0s/notifications/ so toasts survive shell restarts
+// (e.g. the restart `agent0s-update` performs). The file exists exactly as
 // long as the popup is on screen: it is written when the toast appears and
 // moved into the history/ subdirectory when the toast expires, is dismissed,
 // or its action is invoked. History is those moved files, newest last-10.
@@ -301,7 +301,7 @@ function popupFileName(entry) {
 // ---------------------------------------------------- persisted images
 //
 // A notification's images only exist while it is live: Chromium-family
-// senders (all Omarchy web apps) delete their scoped /tmp files on close,
+// senders (all Agent0S web apps) delete their scoped /tmp files on close,
 // and image-data hints surface as in-process image:// URLs that die with
 // the server object. Persisted entries therefore reference their own
 // copies, named by the entry's file stem so cleanup can find them from

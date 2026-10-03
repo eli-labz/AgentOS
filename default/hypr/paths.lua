@@ -1,4 +1,4 @@
--- Shared path constants for Omarchy's Hyprland Lua modules.
+-- Shared path constants for Agent0S's Hyprland Lua modules.
 -- Lua files loaded with require() have separate local scopes, so modules that
 -- need these paths import this table instead of repeating os.getenv() lookups.
 
@@ -18,5 +18,5 @@ return {
   home = home,
   config_home = env_or("XDG_CONFIG_HOME", home .. "/.config"),
   state_home = env_or("XDG_STATE_HOME", home .. "/.local/state"),
-  omarchy_path = env_or("OMARCHY_PATH", "/usr/share/omarchy"),
+  agent0s_path = env_or("AGENT0S_PATH", "/usr/share/agent0s"),
 }

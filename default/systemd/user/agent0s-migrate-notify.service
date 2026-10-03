@@ -1,0 +1,20 @@
+[Unit]
+Description=Notify about pending Agent0S migrations
+# Login-only. There used to be an agent0s-update-user-notify.path watching
+# /usr/share/agent0s/migrations, but pacman writes that directory during every
+# update -- including the blessed `agent0s update`, which runs agent0s-migrate
+# itself a step later -- so the watcher notified about migrations that were
+# already being applied in the visible update terminal. Checking once per login
+# is the only trigger that cannot collide with a running update.
+ConditionPathIsDirectory=/usr/share/agent0s/migrations
+# The actionable notification launches its terminal through uwsm-app, whose
+# daemon starts after graphical-session.target. Run after the target too so this
+# oneshot cannot hold the target open while waiting for that daemon.
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/agent0s-migrate-notify
+
+[Install]
+WantedBy=graphical-session.target

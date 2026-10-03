@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# agent0s:summary=Install Xbox Cloud Gaming as a web app and launch it.
+# agent0s:group=install
+# agent0s:name=gaming xbox-cloud
+
+set -e
+
+echo "Installing Xbox Cloud Gaming..."
+agent0s-webapp-install "Xbox Cloud Gaming" "https://www.xbox.com/en-US/play" "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/xbox.png"
+
+setsid agent0s-launch-webapp "https://www.xbox.com/en-US/play" >/dev/null 2>&1 &

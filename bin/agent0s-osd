@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# agent0s:summary=Show the Agent0S Quickshell on-screen display
+# agent0s:args=[-i|--icon <icon>] [-m|--message <text>] [-p|--progress <0-100>] [-d|--duration <ms>]
+# agent0s:examples=agent0s osd -i brightness -p 50 | agent0s osd -m "Hello"
+
+set -euo pipefail
+
+icon=""
+message=""
+progress=""
+progress_text=""
+max="100"
+duration=""
+
+while (($#)); do
+  case $1 in
+    -i|--icon) icon="${2:-}"; shift 2 ;;
+    -m|--message) message="${2:-}"; shift 2 ;;
+    -p|--progress) progress="${2:-}"; shift 2 ;;
+    -d|--duration) duration="${2:-}"; shift 2 ;;
+    -h|--help) agent0s osd --help; exit 0 ;;
+    *) echo "Unknown OSD option: $1" >&2; exit 1 ;;
+  esac
+done
+
+if [[ -n $progress ]]; then
+  progress_text="${progress}%"
+fi
+
+payload=$(jq -cn \
+  --arg icon "$icon" \
+  --arg message "$message" \
+  --arg value "$progress" \
+  --arg progressText "$progress_text" \
+  --arg max "$max" \
+  --arg duration "$duration" \
+  '{icon:$icon,message:$message,value:$value,progressText:$progressText,max:$max,duration:$duration}')
+
+agent0s-shell -q osd show "$payload"

@@ -15,8 +15,8 @@ api_key = fw_test
 account_id = example
 EOF
 
-mkdir -p "$TEST_HOME/.config/omarchy/agents"
-cat >"$TEST_HOME/.config/omarchy/agents/fireworks.json" <<'EOF'
+mkdir -p "$TEST_HOME/.config/agent0s/agents"
+cat >"$TEST_HOME/.config/agent0s/agents/fireworks.json" <<'EOF'
 {
   "accountId": "example",
   "fundedAmount": 20,
@@ -27,13 +27,13 @@ EOF
 # Without credentials the collector must still print a full, hidden-by-default
 # record: the update runner writes whatever valid JSON appears on stdout.
 no_key=$(HOME="$TEST_HOME" XDG_CONFIG_HOME="$TEST_HOME/.config" XDG_DATA_HOME="$TEST_HOME/.local/share" \
-  FIREWORKS_API_KEY="" FIREWORKS_AUTH_PATH="$TEST_HOME/missing.ini" "$ROOT/bin/omarchy-agent-usage-fireworks")
+  FIREWORKS_API_KEY="" FIREWORKS_AUTH_PATH="$TEST_HOME/missing.ini" "$ROOT/bin/agent0s-agent-usage-fireworks")
 
 [[ $(jq -r '.id + ":" + (.ready | tostring) + ":" + (.hasPromptStats | tostring)' <<<"$no_key") == "fireworks:false:false" ]] ||
   fail "Fireworks collector prints a valid record without credentials" "$no_key"
 pass "Fireworks collector prints a valid record without credentials"
 
-result=$(python3 - "$ROOT/bin/omarchy-agent-usage-fireworks" "$auth_file" "$TEST_HOME/.config" "$TEST_HOME/.local/share" <<'PY'
+result=$(python3 - "$ROOT/bin/agent0s-agent-usage-fireworks" "$auth_file" "$TEST_HOME/.config" "$TEST_HOME/.local/share" <<'PY'
 import importlib.machinery
 import importlib.util
 import json

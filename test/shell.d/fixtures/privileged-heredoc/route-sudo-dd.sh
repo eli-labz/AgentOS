@@ -1,3 +1,3 @@
-sudo dd status=none of=/etc/omarchy/boot.conf <<EOF
+sudo dd status=none of=/etc/agent0s/boot.conf <<EOF
 cmdline=$boot_params
 EOF

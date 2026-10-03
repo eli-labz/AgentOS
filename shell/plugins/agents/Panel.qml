@@ -7,8 +7,8 @@ import qs.Ui
 
 Panel {
   id: root
-  moduleName: "omarchy.agents"
-  ipcTarget: "omarchy.agents"
+  moduleName: "agent0s.agents"
+  ipcTarget: "agent0s.agents"
   manageIpc: false
 
   readonly property color foreground: bar ? bar.foreground : Color.foreground
@@ -60,7 +60,7 @@ Panel {
   }
 
   function launchAgent() {
-    if (root.bar) root.bar.run("omarchy-agent --pick")
+    if (root.bar) root.bar.run("agent0s-agent --pick")
     root.close()
   }
 

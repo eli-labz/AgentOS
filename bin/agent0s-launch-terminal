@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Launch a terminal in the active terminal's current directory
+# agent0s:args=[command...]
+
+exec setsid uwsm-app -- xdg-terminal-exec --dir="$(agent0s-cmd-terminal-cwd)" "$@"

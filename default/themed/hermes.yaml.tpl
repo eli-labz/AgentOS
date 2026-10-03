@@ -1,5 +1,5 @@
-name: omarchy
-description: Omarchy system theme
+name: agent0s
+description: Agent0S system theme
 colors:
   background: "{{ background }}"
   ui_text: "{{ foreground }}"

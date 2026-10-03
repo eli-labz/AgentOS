@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.workspaces",
+  "id": "agent0s.workspaces",
   "name": "Workspaces",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Workspace number indicators",
   "kinds": [
     "bar-widget"

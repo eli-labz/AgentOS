@@ -4,7 +4,7 @@ Read this before writing or running the graphical acceptance suite under
 `test/acceptance.d/`.
 
 The graphical acceptance suite lives in `test/acceptance` with test files under
-`test/acceptance.d/*-test.sh`. It exercises a real installed Omarchy desktop,
+`test/acceptance.d/*-test.sh`. It exercises a real installed Agent0S desktop,
 including session health, shell surfaces, panels, keyboard navigation,
 representative applications, and system setup. Source
 `test/acceptance.d/base-test.sh` for the shared helpers.
@@ -17,10 +17,10 @@ For acceptance-test-only changes, reuse an installed base and sync the suite:
 
 ```bash
 cd ../omarchy-iso
-./bin/omarchy-iso-test release/<iso>.iso --reuse-base --sync-omarchy ../omarchy --no-preview
+./bin/omarchy-iso-test release/<iso>.iso --reuse-base --sync-agent0s ../agent0s --no-preview
 ```
 
-Use `--sync-all ../omarchy` instead of `--sync-omarchy ../omarchy` when the
+Use `--sync-all ../agent0s` instead of `--sync-agent0s ../agent0s` when the
 acceptance run must exercise local `bin/`, `config/`, or `shell/` source too.
 Changes to package manifests, installation, finalization, or shipped defaults
 require a fresh ISO built from the local checkouts and a run without
@@ -28,7 +28,7 @@ require a fresh ISO built from the local checkouts and a run without
 
 ```bash
 cd ../omarchy-iso
-./bin/omarchy-iso-make --no-boot-offer --local-source ../omarchy ../omarchy-pkgs
+./bin/omarchy-iso-make --no-boot-offer --local-source ../agent0s ../omarchy-pkgs
 ./bin/omarchy-iso-test release/<generated-iso>.iso --no-preview
 ```
 

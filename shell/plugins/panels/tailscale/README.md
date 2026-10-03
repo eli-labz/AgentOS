@@ -1,6 +1,6 @@
-# Tailscale Omarchy Widget
+# Tailscale Agent0S Widget
 
-Native Omarchy bar widget for Tailscale.
+Native Agent0S bar widget for Tailscale.
 
 ## Features
 
@@ -35,9 +35,9 @@ Inside the panel:
 ## Receiving files
 
 Incoming Taildrop files are saved to `~/Downloads` by the
-`omarchy-tailscale-receive` service, which announces each one with a
+`agent0s-tailscale-receive` service, which announces each one with a
 notification (an image preview when the file is an image, and a click to open
-it). The Tailscale service install enables it; `omarchy tailscale receive`
+it). The Tailscale service install enables it; `agent0s tailscale receive`
 runs the same loop by hand.
 
 ## Icon
@@ -46,4 +46,4 @@ Renders the Tailscale mark natively as a theme-colored 3×3 dot grid, matching t
 
 ## Add to the bar
 
-This widget ships as first-party plugin `omarchy.tailscale`. Add it with `omarchy plugin enable omarchy.tailscale`, then place it with `omarchy bar move omarchy.tailscale` if desired.
+This widget ships as first-party plugin `agent0s.tailscale`. Add it with `agent0s plugin enable agent0s.tailscale`, then place it with `agent0s bar move agent0s.tailscale` if desired.

@@ -36,8 +36,8 @@ cp "$SHELL_TEST_DIR/fixtures/plugin-registry/shell.qml" "$config_dir/shell.qml"
 ln -s "$ROOT/shell/services" "$config_dir/services"
 ln -s "$ROOT/shell/Commons" "$config_dir/Commons"
 
-OMARCHY_PATH="$ROOT" \
-OMARCHY_QML_TEST_RESULT="$result" \
+AGENT0S_PATH="$ROOT" \
+AGENT0S_QML_TEST_RESULT="$result" \
 HOME="$TMPDIR/home" \
 XDG_CONFIG_HOME="$TMPDIR/home/.config" \
 XDG_CACHE_HOME="$TMPDIR/home/.cache" \

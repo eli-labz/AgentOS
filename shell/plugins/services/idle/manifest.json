@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.idle",
+  "id": "agent0s.idle",
   "name": "Idle",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Quickshell-based idle detection for screensaver, lock, and display wake.",
   "kinds": [
     "service"

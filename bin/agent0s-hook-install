@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# agent0s:summary=Install a hook into ~/.config/agent0s/hooks/<type>.d/
+# agent0s:group=hook
+# agent0s:name=install
+# agent0s:args=<type> <file>
+# agent0s:examples=agent0s hook install post-update ~/my-hook
+
+set -e
+
+if (( $# != 2 )); then
+  echo "Usage: agent0s-hook-install <type> <file>"
+  exit 1
+fi
+
+HOOK_TYPE=$1
+HOOK_FILE=$2
+HOOK_DIR="$HOME/.config/agent0s/hooks/$HOOK_TYPE.d"
+HOOK_NAME=$(basename "$HOOK_FILE")
+HOOK_PATH="$HOOK_DIR/$HOOK_NAME"
+
+if [[ ! -f $HOOK_FILE ]]; then
+  echo "Hook file not found: $HOOK_FILE"
+  exit 1
+fi
+
+mkdir -p "$HOOK_DIR"
+cp "$HOOK_FILE" "$HOOK_PATH"
+chmod 755 "$HOOK_PATH"
+
+echo "Installed $HOOK_TYPE hook: $HOOK_PATH"

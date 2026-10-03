@@ -9,7 +9,7 @@ sudo systemctl reload systemd-logind >/dev/null 2>&1 || true
 
 # Check the property logind actually enforces, not the reload's exit status: a
 # reload that returns success while the drop-in is missing or unparsed leaves
-# the old five second window in place. omarchy-system-sleep-lock reads this same
+# the old five second window in place. agent0s-system-sleep-lock reads this same
 # property at runtime, so it stays correct either way -- the reboot flag is only
 # about getting the wider window to take effect.
 #
@@ -21,5 +21,5 @@ effective_us=$(busctl get-property org.freedesktop.login1 /org/freedesktop/login
   org.freedesktop.login1.Manager InhibitDelayMaxUSec 2>/dev/null | awk '{print $2}' || true)
 
 if [[ -z $expected_s || $effective_us != $((expected_s * 1000000)) ]]; then
-  omarchy-state set reboot-required
+  agent0s-state set reboot-required
 fi

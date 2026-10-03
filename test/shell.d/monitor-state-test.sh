@@ -17,12 +17,12 @@ cat >"$test_bin/hyprctl" <<'EOF'
 cat "$FAKE_MONITORS"
 EOF
 
-cat >"$test_bin/omarchy-brightness-display" <<'EOF'
+cat >"$test_bin/agent0s-brightness-display" <<'EOF'
 #!/bin/bash
 echo 42
 EOF
 
-cat >"$test_bin/omarchy-hyprland-monitor-scaling" <<'EOF'
+cat >"$test_bin/agent0s-hyprland-monitor-scaling" <<'EOF'
 #!/bin/bash
 echo 1.5
 EOF
@@ -38,7 +38,7 @@ monitor_state() {
 
   mapfile -t state_lines < <(
     FAKE_MONITORS="$monitors_file" PATH="$test_bin:$PATH" \
-      bash "$ROOT/bin/omarchy-monitor-state" 2>/dev/null
+      bash "$ROOT/bin/agent0s-monitor-state" 2>/dev/null
   )
 }
 
@@ -61,7 +61,7 @@ extended='[
   { "name": "DP-1", "mirrorOf": "none", "disabled": false, "focused": true, "width": 2560, "height": 1440 }
 ]'
 
-# Omarchy mirrors by pointing the external at the internal, so `mirrorOf` lands
+# Agent0S mirrors by pointing the external at the internal, so `mirrorOf` lands
 # on the external and the internal keeps saying "none".
 mirrored='[
   { "name": "eDP-1", "mirrorOf": "none", "disabled": false, "focused": true, "width": 1920, "height": 1080 },

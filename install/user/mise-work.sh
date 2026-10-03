@@ -11,17 +11,17 @@ mise trust ~/Work/.mise.toml
 
 # Offline installs unpack the Node tarball bundled by the ISO: from
 # /opt/packages in the ISO chroot, or from the copy staged in provisioning state when
-# omarchy-provision-owner finalizes the user at first boot.
-case ${OMARCHY_SETUP_CONTEXT:-runtime} in
+# agent0s-provision-owner finalizes the user at first boot.
+case ${AGENT0S_SETUP_CONTEXT:-runtime} in
   iso-chroot) NODE_PACKAGE_DIR=/opt/packages ;;
-  provision-owner) NODE_PACKAGE_DIR=/var/lib/omarchy/provisioning/packages ;;
+  provision-owner) NODE_PACKAGE_DIR=/var/lib/agent0s/provisioning/packages ;;
   *) NODE_PACKAGE_DIR="" ;;
 esac
 
 if [[ -n $NODE_PACKAGE_DIR ]]; then
   NODE_TARBALL=$(find "$NODE_PACKAGE_DIR" -name "node-v*-linux-x64.tar.gz" -type f 2>/dev/null | head -n1)
   if [[ -z $NODE_TARBALL ]]; then
-    if [[ ${OMARCHY_SETUP_CONTEXT:-} == "provision-owner" ]]; then
+    if [[ ${AGENT0S_SETUP_CONTEXT:-} == "provision-owner" ]]; then
       # A factory snapshot predating the bundled tarball may not have it staged.
       # Leave Node to the network rather than failing the whole first boot.
       echo "Warning: no bundled Node.js tarball in $NODE_PACKAGE_DIR; trying the network" >&2

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# agent0s:summary=Extract text from a screenshot region with OCR
+# agent0s:group=capture
+# agent0s:examples=agent0s capture text
+
+# Keep hyprpicker alive until after grim captures so the screenshot sees the
+# frozen overlay rather than live content shifting during teardown.
+cleanup_freeze() {
+  [[ -n $PID ]] && kill $PID 2>/dev/null
+}
+trap cleanup_freeze EXIT
+
+hyprpicker -r -z >/dev/null 2>&1 &
+PID=$!
+sleep .1
+SELECTION=$(slurp 2>/dev/null)
+
+[[ -z $SELECTION ]] && exit 0
+
+TEXT=$(grim -g "$SELECTION" - | tesseract stdin stdout --oem 1 --psm 6 -l "${AGENT0S_OCR_LANGS:-eng}" --dpi 300 -c preserve_interword_spaces=1 2>/dev/null) || exit 1
+
+[[ -z $TEXT ]] && exit 1
+
+printf "%s" "$TEXT" | wl-copy
+agent0s-notification-send -g 󰴑 "Copied text from selection to clipboard"

@@ -7,7 +7,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 tmp_dir=$(mktemp -d)
 trap 'rm -rf "$tmp_dir"' EXIT
 
-hooks_conf="$ROOT/etc/mkinitcpio.conf.d/omarchy_hooks.conf"
+hooks_conf="$ROOT/etc/mkinitcpio.conf.d/agent0s_hooks.conf"
 
 # Each argument is a PCI device as "vendor:class", in sysfs's own format.
 write_pci_devices() {
@@ -37,7 +37,7 @@ resolved_hooks() {
   # The vconsole block sources the host's /etc/vconsole.conf, which may set
   # only KEYMAP; predefine XKBLAYOUT so its expansion survives set -u and the
   # test stays independent of the machine it runs on.
-  OMARCHY_PCI_DEVICES_PATH="$tmp_dir/devices" bash -uc "
+  AGENT0S_PCI_DEVICES_PATH="$tmp_dir/devices" bash -uc "
     FILES=()
     XKBLAYOUT=us
     $modules_decl

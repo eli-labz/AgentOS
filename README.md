@@ -1,16 +1,16 @@
-# Omarchy
+# Agent0S
 
-Omarchy is a beautiful, fun & agentic Linux distribution by DHH.
+Agent0S is a beautiful, fun & agentic Linux distribution by DHH.
 
 Read more at [omarchy.org](https://omarchy.org).
 
-## The Omarchy Manual
+## The Agent0S Manual
 
 The manual lives in [`manual/`](manual/), which is its authoritative source. It's
-mirrored to [learn.omacom.io](https://learn.omacom.io/2/the-omarchy-manual), where
+mirrored to [learn.omacom.io](https://learn.omacom.io/2/the-agent0s-manual), where
 its screenshots are also hosted.
 
-- [Welcome to Omarchy!](manual/01-welcome-to-omarchy.md)
+- [Welcome to Agent0S!](manual/01-welcome-to-agent0s.md)
 
 **The Basics**
 
@@ -26,7 +26,7 @@ its screenshots are also hosted.
 - [Text Extraction & Dictation](manual/11-text-extraction-dictation.md)
 - [Screenshots & Recording](manual/12-screenshots-recording.md)
 - [Toggles, idle & screensaver](manual/13-toggles-idle-screensaver.md)
-- [Omarchy CLI](manual/14-omarchy-cli.md)
+- [Agent0S CLI](manual/14-agent0s-cli.md)
 
 **The Applications**
 
@@ -70,10 +70,10 @@ its screenshots are also hosted.
 - [FAQ](manual/46-faq.md)
 - [System snapshots](manual/47-system-snapshots.md)
 - [Security](manual/48-security.md)
-- [Omarchy on...](manual/49-omarchy-on.md)
+- [Agent0S on...](manual/49-agent0s-on.md)
 - [Dual Boot Install](manual/50-dual-boot-install.md)
 - [Unattended Installs](manual/51-unattended-installs.md)
 
 ## License
 
-Omarchy is released under the [MIT License](https://opensource.org/licenses/MIT).
+Agent0S is released under the [MIT License](https://opensource.org/licenses/MIT).

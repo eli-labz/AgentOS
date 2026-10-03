@@ -39,7 +39,7 @@ STUB
 chmod +x "$fake_bin"/*
 
 hybrid_gpu() {
-  PATH="$fake_bin:$PATH" timeout --kill-after=1s 10s bash "$ROOT/bin/omarchy-hw-hybrid-gpu"
+  PATH="$fake_bin:$PATH" timeout --kill-after=1s 10s bash "$ROOT/bin/agent0s-hw-hybrid-gpu"
 }
 
 hybrid_gpu ||
@@ -80,11 +80,11 @@ BLOCKED=kill-only GPU_COUNT=2 hybrid_gpu ||
   fail "hybrid GPU detection counts multiple GPUs when supergfxd is wedged"
 pass "hybrid GPU detection counts multiple GPUs when supergfxd is wedged"
 
-cat >"$fake_bin/omarchy-cmd-present" <<'STUB'
+cat >"$fake_bin/agent0s-cmd-present" <<'STUB'
 #!/bin/bash
 exit 1
 STUB
-chmod +x "$fake_bin/omarchy-cmd-present"
+chmod +x "$fake_bin/agent0s-cmd-present"
 
 GPU_COUNT=2 hybrid_gpu ||
   fail "hybrid GPU detection counts GPUs without supergfxctl"

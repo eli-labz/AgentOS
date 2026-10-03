@@ -20,7 +20,7 @@ cat > "$scratch/bin/sudo" <<'STUB'
 exec "$@"
 STUB
 # INSTALLED lists the installed package names, one per line; an install adds
-# its packages to INSTALLED_LOG so omarchy-pkg-add's follow-up query sees them.
+# its packages to INSTALLED_LOG so agent0s-pkg-add's follow-up query sees them.
 cat > "$scratch/bin/pacman" <<'STUB'
 #!/bin/bash
 case "$1" in

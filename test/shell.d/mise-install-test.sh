@@ -16,16 +16,16 @@ mkdir -p "$home" "$stub_bin"
 cat >"$stub_bin/mise" <<'SH'
 #!/bin/bash
 
-printf 'mise' >>"$OMARCHY_MISE_TEST_LOG"
+printf 'mise' >>"$AGENT0S_MISE_TEST_LOG"
 for arg in "$@"; do
-  printf '\t%s' "$arg" >>"$OMARCHY_MISE_TEST_LOG"
+  printf '\t%s' "$arg" >>"$AGENT0S_MISE_TEST_LOG"
 done
-printf '\n' >>"$OMARCHY_MISE_TEST_LOG"
+printf '\n' >>"$AGENT0S_MISE_TEST_LOG"
 SH
 chmod +x "$stub_bin/mise"
 
 install_wrapper() {
-  HOME="$home" "$ROOT/bin/omarchy-mise-install" "$@"
+  HOME="$home" "$ROOT/bin/agent0s-mise-install" "$@"
 }
 
 # The ordinary case still works, and every call site in install/user/mise.sh
@@ -36,7 +36,7 @@ install_wrapper npm:playwright playwright >/dev/null
 
 log="$tmpdir/normal.log"
 : >"$log"
-OMARCHY_MISE_TEST_LOG="$log" PATH="$stub_bin:$PATH" "$home/.local/bin/playwright" >/dev/null
+AGENT0S_MISE_TEST_LOG="$log" PATH="$stub_bin:$PATH" "$home/.local/bin/playwright" >/dev/null
 grep -Fqx $'mise\tuse\t-g\t--quiet\tnpm:playwright' "$log" ||
   fail "the wrapper asks mise for the package it was given" "$(cat "$log")"
 
@@ -48,7 +48,7 @@ install_wrapper 'npm:pkg$(touch '"$tmpdir"'/PWNED)end' hostile >/dev/null
 
 log="$tmpdir/hostile.log"
 : >"$log"
-OMARCHY_MISE_TEST_LOG="$log" PATH="$stub_bin:$PATH" "$home/.local/bin/hostile" >/dev/null
+AGENT0S_MISE_TEST_LOG="$log" PATH="$stub_bin:$PATH" "$home/.local/bin/hostile" >/dev/null
 
 [[ -e $tmpdir/PWNED ]] &&
   fail "a package name with shell characters does not run when the wrapper does" \

@@ -11,7 +11,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-export OMARCHY_PROVISIONING_DIR="$TMPDIR/provisioning"
+export AGENT0S_PROVISIONING_DIR="$TMPDIR/provisioning"
 
 mkdir -p "$TMPDIR/bin"
 cat >"$TMPDIR/bin/usermod" <<STUB
@@ -37,25 +37,25 @@ exec "\$@"
 STUB
 chmod +x "$TMPDIR/bin"/{usermod,groupadd,install,find,sudo}
 export PATH="$TMPDIR/bin:$PATH"
-export OMARCHY_PATH="$ROOT"
+export AGENT0S_PATH="$ROOT"
 
 # A deferred-provisioning install records neither privileged group.
-OMARCHY_INSTALL_USER="" bash -eE "$ROOT/install/config/docker.sh"
-OMARCHY_INSTALL_USER="" bash -eE "$ROOT/install/config/browser-policy.sh"
+AGENT0S_INSTALL_USER="" bash -eE "$ROOT/install/config/docker.sh"
+AGENT0S_INSTALL_USER="" bash -eE "$ROOT/install/config/browser-policy.sh"
 
-[[ ! -f $OMARCHY_PROVISIONING_DIR/groups ]] ||
-  ! grep -Eq '^(docker|input)$' "$OMARCHY_PROVISIONING_DIR/groups" ||
+[[ ! -f $AGENT0S_PROVISIONING_DIR/groups ]] ||
+  ! grep -Eq '^(docker|input)$' "$AGENT0S_PROVISIONING_DIR/groups" ||
   fail "default install must not record docker or input groups"
 [[ ! -f $TMPDIR/usermod.calls ]] || fail "usermod not called without an install user"
-[[ ! -f $TMPDIR/groupadd.calls ]] || ! grep -F omarchy-browser-policy "$TMPDIR/groupadd.calls" >/dev/null ||
+[[ ! -f $TMPDIR/groupadd.calls ]] || ! grep -F agent0s-browser-policy "$TMPDIR/groupadd.calls" >/dev/null ||
   fail "browser-policy group is not created"
 grep -F -- '-d -m 0755 -o root -g root /etc/chromium/policies/managed' "$TMPDIR/install.calls" >/dev/null ||
   fail "browser-policy directory is created root-owned"
 pass "deferred provisioning records no privileged groups"
 
 # The same remains true when an install user already exists.
-OMARCHY_INSTALL_USER=existing bash -eE "$ROOT/install/config/docker.sh"
-OMARCHY_INSTALL_USER=existing bash -eE "$ROOT/install/config/browser-policy.sh"
+AGENT0S_INSTALL_USER=existing bash -eE "$ROOT/install/config/docker.sh"
+AGENT0S_INSTALL_USER=existing bash -eE "$ROOT/install/config/browser-policy.sh"
 [[ ! -f $TMPDIR/usermod.calls ]] || fail "default install must not grant privileged groups"
 pass "existing install user gets neither docker nor input access"
 

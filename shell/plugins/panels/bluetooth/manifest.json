@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.bluetooth",
+  "id": "agent0s.bluetooth",
   "name": "Bluetooth",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Bluetooth device list with connect/disconnect",
   "kinds": [
     "bar-widget"

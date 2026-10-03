@@ -1,11 +1,11 @@
 echo "Store Hyprland input-device names as data instead of generated Lua"
 
-# omarchy-toggle-input-device used to interpolate hyprctl device names into
+# agent0s-toggle-input-device used to interpolate hyprctl device names into
 # hyprctl eval and a generated Lua file. Those names come from USB descriptors,
 # so recover the plain device name as data and delete the generated Lua. A name
 # that could have broken out of the old Lua string literal is discarded, not
 # trusted. The old script wrote to ~/.local/state regardless of XDG_STATE_HOME.
-toggles_dir="$HOME/.local/state/omarchy/toggles/hypr"
+toggles_dir="$HOME/.local/state/agent0s/toggles/hypr"
 
 reapply=0
 

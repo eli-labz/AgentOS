@@ -20,19 +20,19 @@ write_supply() {
 write_supply AC Mains 0
 write_supply USBC USB 1
 
-OMARCHY_POWER_SUPPLY_PATH="$tmp_dir" "$ROOT/bin/omarchy-power-present" ||
+AGENT0S_POWER_SUPPLY_PATH="$tmp_dir" "$ROOT/bin/agent0s-power-present" ||
   fail "power present detects online USB-C supply"
 pass "power present detects online USB-C supply"
 
 printf '0\n' >"$tmp_dir/USBC/online"
 
-if OMARCHY_POWER_SUPPLY_PATH="$tmp_dir" "$ROOT/bin/omarchy-power-present"; then
+if AGENT0S_POWER_SUPPLY_PATH="$tmp_dir" "$ROOT/bin/agent0s-power-present"; then
   fail "power present rejects offline supplies"
 fi
 pass "power present rejects offline supplies"
 
 write_supply AC Mains 1
 
-OMARCHY_POWER_SUPPLY_PATH="$tmp_dir" "$ROOT/bin/omarchy-power-present" ||
+AGENT0S_POWER_SUPPLY_PATH="$tmp_dir" "$ROOT/bin/agent0s-power-present" ||
   fail "power present detects online mains supply"
 pass "power present detects online mains supply"

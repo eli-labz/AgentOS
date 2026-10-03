@@ -25,16 +25,16 @@ fi
 EOF
 chmod +x "$stub_dir/hyprctl"
 
-cat >"$stub_dir/omarchy-notification-send" <<'EOF'
+cat >"$stub_dir/agent0s-notification-send" <<'EOF'
 #!/bin/bash
 :
 EOF
-chmod +x "$stub_dir/omarchy-notification-send"
+chmod +x "$stub_dir/agent0s-notification-send"
 
 HOME="$home_dir" HYPRCTL_LOG="$log_file" PATH="$stub_dir:$PATH" \
-  "$ROOT/bin/omarchy-hyprland-workspace-layout-toggle"
+  "$ROOT/bin/agent0s-hyprland-workspace-layout-toggle"
 
-layout_file="$home_dir/.local/state/omarchy/workspace-layouts/3.lua"
+layout_file="$home_dir/.local/state/agent0s/workspace-layouts/3.lua"
 [[ -f $layout_file ]] || fail "workspace layout toggle saves a workspace rule"
 grep -Fx 'hl.workspace_rule({ workspace = "3", layout = "scrolling" })' "$layout_file" >/dev/null ||
   fail "workspace layout toggle saves the selected layout"
@@ -43,14 +43,14 @@ grep -Fx 'eval hl.workspace_rule({ workspace = "3", layout = "scrolling" })' "$l
 pass "workspace layout toggle persists and applies the selected layout"
 
 if HOME="$home_dir" HYPRCTL_LOG="$log_file" HYPRCTL_BROKEN=1 PATH="$stub_dir:$PATH" \
-  "$ROOT/bin/omarchy-hyprland-workspace-layout-toggle" 2>/dev/null; then
+  "$ROOT/bin/agent0s-hyprland-workspace-layout-toggle" 2>/dev/null; then
   fail "workspace layout toggle exits nonzero without a workspace id"
 fi
-[[ -f "$home_dir/.local/state/omarchy/workspace-layouts/null.lua" ]] &&
+[[ -f "$home_dir/.local/state/agent0s/workspace-layouts/null.lua" ]] &&
   fail "workspace layout toggle does not persist a rule without a workspace id"
 pass "workspace layout toggle ignores broken hyprctl output"
 
-HOME="$home_dir" OMARCHY_PATH="$ROOT" lua <<'LUA'
+HOME="$home_dir" AGENT0S_PATH="$ROOT" lua <<'LUA'
 local rules = {}
 
 hl = {
@@ -59,7 +59,7 @@ hl = {
   end,
 }
 
-dofile(os.getenv("OMARCHY_PATH") .. "/default/hypr/bootstrap.lua")
+dofile(os.getenv("AGENT0S_PATH") .. "/default/hypr/bootstrap.lua")
 require("default.hypr.workspace-layouts")
 
 assert(#rules == 1)

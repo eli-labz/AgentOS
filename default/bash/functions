@@ -1,1 +1,1 @@
-for f in $OMARCHY_PATH/default/bash/fns/*; do source "$f"; done
+for f in $AGENT0S_PATH/default/bash/fns/*; do source "$f"; done

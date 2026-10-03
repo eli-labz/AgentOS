@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# agent0s:summary=Finalize Agent0S user setup (runtime tweaks /etc/skel can't do)
+# agent0s:hidden=true
+
+set -euo pipefail
+
+usage() {
+  cat <<USAGE
+Usage: agent0s finalize user [--force] [--first-install]
+
+Runs the per-user setup steps that /etc/skel can't seed:
+dev-aware skill symlinks, xdg-user-dirs + gtk bookmarks (need \$HOME),
+default browser/mailto, and install/user/all.sh.
+
+For shipped configs see /etc/skel (new users) and agent0s-reinstall-configs
+(existing users explicitly resyncing).
+
+--first-install is used by the ISO in the target chroot. It marks shipped
+migrations complete for the freshly-created user.
+
+Idempotency marker: ~/.local/state/agent0s/done/finalize-user
+USAGE
+}
+
+if (( EUID == 0 )); then
+  echo "Error: run agent0s-provision-user as the user being configured, not as root." >&2
+  exit 1
+fi
+
+force=0
+first_install=0
+while (($#)); do
+  case "$1" in
+    --force)
+      force=1
+      shift
+      ;;
+    --first-install)
+      first_install=1
+      force=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+state_dir="$HOME/.local/state/agent0s"
+mkdir -p "$state_dir"
+
+if agent0s-done check finalize-user && (( force == 0 )); then
+  echo "User finalization already complete (rerun with --force to refresh)."
+  exit 0
+fi
+
+export AGENT0S_PATH="${AGENT0S_PATH:-/usr/share/agent0s}"
+export AGENT0S_INSTALL="${AGENT0S_INSTALL:-$AGENT0S_PATH/install}"
+export AGENT0S_SETUP_CONTEXT="${AGENT0S_SETUP_CONTEXT:-runtime}"
+export PATH="$AGENT0S_PATH/bin:$PATH"
+
+if (( first_install )) && [[ $AGENT0S_SETUP_CONTEXT == "runtime" ]]; then
+  # The ISO chroot doesn't set a context; agent0s-provision-owner runs first-install
+  # finalization too but with AGENT0S_SETUP_CONTEXT=provision-owner already set.
+  export AGENT0S_SETUP_CONTEXT=iso-chroot
+fi
+
+if [[ -n ${AGENT0S_INSTALL_LOG_FILE:-} && -f $AGENT0S_INSTALL/helpers/logging.sh ]]; then
+  source "$AGENT0S_INSTALL/helpers/logging.sh"
+else
+  run_logged() {
+    local script="$1"
+    bash -eE -c 'source "$1"' bash "$script"
+  }
+fi
+
+# Dev-aware skill symlinks. Cannot live in /etc/skel because AGENT0S_PATH may
+# point at a dev checkout (agent0s dev link) where the target differs.
+# Loops every skill directory, so shipping a new one needs no edit here.
+mkdir -p ~/.agents/skills ~/.claude/skills ~/.codex/skills ~/.pi/agent/skills ~/.gemini/config/skills ~/.hermes/skills
+for skill in "$AGENT0S_PATH"/default/agents/skills/*/; do
+  skill=${skill%/}
+  name=${skill##*/}
+  ln -sfn "$skill" ~/.agents/skills/"$name"
+  ln -sfn "$skill" ~/.claude/skills/"$name"
+  ln -sfn "$skill" ~/.codex/skills/"$name"
+  ln -sfn "$skill" ~/.pi/agent/skills/"$name"
+  ln -sfn "$skill" ~/.gemini/config/skills/"$name"
+  ln -sfn "$skill" ~/.hermes/skills/"$name"
+  if [[ -d ~/.hermes/profiles ]]; then
+    for profile in ~/.hermes/profiles/*/; do
+      [[ -d $profile ]] || continue
+      mkdir -p "$profile/skills"
+      ln -sfn "$skill" "$profile/skills/$name"
+    done
+  fi
+done
+
+mkdir -p ~/Downloads ~/Pictures ~/Videos ~/.config/gtk-3.0
+xdg-user-dirs-update --set TEMPLATES "$HOME"
+xdg-user-dirs-update --set PUBLICSHARE "$HOME"
+xdg-user-dirs-update --set DESKTOP "$HOME"
+rmdir ~/Templates ~/Public ~/Desktop 2>/dev/null || true
+touch ~/.config/gtk-3.0/bookmarks
+for dir in Downloads Projects Pictures Videos; do
+  bookmark="file://$HOME/$dir $dir"
+  grep -qxF "$bookmark" ~/.config/gtk-3.0/bookmarks || echo "$bookmark" >>~/.config/gtk-3.0/bookmarks
+done
+
+source "$AGENT0S_INSTALL/user/all.sh"
+
+agent0s-refresh-applications
+env -u BROWSER xdg-settings set default-web-browser chromium.desktop
+xdg-mime default HEY.desktop x-scheme-handler/mailto
+
+if (( first_install )); then
+  mkdir -p "$state_dir/migrations"
+  for migration in "$AGENT0S_PATH"/migrations/*.sh; do
+    [[ -f $migration ]] && touch "$state_dir/migrations/$(basename "$migration")"
+  done
+fi
+
+agent0s-done mark finalize-user
+echo "User finalization complete."

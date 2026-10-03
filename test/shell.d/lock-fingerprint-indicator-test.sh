@@ -36,8 +36,8 @@ cp "$SHELL_TEST_DIR/fixtures/lock-fingerprint-indicator/shell.qml" "$config_dir/
 ln -s "$ROOT/shell/Ui" "$config_dir/Ui"
 ln -s "$ROOT/shell/Commons" "$config_dir/Commons"
 
-OMARCHY_PATH="$ROOT" \
-OMARCHY_QML_TEST_RESULT="$result" \
+AGENT0S_PATH="$ROOT" \
+AGENT0S_QML_TEST_RESULT="$result" \
 HOME="$TMPDIR/home" \
 XDG_CONFIG_HOME="$TMPDIR/home/.config" \
 XDG_CACHE_HOME="$TMPDIR/home/.cache" \

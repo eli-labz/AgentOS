@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# agent0s:summary=Reinstall all default Agent0S packages from the stable channel
+# agent0s:requires-sudo=true
+
+set -e
+
+# Reinstall all default Agent0S packages from the stable channel and downgrade any packages that are too new.
+
+# Set the package repository to the stable mirrors
+agent0s-refresh-pacman
+
+# Downgrade any packages to the stable setup
+agent0s-update-pacman -Suu --noconfirm
+
+# Ensure all packages are installed
+mapfile -t packages < <(grep -v '^#' "$AGENT0S_PATH/install/agent0s-base.packages" | grep -v '^$')
+agent0s-update-pacman -Syu --noconfirm --needed "${packages[@]}"

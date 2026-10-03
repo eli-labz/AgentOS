@@ -47,14 +47,14 @@ SH
 chmod +x "$stub_bin/git"
 
 run_dev_update() {
-  OMARCHY_PATH="$1" \
+  AGENT0S_PATH="$1" \
     TEST_GIT_LOG="$git_log" \
     PATH="$stub_bin:$PATH" \
-    "$ROOT/bin/omarchy-update-dev"
+    "$ROOT/bin/agent0s-update-dev"
 }
 
 : >"$git_log"
-run_dev_update /usr/share/omarchy
+run_dev_update /usr/share/agent0s
 [[ ! -s $git_log ]] || fail "package-backed updates do not invoke git" "$(cat "$git_log")"
 pass "package-backed updates skip the dev checkout step"
 
@@ -75,10 +75,10 @@ pass "dev checkout without an upstream is skipped safely"
 if TEST_GIT_CHECKOUT=no run_dev_update "$checkout" >"$test_tmp/invalid.out" 2>"$test_tmp/invalid.err"; then
   fail "invalid dev checkout fails the update"
 fi
-grep -F "OMARCHY_PATH is not a git checkout: $checkout" "$test_tmp/invalid.err" >/dev/null ||
+grep -F "AGENT0S_PATH is not a git checkout: $checkout" "$test_tmp/invalid.err" >/dev/null ||
   fail "invalid dev checkout reports the configured path" "$(cat "$test_tmp/invalid.err")"
 pass "invalid dev checkout fails with a useful error"
 
-grep -qE '^ *omarchy-update-dev$' "$ROOT/bin/omarchy-update" ||
+grep -qE '^ *agent0s-update-dev$' "$ROOT/bin/agent0s-update" ||
   fail "top-level update includes the dev checkout step"
 pass "top-level update includes the dev checkout step"

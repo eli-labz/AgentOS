@@ -3,7 +3,7 @@ function sendUrl(url) {
 
   // The native messaging host runs yt-dlp and owns all the desktop
   // notifications, so we just hand off the URL and ignore the reply.
-  chrome.runtime.sendNativeMessage('com.omarchy.ytdlp', { url }, () => {
+  chrome.runtime.sendNativeMessage('com.agent0s.ytdlp', { url }, () => {
     void chrome.runtime.lastError;
   });
 }

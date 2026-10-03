@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# agent0s:summary=Restart an application by killing it and relaunching via uwsm.
+# agent0s:args=<application-name> [application-args...]
+
+pkill -x $1
+setsid uwsm-app -- "$@" >/dev/null 2>&1 &

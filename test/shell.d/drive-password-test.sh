@@ -29,19 +29,19 @@ export PATH="$tmp_dir:$ROOT/bin:$PATH"
 export TEST_ARGS="$tmp_dir/args" TEST_INPUTS="$tmp_dir/inputs" TEST_STDIN="$tmp_dir/stdin"
 
 printf '\n' >"$TEST_INPUTS"
-if "$ROOT/bin/omarchy-drive-password" >/dev/null; then
+if "$ROOT/bin/agent0s-drive-password" >/dev/null; then
   fail "drive password rejects an empty passphrase"
 fi
 [[ ! -e $TEST_ARGS ]] || fail "drive password does not run cryptsetup for an empty passphrase"
 
 printf 'secret123\n*\n' >"$TEST_INPUTS"
-if "$ROOT/bin/omarchy-drive-password" >/dev/null; then
+if "$ROOT/bin/agent0s-drive-password" >/dev/null; then
   fail "drive password rejects a mismatched confirmation"
 fi
 [[ ! -e $TEST_ARGS ]] || fail "drive password does not run cryptsetup for a mismatched confirmation"
 
 printf 'new password\nnew password\n' >"$TEST_INPUTS"
-"$ROOT/bin/omarchy-drive-password" >/dev/null
+"$ROOT/bin/agent0s-drive-password" >/dev/null
 
 [[ $(<"$TEST_STDIN") == "new password" ]] || fail "drive password passes the validated passphrase without a newline"
 grep -F 'cryptsetup luksChangeKey' "$TEST_ARGS" >/dev/null || fail "drive password changes the LUKS key"

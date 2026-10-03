@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.battery",
+  "id": "agent0s.battery",
   "name": "Battery",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Low battery warning service",
   "kinds": [
     "service"

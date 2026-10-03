@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Show the current time and date notification
+
+agent0s-notification-send -g  -u low "$(date +"%A %H:%M  ·  %d %B %Y  ·  Week %V")"

@@ -1,6 +1,6 @@
 echo "Move the bar indicators to the left of the clock"
 
-config_file="$HOME/.config/omarchy/shell.json"
+config_file="$HOME/.config/agent0s/shell.json"
 
 if [[ -s $config_file ]]; then
   tmp=$(mktemp)
@@ -21,15 +21,15 @@ if [[ -s $config_file ]]; then
       if type != "array" then
         .
       else
-        (entry_index("omarchy.clock")) as $clock_index |
-        (entry_index("omarchy.indicators")) as $indicators_index |
+        (entry_index("agent0s.clock")) as $clock_index |
+        (entry_index("agent0s.indicators")) as $indicators_index |
         if $clock_index == null or $indicators_index == null or $indicators_index < $clock_index then
           .
         else
           . as $entries |
           ($entries[$indicators_index]) as $indicators_entry |
           ($entries | del(.[$indicators_index])) as $without_indicators |
-          ($without_indicators | entry_index("omarchy.clock")) as $new_clock_index |
+          ($without_indicators | entry_index("agent0s.clock")) as $new_clock_index |
           $without_indicators[0:$new_clock_index] + [$indicators_entry] + $without_indicators[$new_clock_index:]
         end
       end;

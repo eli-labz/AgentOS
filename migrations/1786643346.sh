@@ -72,7 +72,7 @@ for accelerator in list(commands):
     changed = True
 
 if changed:
-    shutil.copy2(path, path.with_name(path.name + ".omarchy-copy-url-repair.bak"))
+    shutil.copy2(path, path.with_name(path.name + ".agent0s-copy-url-repair.bak"))
     path.write_text(json.dumps(preferences, separators=(",", ":")))
 PY
 )
@@ -114,7 +114,7 @@ unverified_repairs_exist() {
   local profile_root backup
 
   for profile_root in "${profile_roots[@]}"; do
-    for backup in "$profile_root"/*/Preferences.omarchy-copy-url-repair.bak; do
+    for backup in "$profile_root"/*/Preferences.agent0s-copy-url-repair.bak; do
       [[ -f $backup ]] && return 0
     done
   done
@@ -145,7 +145,7 @@ affected_profile_open() {
   done
 
   for profile_root in "${profile_roots[@]}"; do
-    for backup in "$profile_root"/*/Preferences.omarchy-copy-url-repair.bak; do
+    for backup in "$profile_root"/*/Preferences.agent0s-copy-url-repair.bak; do
       [[ -f $backup ]] || continue
       profile_open "$(dirname "$(dirname "$backup")")" && return 0
     done
@@ -169,7 +169,7 @@ fi
 while affected_profile_open; do
   if ! gum confirm "Close the browser windows to repair the Copy URL shortcut, then continue"; then
     echo "A running browser would undo the Copy URL shortcut repair." >&2
-    echo "Close the browser windows, then run: omarchy-migrate" >&2
+    echo "Close the browser windows, then run: agent0s-migrate" >&2
     exit 1
   fi
 done
@@ -187,7 +187,7 @@ done
 # repair stuck.
 if affected_profile_open; then
   echo "A browser started during the Copy URL shortcut repair and may undo it on exit." >&2
-  echo "Close the browser windows, then run: omarchy-migrate" >&2
+  echo "Close the browser windows, then run: agent0s-migrate" >&2
   exit 1
 fi
 
@@ -198,7 +198,7 @@ fi
 for preferences in "${pending[@]}"; do
   if python3 -c "$repair_py" "$preferences" "$pinned_id" check; then
     echo "A browser undid the Copy URL shortcut repair on exit." >&2
-    echo "Close the browser windows, then run: omarchy-migrate" >&2
+    echo "Close the browser windows, then run: agent0s-migrate" >&2
     exit 1
   fi
 done

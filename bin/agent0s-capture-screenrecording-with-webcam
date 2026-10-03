@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# agent0s:summary=Pick a webcam and start a screen recording with it
+# agent0s:examples=agent0s capture screenrecording-with-webcam
+
+mapfile -t devices < <(agent0s-capture-webcam-list)
+if (( ${#devices[@]} == 0 )); then
+  agent0s-notification-send "No webcam devices found" -u critical -t 3000
+  exit 1
+fi
+
+if (( ${#devices[@]} == 1 )); then
+  device="${devices[0]%%[[:space:]]*}"
+else
+  selection=$(agent0s-menu-select "Select Webcam" "${devices[@]}" -- --width 520 --maxheight 520) || exit 1
+  device="${selection%%[[:space:]]*}"
+fi
+
+exec agent0s-capture-screenrecording \
+  --with-desktop-audio --with-microphone-audio \
+  --with-webcam --webcam-device="$device"

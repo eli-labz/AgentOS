@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.tray",
+  "id": "agent0s.tray",
   "name": "System tray",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Status notifier items",
   "kinds": [
     "bar-widget"
@@ -17,7 +17,7 @@
     "category": "Status",
     "allowMultiple": false
   },
-  "omarchy": {
+  "agent0s": {
     "clonePaths": [
       {
         "source": "TrayModel.js",

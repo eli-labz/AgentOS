@@ -42,12 +42,12 @@ stub_hyprctl() {
 
 keybindings() {
   env -i PATH="$stub_bin:$ROOT/bin:$PATH" HOME="$home" \
-    XDG_CACHE_HOME="$tmpdir/cache" OMARCHY_PATH="$ROOT" \
-    bash "$ROOT/bin/omarchy-menu-keybindings" --print
+    XDG_CACHE_HOME="$tmpdir/cache" AGENT0S_PATH="$ROOT" \
+    bash "$ROOT/bin/agent0s-menu-keybindings" --print
 }
 
-# Closing a window and toggling the scratchpad are two of the actions Omarchy
-# binds twice on purpose. The last bind carries the longest description Omarchy
+# Closing a window and toggling the scratchpad are two of the actions Agent0S
+# binds twice on purpose. The last bind carries the longest description Agent0S
 # ships, which is what puts a row closest to the width the menu allows.
 stub_hyprctl <<BINDS
 $(lua_bind 64 "SUPER + W" "Close window")
@@ -91,7 +91,7 @@ pass "the grave key reads as the symbol printed on it"
 pass "every entry pads its chords to the same column"
 
 # The menu elides a row that outgrows its card: 754px of label, 78 monospace
-# characters at the heading size. The longest entry Omarchy ships sits at 74, so
+# characters at the heading size. The longest entry Agent0S ships sits at 74, so
 # a row has four characters of room and no more.
 (( $(awk '{ print length($0) }' <<<"$rendered" | sort -rn | head -1) <= 78 )) ||
   fail "no entry outgrows the width the menu gives it" "$rendered"
@@ -144,18 +144,18 @@ rendered=$(keybindings)
   fail "a refused chord does not let the next one jump the queue" "$rendered"
 pass "a refused chord does not let the next one jump the queue"
 
-# Sharing a row is something Omarchy names an action for, not something two
+# Sharing a row is something Agent0S names an action for, not something two
 # chords earn by looking alike. Alt + Tab and Shift + Alt + Tab both read
 # "Reveal active window on top" and cycle opposite ways.
 stub_hyprctl <<BINDS
-$(exec_bind 64 "SUPER + Y" "Zoom in" "omarchy-zoom in")
-$(exec_bind 64 "SUPER + Z" "Zoom in" "omarchy-zoom in")
+$(exec_bind 64 "SUPER + Y" "Zoom in" "agent0s-zoom in")
+$(exec_bind 64 "SUPER + Z" "Zoom in" "agent0s-zoom in")
 BINDS
 
 rendered=$(keybindings)
 (( $(grep -c '→ Zoom in$' <<<"$rendered") == 2 )) ||
-  fail "an action Omarchy did not name keeps its chords on separate rows" "$rendered"
-pass "an action Omarchy did not name keeps its chords on separate rows"
+  fail "an action Agent0S did not name keeps its chords on separate rows" "$rendered"
+pass "an action Agent0S did not name keeps its chords on separate rows"
 
 # Even a named action gives up the shared row rather than overrun the column:
 # two rows in line beat one that juts out of it.
@@ -175,7 +175,7 @@ pass "chords too wide to share a row stay on their own"
 # to stay apart, or the menu hides one of them behind the other.
 stub_hyprctl <<BINDS
 $(lua_bind 64 "SUPER + W" "Close window")
-$(exec_bind 64 "SUPER + X" "Close window" "omarchy-hyprland-window-close-all")
+$(exec_bind 64 "SUPER + X" "Close window" "agent0s-hyprland-window-close-all")
 BINDS
 
 rendered=$(keybindings)
@@ -205,11 +205,11 @@ expected_alternatives=(
   "Move window to scratchpad"
 )
 
-eval "$(sed -n '/^alternative_chord_actions()/,/^}/p' "$ROOT/bin/omarchy-menu-keybindings")"
+eval "$(sed -n '/^alternative_chord_actions()/,/^}/p' "$ROOT/bin/agent0s-menu-keybindings")"
 
 [[ $(alternative_chord_actions) == "$(printf '%s\n' "${expected_alternatives[@]}")" ]] ||
-  fail "the menu pairs up the actions Omarchy means it to" "$(alternative_chord_actions)"
-pass "the menu pairs up the actions Omarchy means it to"
+  fail "the menu pairs up the actions Agent0S means it to" "$(alternative_chord_actions)"
+pass "the menu pairs up the actions Agent0S means it to"
 
 # A renamed description would leave an action named here matching nothing, and
 # the row it was meant to share would quietly split in two. Only real binds

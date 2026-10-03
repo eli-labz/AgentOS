@@ -12,7 +12,7 @@ home="$test_dir/home"
 bin_dir="$home/.local/bin"
 mkdir -p "$bin_dir"
 
-# The migration calls omarchy-mise-install to rewrite a wrapper, so the real
+# The migration calls agent0s-mise-install to rewrite a wrapper, so the real
 # one has to be reachable: this proves the template it writes today, not a
 # copy of it that could drift.
 run_migration() {
@@ -49,7 +49,7 @@ write_stale_wrapper omp github:can1357/oh-my-pi omp
 write_stale_wrapper ghui npm:@kitlangton/ghui ghui
 write_pre_export_wrapper custom-tool "github:someone/custom-tool" custom-tool
 
-# The form omarchy-mise-install wrote when the earlier PATH-recursion migration
+# The form agent0s-mise-install wrote when the earlier PATH-recursion migration
 # ran, and the one before that. Neither carries `|| exit 1`.
 cat >"$bin_dir/mise-exec-era" <<'EOF'
 #!/bin/bash

@@ -1,16 +1,16 @@
 # Mac support
 
-Omarchy has built-in support for **Intel Macs**. There are a couple of known limitations at the moment, but as long as you're aware and OK with those; you can breathe some new life into your old Macs by loading Omarchy.
+Agent0S has built-in support for **Intel Macs**. There are a couple of known limitations at the moment, but as long as you're aware and OK with those; you can breathe some new life into your old Macs by loading Agent0S.
 
-Please note that installing on an M-series Mac is not directly supported at this time. You can find out more about the state of this in #omarchy-on-other in our [Discord](https://discord.gg/tXFUdasqhY).
+Please note that installing on an M-series Mac is not directly supported at this time. You can find out more about the state of this in #agent0s-on-other in our [Discord](https://discord.gg/tXFUdasqhY).
 
-In a simple test, we were able to achieve 36% performance gains on a 2019 MacBook Pro just by installing Omarchy.
+In a simple test, we were able to achieve 36% performance gains on a 2019 MacBook Pro just by installing Agent0S.
 
- ![macbook-omarchy](images/macbook-omarchy.webp)
+ ![macbook-agent0s](images/macbook-agent0s.webp)
 
-### Installing Omarchy on Mac
+### Installing Agent0S on Mac
 
-Omarchy only supports being the **only** OS installed at the moment. During the installation, the drive will be wiped and MacOS will no longer be bootable.
+Agent0S only supports being the **only** OS installed at the moment. During the installation, the drive will be wiped and MacOS will no longer be bootable.
 
 You can still restore it later via Internet Recovery if you'd like.
 
@@ -39,7 +39,7 @@ The installer detects Mac hardware and applies the needed fixes automatically: B
 
 ### Known Limitations
 
-Members of the community are constantly working on solutions to these challenges so if these are problematic for you, join #omarchy-on-other in our [Discord](https://discord.gg/tXFUdasqhY) and see if there's any up-to-date methods for resolving these.
+Members of the community are constantly working on solutions to these challenges so if these are problematic for you, join #agent0s-on-other in our [Discord](https://discord.gg/tXFUdasqhY) and see if there's any up-to-date methods for resolving these.
 
 #### Devices with T1 Chip
 

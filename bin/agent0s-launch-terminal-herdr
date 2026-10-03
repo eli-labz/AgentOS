@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Launch or attach to the persistent herdr session in a terminal
+
+exec agent0s-launch-terminal herdr

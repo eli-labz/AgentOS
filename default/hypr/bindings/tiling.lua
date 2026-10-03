@@ -1,17 +1,17 @@
 o.bind("SUPER + W", "Close window", hl.dsp.window.close())
 o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
-o.bind("CTRL + ALT + DELETE", "Close all windows", "omarchy-hyprland-window-close-all")
+o.bind("CTRL + ALT + DELETE", "Close all windows", "agent0s-hyprland-window-close-all")
 
 o.bind("SUPER + J", "Toggle window split", hl.dsp.layout("togglesplit"))
 o.bind("SUPER + P", "Pseudo window", hl.dsp.window.pseudo())
 o.bind("SUPER + T", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
 o.bind("SUPER + F", "Full screen", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
-o.bind("SUPER + CTRL + F", "Tiled full screen", "omarchy-hyprland-window-tiled-fullscreen-toggle")
+o.bind("SUPER + CTRL + F", "Tiled full screen", "agent0s-hyprland-window-tiled-fullscreen-toggle")
 o.bind("SUPER + ALT + F", "Full width", hl.dsp.window.fullscreen({ mode = "maximized" }))
-o.bind("SUPER + O", "Pop window out (float & pin)", "omarchy-hyprland-window-pop")
-o.bind("SUPER + ALT + Home", "Save window width", "omarchy-hyprland-window-width save")
-o.bind("SUPER + Home", "Restore window width", "omarchy-hyprland-window-width restore")
-o.bind("SUPER + L", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
+o.bind("SUPER + O", "Pop window out (float & pin)", "agent0s-hyprland-window-pop")
+o.bind("SUPER + ALT + Home", "Save window width", "agent0s-hyprland-window-width save")
+o.bind("SUPER + Home", "Restore window width", "agent0s-hyprland-window-width restore")
+o.bind("SUPER + L", "Toggle workspace layout", "agent0s-hyprland-workspace-layout-toggle")
 
 o.bind("SUPER + LEFT", "Focus on left window", hl.dsp.focus({ direction = "l" }))
 o.bind("SUPER + RIGHT", "Focus on right window", hl.dsp.focus({ direction = "r" }))
@@ -94,5 +94,5 @@ for index = 1, 5 do
   o.bind("SUPER + ALT + code:" .. tostring(index + 9), "Switch to group window " .. index, hl.dsp.group.active({ index = index }))
 end
 
-o.bind("SUPER + SLASH", "Monitor scaling up", "omarchy-hyprland-monitor-scaling up")
-o.bind("SUPER + ALT + SLASH", "Monitor scaling down", "omarchy-hyprland-monitor-scaling down")
+o.bind("SUPER + SLASH", "Monitor scaling up", "agent0s-hyprland-monitor-scaling up")
+o.bind("SUPER + ALT + SLASH", "Monitor scaling down", "agent0s-hyprland-monitor-scaling down")

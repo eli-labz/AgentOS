@@ -18,7 +18,7 @@ BorderSurface {
   property string body: ""
   property string image: ""
   // Nerd Font glyph rendered in the icon slot when no real icon is set.
-  // Used by omarchy-notification-send so user-action toasts (`Silenced
+  // Used by agent0s-notification-send so user-action toasts (`Silenced
   // notifications` etc.) show their bell/lock/etc. glyph without leaking
   // into the summary text.
   property string glyph: ""
@@ -131,7 +131,7 @@ BorderSurface {
         }
 
         // Glyph fallback (Nerd Font character) when no image icon is
-        // available. Used by omarchy-notification-send's `-g` flag.
+        // available. Used by agent0s-notification-send's `-g` flag.
         Text {
           textFormat: Text.PlainText
           anchors.centerIn: parent

@@ -15,10 +15,10 @@ the end and exits non-zero.
 - **`./test/cli`** — one big script, one suite. It owns the CLI router: help
   and group rendering, route resolution, aliases, hidden commands, and the
   guarantee that a trailing `--help` never executes the target. It also owns
-  the metadata lint — every `omarchy-*` executable under `bin/` is checked for a
-  `# omarchy:summary=` header and against removed or redundant fields — plus
-  the theme pipeline: template rendering (`omarchy-theme-set-templates`,
-  `omarchy-theme-color`, `omarchy-theme-osc`), the theme sync commands
+  the metadata lint — every `agent0s-*` executable under `bin/` is checked for a
+  `# agent0s:summary=` header and against removed or redundant fields — plus
+  the theme pipeline: template rendering (`agent0s-theme-set-templates`,
+  `agent0s-theme-color`, `agent0s-theme-osc`), the theme sync commands
   (tmux, GNOME, VS Code, Pi, Claude) run against stub binaries and a fake
   `$HOME`.
 - **`./test/shell`** — runs every `test/shell.d/*-test.sh` (except
@@ -47,7 +47,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 `base-test.sh` refuses to be executed directly — it is a library. It discovers
 the repo root from its own location and exports it as `ROOT`, so tests
 reference files as `$ROOT/bin/...` and never depend on the caller's working
-directory or an installed Omarchy.
+directory or an installed Agent0S.
 
 Assertions are TAP-flavored and blunt:
 
@@ -123,15 +123,15 @@ only a live session can prove.
   executables (`sudo`, `tmux`, `gsettings`, helper commands) that log their
   arguments to a file, prepend it to `PATH`, and then run the real script
   under test. Assertions grep the call log and the files the script wrote.
-- **Fake `$HOME`, real `$OMARCHY_PATH`.** Anything touching user state runs
+- **Fake `$HOME`, real `$AGENT0S_PATH`.** Anything touching user state runs
   with `HOME` pointed at a `mktemp -d` directory (cleaned up via
-  `trap ... EXIT`) and `OMARCHY_PATH="$ROOT"`, so tests exercise the checkout
+  `trap ... EXIT`) and `AGENT0S_PATH="$ROOT"`, so tests exercise the checkout
   without touching the developer's machine.
 - **Migrations run directly.** A migration test builds the legacy state in a
   fake `$HOME`, runs `bash -euo pipefail "$ROOT/migrations/<ts>.sh"`, and
   asserts the resulting state — including running it twice to prove
   idempotence, and once against non-legacy state to prove it leaves user
-  customization alone. Keep that test while the migration is still being written or bugfixed, if it calls an Omarchy helper whose interface can still change, or if it is a security-sensitive privileged repair. Once a one-shot rewrite has shipped in a tagged release and is frozen, drop the test even when that rewrite used sudo, pacman, or limine-mkinitcpio. Keep the migration itself for late-updaters. Tests of `omarchy-migrate`, the login notifier, and `omarchy-upgrade-to-quattro` stay.
+  customization alone. Keep that test while the migration is still being written or bugfixed, if it calls an Agent0S helper whose interface can still change, or if it is a security-sensitive privileged repair. Once a one-shot rewrite has shipped in a tagged release and is frozen, drop the test even when that rewrite used sudo, pacman, or limine-mkinitcpio. Keep the migration itself for late-updaters. Tests of `agent0s-migrate`, the login notifier, and `agent0s-upgrade-to-quattro` stay.
 - **Assert the invariant, not the snapshot.** Config tests pin the property a
   test is named for (this widget stays adjacent to that one) rather than whole
   structures, so unrelated churn does not fail them.
