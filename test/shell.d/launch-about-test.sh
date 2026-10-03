@@ -9,14 +9,14 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 # The launcher ends by taking over the process, so source it short of that line
 # and its half of the question can be asked here, without a terminal to draw on.
-about="$ROOT/bin/omarchy-launch-about"
+about="$ROOT/bin/agent0s-launch-about"
 grep -q '^presize_window$' "$about" || fail "About launcher can be sourced short of its launch"
 sed '/^presize_window$/,$d' "$about" >"$tmp_dir/about.bash"
 
 export HOME="$tmp_dir/home"
 export PATH="$ROOT/bin:$PATH"
-mkdir -p "$HOME/.config/omarchy/branding"
-printf '%s\n' '████████' '████████' >"$HOME/.config/omarchy/branding/about.txt"
+mkdir -p "$HOME/.config/agent0s/branding"
+printf '%s\n' '████████' '████████' >"$HOME/.config/agent0s/branding/about.txt"
 
 source "$tmp_dir/about.bash"
 [[ $(type -t sheen_build) == "function" ]] || fail "the launcher finds the sheen it sources"
@@ -45,7 +45,7 @@ measure_layout() {
 config_paths=(
   "$HOME/.config/fastfetch/"
   "$HOME/fastfetch/"
-  "$OMARCHY_FASTFETCH_DIR/ (*)"
+  "$AGENT0S_FASTFETCH_DIR/ (*)"
   "$HOME/searched-later/fastfetch/"
 )
 fastfetch() {
@@ -81,7 +81,7 @@ pass "a roomy window animates"
 
 # The sheen is told where the logo is, what colour to hand the cells back in, and
 # how much room it has left of the module column.
-[[ ${handed[0]} == "$HOME/.config/omarchy/branding/about.txt" ]] || fail "the sheen is given the logo About draws" "${handed[0]}"
+[[ ${handed[0]} == "$HOME/.config/agent0s/branding/about.txt" ]] || fail "the sheen is given the logo About draws" "${handed[0]}"
 pass "the sheen is given the logo About draws"
 [[ ${handed[1]} == "$logo_row" && ${handed[2]} == "$logo_column" ]] || fail "the sheen is given the cell the logo starts on" "${handed[1]}/${handed[2]}"
 pass "the sheen is given the cell the logo starts on"
@@ -91,7 +91,7 @@ pass "the sheen is given fastfetch's own colour to restore"
 pass "the sheen is given the columns left of the module column"
 
 # fastfetch reads the first config it finds across several directories, and any
-# of them ahead of Omarchy's own can put the logo somewhere else entirely.
+# of them ahead of Agent0S's own can put the logo somewhere else entirely.
 for directory in .config/fastfetch fastfetch; do
   mkdir -p "$HOME/$directory"
   touch "$HOME/$directory/config.jsonc"
@@ -99,12 +99,12 @@ for directory in .config/fastfetch fastfetch; do
   rm -r "${HOME:?}/$directory"
 done
 
-# One fastfetch would never read, because Omarchy's own comes first, is not a
+# One fastfetch would never read, because Agent0S's own comes first, is not a
 # reason to stop: the logo on screen is still the one About drew.
 mkdir -p "$HOME/searched-later/fastfetch"
 touch "$HOME/searched-later/fastfetch/config.jsonc"
-build_sheen || fail "a config fastfetch searches after Omarchy's own still animates"
-pass "a config fastfetch searches after Omarchy's own still animates"
+build_sheen || fail "a config fastfetch searches after Agent0S's own still animates"
+pass "a config fastfetch searches after Agent0S's own still animates"
 rm -r "${HOME:?}/searched-later"
 
 # A window with no room for the cursor past the layout's last line has scrolled,
@@ -139,11 +139,11 @@ unset NO_COLOR
 spacey="$tmp_dir/example user/.config/fastfetch"
 mkdir -p "$spacey"
 touch "$spacey/config.jsonc"
-config_paths=("$tmp_dir/example user/.config/fastfetch/" "$OMARCHY_FASTFETCH_DIR/ (*)")
+config_paths=("$tmp_dir/example user/.config/fastfetch/" "$AGENT0S_FASTFETCH_DIR/ (*)")
 custom_fastfetch_config || fail "a fastfetch config in a path with a space is found"
 pass "a fastfetch config in a path with a space is found"
 rm -r "$tmp_dir/example user"
-config_paths=("$HOME/.config/fastfetch/" "$HOME/fastfetch/" "$OMARCHY_FASTFETCH_DIR/ (*)")
+config_paths=("$HOME/.config/fastfetch/" "$HOME/fastfetch/" "$AGENT0S_FASTFETCH_DIR/ (*)")
 
 # An enumeration that said nothing is not the same answer as "none of them".
 mkdir -p "$HOME/.config/fastfetch"
@@ -187,7 +187,7 @@ refuses "a layout fastfetch cannot be measured from leaves it still"
 # padding away — and a scrolled layout is one the sheen then refuses. The fit
 # asks fastfetch how tall the layout came out instead.
 rm -rf "${HOME:?}/.local"
-printf '%s\n' $(for i in $(seq 40); do echo '██████████'; done) >"$HOME/.config/omarchy/branding/about.txt"
+printf '%s\n' $(for i in $(seq 40); do echo '██████████'; done) >"$HOME/.config/agent0s/branding/about.txt"
 layout_rows=43
 measure_layout() {
   LAYOUT_ROWS=$layout_rows
@@ -201,7 +201,7 @@ fastfetch() {
   esac
 }
 hyprctl() {
-  [[ $1 == "clients" ]] && printf '[{"class":"org.omarchy.about","address":"0x1","size":[800,600]}]\n'
+  [[ $1 == "clients" ]] && printf '[{"class":"org.agent0s.about","address":"0x1","size":[800,600]}]\n'
   return 0
 }
 

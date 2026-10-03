@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle microphone mute. Drives the hardware mic-mute LED on laptops that expose one.
+
+wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle >/dev/null
+
+if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then
+  agent0s-brightness-keyboard-mute on
+  agent0s-osd -i microphone-muted -m "Microphone muted"
+else
+  agent0s-brightness-keyboard-mute off
+  agent0s-osd -i microphone -m "Microphone on"
+fi

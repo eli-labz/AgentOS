@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Match Dell XPS systems with the Synaptics haptic touchpad.
+
+agent0s-hw-match "XPS" && [[ -e /sys/bus/i2c/devices/i2c-VEN_06CB:00 ]]

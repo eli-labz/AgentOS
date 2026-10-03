@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# agent0s:summary=Refresh the current theme from its templates.
+
+THEME_NAME_PATH="$HOME/.local/state/agent0s/current/theme.name"
+
+if [[ -f $THEME_NAME_PATH ]]; then
+  AGENT0S_THEME_SKIP_BACKGROUND=1 agent0s-theme-set "$(cat $THEME_NAME_PATH)"
+fi

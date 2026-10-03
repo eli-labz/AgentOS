@@ -4,15 +4,15 @@ set -euo pipefail
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
-sleep_monitor="$ROOT/bin/omarchy-system-sleep-monitor"
+sleep_monitor="$ROOT/bin/agent0s-system-sleep-monitor"
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
 mock_bin="$tmpdir/bin"
-mock_omarchy="$tmpdir/omarchy"
+mock_agent0s="$tmpdir/agent0s"
 producer_pid_file="$tmpdir/producer-pid"
 lock_log="$tmpdir/lock-log"
-mkdir -p "$mock_bin" "$mock_omarchy/bin"
+mkdir -p "$mock_bin" "$mock_agent0s/bin"
 
 cat >"$mock_bin/systemd-inhibit" <<'SH'
 #!/bin/bash
@@ -32,7 +32,7 @@ printf '   boolean true\n'
 exec sleep 30
 SH
 
-cat >"$mock_omarchy/bin/omarchy-system-sleep-lock" <<'SH'
+cat >"$mock_agent0s/bin/agent0s-system-sleep-lock" <<'SH'
 #!/bin/bash
 
 echo locked >>"$LOCK_LOG"
@@ -41,11 +41,11 @@ SH
 chmod +x \
   "$mock_bin/systemd-inhibit" \
   "$mock_bin/dbus-monitor" \
-  "$mock_omarchy/bin/omarchy-system-sleep-lock"
-ln -s "$sleep_monitor" "$mock_omarchy/bin/omarchy-system-sleep-monitor"
+  "$mock_agent0s/bin/agent0s-system-sleep-lock"
+ln -s "$sleep_monitor" "$mock_agent0s/bin/agent0s-system-sleep-monitor"
 
 start_us=${EPOCHREALTIME//[!0-9]/}
-OMARCHY_PATH="$mock_omarchy" \
+AGENT0S_PATH="$mock_agent0s" \
   PATH="$mock_bin:$PATH" \
   PRODUCER_PID_FILE="$producer_pid_file" \
   LOCK_LOG="$lock_log" \
@@ -78,7 +78,7 @@ SH
 chmod +x "$mock_bin/dbus-monitor"
 rm -f "$producer_pid_file"
 
-OMARCHY_PATH="$mock_omarchy" \
+AGENT0S_PATH="$mock_agent0s" \
   PATH="$mock_bin:$PATH" \
   PRODUCER_PID_FILE="$producer_pid_file" \
   LOCK_LOG="$lock_log" \

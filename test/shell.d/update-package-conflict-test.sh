@@ -17,7 +17,7 @@ cat >"$stub_bin/sudo" <<'STUB'
 exec "$@"
 STUB
 
-# omarchy-update-pacman wraps the transaction in a real PID 1 scope; the tests
+# agent0s-update-pacman wraps the transaction in a real PID 1 scope; the tests
 # must stay inside the fixture, so drop the wrapper's options and run the command.
 cat >"$stub_bin/systemd-run" <<'STUB'
 #!/bin/bash
@@ -64,31 +64,31 @@ write_conflict_report() {
 
 update_env() {
   printf '%s\n' \
-    "OMARCHY_REPLACED_DIR=$test_tmp/replaced" \
+    "AGENT0S_REPLACED_DIR=$test_tmp/replaced" \
     "PACMAN_ATTEMPTS=$test_tmp/attempts" \
     "PACMAN_CALLS=$test_tmp/calls" \
     "CONFLICT_REPORT=$test_tmp/report" \
     "OWNED_PATHS=" \
-    "OMARCHY_UPDATE_UNATTENDED=${OMARCHY_UPDATE_UNATTENDED:-}" \
-    "OMARCHY_UPDATE_INTERACTIVE=${OMARCHY_UPDATE_INTERACTIVE:-}" \
+    "AGENT0S_UPDATE_UNATTENDED=${AGENT0S_UPDATE_UNATTENDED:-}" \
+    "AGENT0S_UPDATE_INTERACTIVE=${AGENT0S_UPDATE_INTERACTIVE:-}" \
     "PATH=$stub_bin:$ROOT/bin:$PATH"
 }
 
 # No terminal on any stream, the way a cron or ssh caller arrives.
 run_headless() {
   mapfile -t environment < <(update_env)
-  env "${environment[@]}" bash "$ROOT/bin/omarchy-update-system-pkgs" \
+  env "${environment[@]}" bash "$ROOT/bin/agent0s-update-system-pkgs" \
     </dev/null >"$test_tmp/out" 2>"$test_tmp/err"
 }
 
-# script gives the update the pty that omarchy-update always runs it on, so the
+# script gives the update the pty that agent0s-update always runs it on, so the
 # terminal checks see what a person at the keyboard would give them. Its
 # transcript is stdout and stderr together, which is also what that person sees.
 # $1 optionally takes one stream back off the pty.
 run_on_terminal() {
   mapfile -t environment < <(update_env)
   env "${environment[@]}" \
-    script -qec "bash '$ROOT/bin/omarchy-update-system-pkgs' ${1:-}" "$test_tmp/out" >/dev/null 2>&1
+    script -qec "bash '$ROOT/bin/agent0s-update-system-pkgs' ${1:-}" "$test_tmp/out" >/dev/null 2>&1
 }
 
 call_line() {
@@ -140,12 +140,12 @@ if run_headless; then
 fi
 (($(cat "$test_tmp/attempts") == 1)) ||
   fail "a package conflict is retried with no terminal to answer on"
-grep -q 'omarchy update' "$test_tmp/err" ||
+grep -q 'agent0s update' "$test_tmp/err" ||
   fail "a package conflict with no terminal does not say how to answer it"
 pass "a package conflict with no terminal reports instead of hanging"
 
 write_conflict_report
-if OMARCHY_UPDATE_UNATTENDED=1 run_on_terminal; then
+if AGENT0S_UPDATE_UNATTENDED=1 run_on_terminal; then
   fail "an unattended update stops on a prompt nobody answers"
 fi
 (($(cat "$test_tmp/attempts") == 1)) ||
@@ -155,7 +155,7 @@ pass "-y is kept: an unattended update never waits on an answer"
 # The interactive upgrade skips the error capture the handler depends on, so
 # reaching it any other way would lose the report that drives every recovery.
 write_conflict_report
-if OMARCHY_UPDATE_INTERACTIVE=1 run_headless; then
+if AGENT0S_UPDATE_INTERACTIVE=1 run_headless; then
   fail "a caller reaches the interactive upgrade on its own"
 fi
 [[ $(call_line 1 args) == *"--noconfirm"* ]] ||

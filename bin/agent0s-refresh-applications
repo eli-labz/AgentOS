@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# agent0s:summary=Ensure default application launchers and mise wrappers are installed.
+
+# Copy .desktop declarations
+mkdir -p ~/.local/share/applications
+cp "$AGENT0S_PATH"/applications/*.desktop ~/.local/share/applications/
+
+if agent0s-cmd-present alacritty; then
+  cp "$AGENT0S_PATH/default/alacritty/Alacritty.desktop" ~/.local/share/applications/
+fi
+
+if [[ -f "$AGENT0S_PATH/install/user/mise.sh" ]]; then
+  bash "$AGENT0S_PATH/install/user/mise.sh"
+fi
+
+update-desktop-database ~/.local/share/applications

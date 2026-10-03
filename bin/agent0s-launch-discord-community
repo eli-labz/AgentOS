@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# agent0s:summary=Open the Agent0S Discord community in the Discord app or a browser.
+
+invite="https://discord.gg/tXFUdasqhY"
+
+if agent0s-cmd-present discord; then
+  exec setsid uwsm-app -- discord --url -- "discord://-/invite/${invite##*/}"
+else
+  exec agent0s-launch-webapp "$invite"
+fi

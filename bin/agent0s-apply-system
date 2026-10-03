@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# agent0s:summary=Apply Agent0S system setup in the installed target
+# agent0s:group=apply
+# agent0s:requires-sudo=true
+# agent0s:examples=agent0s apply system --install-user dhh --first-install
+# agent0s:hidden=true
+
+set -euo pipefail
+
+usage() {
+  cat <<USAGE
+Usage: agent0s apply system --install-user USER [--first-install|--upgrade]
+       agent0s apply system --defer-provisioning --first-install
+
+Runs root-owned Agent0S system setup. The ISO calls this in the target chroot
+after packages are installed and the target user exists. It also calls
+agent0s-apply-hardware, so hardware setup cannot be accidentally skipped.
+
+--defer-provisioning runs without an install user: deferred-provisioning installs create the user at
+first boot, so scripts that grant group memberships record them in
+/var/lib/agent0s/provisioning/groups instead of calling usermod.
+USAGE
+}
+
+install_user="${AGENT0S_INSTALL_USER:-}"
+first_install=0
+upgrade=0
+defer_provisioning=0
+
+while (($#)); do
+  case "$1" in
+    --install-user)
+      install_user="${2:-}"
+      shift 2
+      ;;
+    --defer-provisioning)
+      defer_provisioning=1
+      shift
+      ;;
+    --first-install)
+      first_install=1
+      shift
+      ;;
+    --upgrade)
+      upgrade=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if (( EUID != 0 )); then
+  echo "Error: agent0s-apply-system must run as root" >&2
+  exit 1
+fi
+
+if (( defer_provisioning )); then
+  install_user=""
+else
+  if [[ -z $install_user || $install_user == "root" ]]; then
+    echo "Error: --install-user must name the target non-root user" >&2
+    exit 1
+  fi
+
+  if ! getent passwd "$install_user" >/dev/null; then
+    echo "Error: user '$install_user' does not exist" >&2
+    exit 1
+  fi
+fi
+
+export AGENT0S_INSTALL_USER="$install_user"
+export AGENT0S_FIRST_INSTALL="$first_install"
+export AGENT0S_UPGRADE="$upgrade"
+export AGENT0S_PATH="${AGENT0S_PATH:-/usr/share/agent0s}"
+export AGENT0S_INSTALL="${AGENT0S_INSTALL:-$AGENT0S_PATH/install}"
+export AGENT0S_INSTALL_LOG_FILE="${AGENT0S_INSTALL_LOG_FILE:-/var/log/agent0s-install.log}"
+export PATH="$AGENT0S_PATH/bin:$PATH"
+
+source "$AGENT0S_INSTALL/helpers/logging.sh"
+start_install_log
+
+source "$AGENT0S_INSTALL/config/all.sh"
+
+if (( defer_provisioning )); then
+  agent0s-apply-hardware --defer-provisioning
+else
+  agent0s-apply-hardware --install-user "$install_user"
+fi
+
+source "$AGENT0S_INSTALL/login/all.sh"
+source "$AGENT0S_INSTALL/post-install/all.sh"
+
+stop_install_log

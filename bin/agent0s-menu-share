@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# agent0s:summary=Share clipboard, files, or folders with LocalSend
+# agent0s:group=share
+# agent0s:name=
+# agent0s:args=<clipboard|file|folder> [path...]
+# agent0s:examples=agent0s share clipboard | agent0s share file ~/Downloads/example.txt
+
+if (($# == 0)); then
+  echo "Usage: agent0s-menu-share [clipboard|file|folder]"
+  exit 1
+fi
+
+MODE="$1"
+shift
+
+if [[ $MODE == "clipboard" ]]; then
+  TEMP_FILE=$(mktemp --suffix=.txt)
+  wl-paste >"$TEMP_FILE"
+  FILE_ARRAY=("$TEMP_FILE")
+elif (($# > 0)); then
+  FILE_ARRAY=("$@")
+else
+  if [[ $MODE == "folder" ]]; then
+    select_args=(--title "Share folder" --directory)
+  else
+    select_args=(--title "Share files" --multiple)
+  fi
+
+  # Command substitution so the chooser's exit status survives: reading it
+  # through a process substitution reports success for a chooser that never
+  # opened, which is indistinguishable here from someone deciding not to share.
+  picked=$(agent0s-file-select "${select_args[@]}") || status=$?
+
+  if ((${status:-0} > 1)); then
+    agent0s-notification-send -g "" -u critical "Could not share" "The file chooser did not open"
+    exit 1
+  fi
+
+  [[ -n $picked ]] || exit 0
+  readarray -t FILE_ARRAY <<<"$picked"
+fi
+
+# Run LocalSend in its own systemd service (detached from terminal)
+systemd-run --user --quiet --collect localsend --headless send "${FILE_ARRAY[@]}"
+
+# Note: Temporary file will remain until system cleanup for clipboard mode
+# This ensures the file content is available for the LocalSend GUI
+
+exit 0

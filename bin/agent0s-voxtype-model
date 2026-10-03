@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# agent0s:summary=Open Voxtype AI model setup
+
+set -e
+
+agent0s-launch-floating-terminal-with-presentation "voxtype setup model"
+agent0s-restart-shell

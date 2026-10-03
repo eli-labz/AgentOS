@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# agent0s:summary=Set the default editor used by agent0s-launch-editor
+# agent0s:args=[code|cursor|zed|sublime_text|helix|vim|emacs|nvim]
+# agent0s:examples=agent0s default editor | agent0s default editor code | agent0s default editor helix
+
+installing=false
+if [[ ${1:-} == "--install" ]]; then
+  installing=true
+  shift
+fi
+
+editor_file="$HOME/.local/state/agent0s/defaults/editor"
+
+if (($# == 0)); then
+  if [[ -f $editor_file ]]; then
+    read -r editor <"$editor_file"
+  fi
+
+  [[ -n $editor ]] && echo "$editor" || echo "nvim"
+  exit 0
+fi
+
+case "$1" in
+code) selection="code"; editor="code"; name="VSCode"; glyph= ;;
+cursor) selection="cursor"; editor="cursor"; name="Cursor"; glyph= ;;
+zed | zeditor) selection="zed"; editor="zeditor"; name="Zed"; glyph= ;;
+sublime_text) selection="sublime_text"; editor="sublime_text"; name="Sublime Text"; glyph= ;;
+helix) selection="helix"; editor="helix"; name="Helix"; glyph= ;;
+vim) selection="vim"; editor="vim"; name="Vim"; glyph= ;;
+emacs) selection="emacs"; editor="emacs"; name="Emacs"; glyph= ;;
+nvim) selection="nvim"; editor="nvim"; name="Neovim"; glyph= ;;
+*)
+  echo "Usage: agent0s-default-editor <code|cursor|zed|sublime_text|helix|vim|emacs|nvim>"
+  exit 1
+  ;;
+esac
+
+if agent0s-cmd-missing "$editor"; then
+  if [[ $installing == "false" ]]; then
+    exec agent0s-launch-floating-terminal-with-presentation agent0s-default-editor --install "$selection"
+  else
+    case "$selection" in
+    code) agent0s-install-editor-vscode ;;
+    cursor) agent0s-pkg-add cursor-bin ;;
+    zed) agent0s-install-editor-zed ;;
+    sublime_text) agent0s-pkg-add sublime-text-4 ;;
+    helix) agent0s-install-editor-helix ;;
+    vim) agent0s-pkg-add vim ;;
+    emacs) agent0s-install-editor-emacs ;;
+    nvim) agent0s-pkg-add neovim ;;
+    esac || exit 1
+  fi
+fi
+
+mkdir -p "$(dirname "$editor_file")"
+printf '%s\n' "$editor" >"$editor_file"
+
+agent0s-notification-send -g $glyph "$name is now the default editor"

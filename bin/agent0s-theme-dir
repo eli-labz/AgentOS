@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# agent0s:summary=Print the directory holding a theme, preferring a user-installed copy
+# agent0s:args=<theme-name>
+# agent0s:examples=agent0s theme dir tokyo-night
+
+theme="${1:-}"
+
+if [[ -z $theme ]]; then
+  echo "Usage: agent0s-theme-dir <theme-name>" >&2
+  exit 1
+fi
+
+if [[ -d $HOME/.config/agent0s/themes/$theme ]]; then
+  echo "$HOME/.config/agent0s/themes/$theme"
+else
+  echo "$AGENT0S_PATH/themes/$theme"
+fi

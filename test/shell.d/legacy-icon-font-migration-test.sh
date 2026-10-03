@@ -5,14 +5,14 @@ set -euo pipefail
 source "$(dirname "$0")/base-test.sh"
 
 migration="$ROOT/migrations/1788848726.sh"
-fixture="$ROOT/test/shell.d/fixtures/legacy-icon-font/omarchy.ttf"
+fixture="$ROOT/test/shell.d/fixtures/legacy-icon-font/agent0s.ttf"
 test_dir=$(mktemp -d)
 trap 'rm -rf "$test_dir"' EXIT
 
 export FONT_TEST_HOME="$test_dir/home with spaces"
 export FONT_TEST_PACKAGE="$test_dir/packaged-font.ttf"
 export FONT_TEST_CACHE_LOG="$test_dir/cache.log"
-legacy_font="$FONT_TEST_HOME/.local/share/fonts/omarchy.ttf"
+legacy_font="$FONT_TEST_HOME/.local/share/fonts/agent0s.ttf"
 
 # Redirect only the filesystem roots; run the real hash check and removal.
 # Never change the developer's HOME or refresh their real font cache.
@@ -22,7 +22,7 @@ import sys
 
 source = pathlib.Path(sys.argv[1]).read_text()
 source = source.replace('$HOME', '$FONT_TEST_HOME')
-source = source.replace('/usr/share/fonts/omarchy/omarchy.ttf', '$FONT_TEST_PACKAGE')
+source = source.replace('/usr/share/fonts/agent0s/agent0s.ttf', '$FONT_TEST_PACKAGE')
 pathlib.Path(sys.argv[2]).write_text(source)
 PY
 
@@ -37,7 +37,7 @@ chmod +x "$test_dir/bin/fc-cache"
 reset_fonts() {
   rm -rf "$FONT_TEST_HOME"
   mkdir -p "$FONT_TEST_HOME/.local/share/fonts" "$FONT_TEST_HOME/.config"
-  cp "$ROOT/default/fonts/omarchy/omarchy.ttf" "$FONT_TEST_PACKAGE"
+  cp "$ROOT/default/fonts/agent0s/agent0s.ttf" "$FONT_TEST_PACKAGE"
   : > "$FONT_TEST_CACHE_LOG"
 }
 
@@ -47,11 +47,11 @@ run_migration() {
 
 reset_fonts
 cp "$fixture" "$legacy_font"
-cp "$fixture" "$FONT_TEST_HOME/.config/omarchy.ttf"
+cp "$fixture" "$FONT_TEST_HOME/.config/agent0s.ttf"
 run_migration
 [[ ! -e $legacy_font ]] || fail "stock font is removed from the actual user font directory"
-cmp "$fixture" "$FONT_TEST_HOME/.config/omarchy.ttf" || fail "unrelated config path is untouched"
-cmp "$ROOT/default/fonts/omarchy/omarchy.ttf" "$FONT_TEST_PACKAGE" || fail "packaged font is untouched"
+cmp "$fixture" "$FONT_TEST_HOME/.config/agent0s.ttf" || fail "unrelated config path is untouched"
+cmp "$ROOT/default/fonts/agent0s/agent0s.ttf" "$FONT_TEST_PACKAGE" || fail "packaged font is untouched"
 [[ $(cat "$FONT_TEST_CACHE_LOG") == "-f" ]] || fail "font cache is refreshed after retirement"
 pass "retire the known stock font at its real path and refresh the cache"
 
@@ -100,7 +100,7 @@ run_migration
 (( $(wc -l < "$FONT_TEST_CACHE_LOG") == 2 )) || fail "retry refreshes the cache after the file was removed"
 pass "retry a failed cache refresh after successful font retirement"
 
-if grep -q $'^retire\tomarchy.ttf\t' "$ROOT/bin/omarchy-upgrade-to-quattro"; then
+if grep -q $'^retire\tagent0s.ttf\t' "$ROOT/bin/agent0s-upgrade-to-quattro"; then
   fail "upgrader no longer treats the user font as a config file"
 fi
 pass "upgrader leaves font retirement to its post-upgrade migrations"

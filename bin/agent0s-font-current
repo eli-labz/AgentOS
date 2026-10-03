@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# agent0s:summary=Show current monospace font
+# agent0s:examples=agent0s font current
+
+# fontconfig is the source of truth. fc-match returns a comma-separated
+# alias list (e.g. "JetBrainsMono Nerd Font,JetBrainsMono NF") so take
+# the first entry.
+fc-match monospace -f '%{family}\n' | head -n1 | cut -d, -f1

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# agent0s:summary=Send the low battery warning notification and run battery-low hooks.
+# agent0s:args=<percentage>
+# agent0s:hidden=true
+
+set -euo pipefail
+
+if (($# != 1)); then
+  echo "Usage: agent0s-battery-low <percentage>" >&2
+  exit 1
+fi
+
+level=$1
+
+agent0s-notification-send -g 󱐋 -u critical "Time to recharge!" "Battery is down to ${level}%" -i battery-caution -t 30000
+agent0s-hook battery-low "$level"

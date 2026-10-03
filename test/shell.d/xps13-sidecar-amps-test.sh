@@ -4,7 +4,7 @@ set -euo pipefail
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
-detector="$ROOT/bin/omarchy-hw-dell-xps13-sidecar-amps"
+detector="$ROOT/bin/agent0s-hw-dell-xps13-sidecar-amps"
 leaf="$ROOT/install/hardware/dell-xps13-sidecar-amps.sh"
 all="$ROOT/install/hardware/all.sh"
 migration=$(grep -l "dell-xps13-sidecar-amps" "$ROOT"/migrations/*.sh | head -1)
@@ -28,12 +28,12 @@ test_tmp=$(mktemp -d)
 trap 'rm -rf "$test_tmp"' EXIT
 mkdir -p "$test_tmp/bin"
 
-cat >"$test_tmp/bin/omarchy-hw-match" <<'SH'
+cat >"$test_tmp/bin/agent0s-hw-match" <<'SH'
 #!/bin/bash
 [[ ${TEST_PRODUCT_NAME:-} == *"$1"* ]]
 SH
 
-cat >"$test_tmp/bin/omarchy-pkg-add" <<'SH'
+cat >"$test_tmp/bin/agent0s-pkg-add" <<'SH'
 #!/bin/bash
 printf 'pkg-add %s\n' "$*" >>"$CALL_LOG"
 exit "${TEST_PKG_ADD_STATUS:-0}"
@@ -50,7 +50,7 @@ printf 'apply\n' >>"$CALL_LOG"
 exit "${TEST_APPLY_STATUS:-0}"
 SH
 
-cat >"$test_tmp/bin/omarchy-state" <<'SH'
+cat >"$test_tmp/bin/agent0s-state" <<'SH'
 #!/bin/bash
 printf 'state %s\n' "$*" >>"$CALL_LOG"
 SH
@@ -64,7 +64,7 @@ run_detector() {
   printf '%s\n' "${2-0E53}" >"$sku_file"
   PATH="$test_tmp/bin:$PATH" \
     TEST_PRODUCT_NAME="${1-XPS 13 DX13260}" \
-    OMARCHY_DMI_PRODUCT_SKU="${3-$sku_file}" \
+    AGENT0S_DMI_PRODUCT_SKU="${3-$sku_file}" \
     bash "$detector"
 }
 
@@ -94,7 +94,7 @@ run_leaf() {
     TEST_PRODUCT_NAME="${1-XPS 13 DX13260}" \
     TEST_PKG_ADD_STATUS="${2:-0}" \
     TEST_APPLY_STATUS="${3:-0}" \
-    OMARCHY_DMI_PRODUCT_SKU="$sku_file" \
+    AGENT0S_DMI_PRODUCT_SKU="$sku_file" \
     bash -c 'source "$1"' bash "$leaf"
 }
 
@@ -125,10 +125,10 @@ run_migration() {
   printf '0E53\n' >"$sku_file"
   PATH="$test_tmp/bin:$ROOT/bin:$PATH" \
     CALL_LOG="$call_log" \
-    OMARCHY_PATH="$ROOT" \
+    AGENT0S_PATH="$ROOT" \
     TEST_PRODUCT_NAME="${1-XPS 13 DX13260}" \
     TEST_APPLY_STATUS="${2:-0}" \
-    OMARCHY_DMI_PRODUCT_SKU="$sku_file" \
+    AGENT0S_DMI_PRODUCT_SKU="$sku_file" \
     bash -euo pipefail "$migration" >/dev/null
 }
 

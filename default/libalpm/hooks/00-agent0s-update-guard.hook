@@ -1,0 +1,11 @@
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = *
+
+[Action]
+Description = Checking Agent0S update entrypoint...
+When = PreTransaction
+Depends = agent0s
+Exec = /usr/bin/agent0s-update-pacman-guard
+AbortOnFail

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.background",
+  "id": "agent0s.background",
   "name": "Background",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Desktop background renderer with click handling and transitions",
   "kinds": [
     "service"

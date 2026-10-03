@@ -1,11 +1,11 @@
 echo "Replace the Gemini coding agent with Antigravity"
 
-OMARCHY_PATH="${OMARCHY_PATH:-/usr/share/omarchy}"
+AGENT0S_PATH="${AGENT0S_PATH:-/usr/share/agent0s}"
 
-agent_file="$HOME/.config/omarchy/defaults/agent"
-skills_source="$OMARCHY_PATH/default/agents/skills"
+agent_file="$HOME/.config/agent0s/defaults/agent"
+skills_source="$AGENT0S_PATH/default/agents/skills"
 
-# Read the default the way omarchy-default-agent reads it, so this migration and
+# Read the default the way agent0s-default-agent reads it, so this migration and
 # the launcher always agree on which agent is selected.
 selected_agent=""
 if [[ -f $agent_file ]]; then
@@ -15,16 +15,16 @@ fi
 # Choosing Gemini was opting into an agent, so its replacement follows even for
 # someone who removed the preinstalls. Otherwise the default rewritten below
 # would name a command that is not there.
-if omarchy-cmd-missing agy &&
-  { [[ $selected_agent == "gemini" ]] || [[ ! -f $HOME/.local/state/omarchy/preinstalls-removed ]]; }; then
-  omarchy-mise-install antigravity-cli agy
+if agent0s-cmd-missing agy &&
+  { [[ $selected_agent == "gemini" ]] || [[ ! -f $HOME/.local/state/agent0s/preinstalls-removed ]]; }; then
+  agent0s-mise-install antigravity-cli agy
 fi
 
 if [[ $selected_agent == "gemini" ]]; then
   printf '%s\n' agy >"$agent_file"
 fi
 
-# Remove Preinstalls no longer lists gemini, so Omarchy's own wrapper would
+# Remove Preinstalls no longer lists gemini, so Agent0S's own wrapper would
 # linger with nothing left to clean it up. Anchored to the line the installer
 # writes, so a hand-written wrapper that merely mentions it is left alone.
 if [[ -f $HOME/.local/bin/gemini ]] && grep -Eq '^mise use -g .*"gemini"' "$HOME/.local/bin/gemini"; then

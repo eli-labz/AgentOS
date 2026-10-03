@@ -4,7 +4,7 @@ import qs.Ui
 
 BarWidget {
   id: root
-  moduleName: "omarchy.weather"
+  moduleName: "agent0s.weather"
 
   function injectPanel() {
     var target = panelLoader.item
@@ -75,7 +75,7 @@ BarWidget {
 
     onPressed: function(b) {
       if (!root.bar) return
-      if (b === Qt.RightButton) root.bar.run("omarchy-notification-send \"$(omarchy-weather-status)\"")
+      if (b === Qt.RightButton) root.bar.run("agent0s-notification-send \"$(agent0s-weather-status)\"")
       else if (b === Qt.MiddleButton) root.refresh()
       else root.togglePanel()
     }

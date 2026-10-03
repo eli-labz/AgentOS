@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.system-update",
-  "name": "Omarchy update",
+  "id": "agent0s.system-update",
+  "name": "Agent0S update",
   "version": "1.0.0",
-  "author": "Omarchy",
-  "description": "Indicates available Omarchy updates",
+  "author": "Agent0S",
+  "description": "Indicates available Agent0S updates",
   "kinds": [
     "bar-widget"
   ],
@@ -12,8 +12,8 @@
     "barWidget": "SystemUpdate.qml"
   },
   "barWidget": {
-    "displayName": "Omarchy update",
-    "description": "Indicates available Omarchy updates",
+    "displayName": "Agent0S update",
+    "description": "Indicates available Agent0S updates",
     "category": "System",
     "allowMultiple": false
   }

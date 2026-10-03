@@ -1,5 +1,5 @@
 // Temperatures below the identity point count as night light. Keep in sync
-// with bin/omarchy-toggle-nightlight, which applies the same threshold.
+// with bin/agent0s-toggle-nightlight, which applies the same threshold.
 var IDENTITY_TEMPERATURE = 6000
 
 function temperatureFromOutput(output) {

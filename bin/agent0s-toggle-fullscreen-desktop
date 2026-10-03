@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle a full screen desktop: hide the top bar and remove the window gaps together
+# agent0s:args=[toggle|on|off]
+# agent0s:examples=agent0s toggle fullscreen desktop | agent0s toggle fullscreen desktop off | agent0s toggle fullscreen desktop on
+
+ACTION="${1:-toggle}"
+
+case $ACTION in
+  toggle|"")
+    # Only leave full screen when both halves are already in it, so a lone bar
+    # or a lone gap toggle is pulled into line rather than flipped away.
+    if agent0s-toggle-enabled bar-off && agent0s-hyprland-toggle-enabled window-no-gaps; then
+      ACTION="off"
+    else
+      ACTION="on"
+    fi
+    ;;
+  on|off) ;;
+  *)
+    echo "Usage: agent0s-toggle-fullscreen-desktop [toggle|on|off]" >&2
+    exit 1
+    ;;
+esac
+
+agent0s-toggle-bar "$ACTION"
+agent0s-hyprland-toggle window-no-gaps "$ACTION"

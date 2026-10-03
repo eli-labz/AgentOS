@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle bar visibility without killing the Agent0S shell
+# agent0s:args=[toggle|on|off]
+# agent0s:examples=agent0s toggle bar | agent0s toggle bar off | agent0s toggle bar on
+
+agent0s-toggle bar-off "${1:-toggle}"
+
+# The shell's watch on the toggles directory can miss flag changes that land in
+# quick succession, stranding the bar off screen until the shell restarts.
+# Nudge the bar to re-read the flag; quiet best-effort so the toggle still
+# works when the shell is not up.
+agent0s-shell -q agent0s.bar syncHidden

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.reminders",
+  "id": "agent0s.reminders",
   "name": "Reminders",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Interactive reminder setup flow",
   "kinds": [
     "overlay"

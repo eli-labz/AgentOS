@@ -52,7 +52,7 @@ systemd_dir="$test_dir/systemd"
 home_dir="$test_dir/home"
 first_run="$sudoers_dir/first-run"
 tsui="$sudoers_dir/tsui"
-plymouth_unit="$systemd_dir/omarchy-plymouth-shutdown.service"
+plymouth_unit="$systemd_dir/agent0s-plymouth-shutdown.service"
 machine_marker="$test_dir/machine-marker"
 reload_needed_marker="$machine_marker.daemon-reload"
 
@@ -65,9 +65,9 @@ run_migration() {
   : >"$CALLS"
 
   HOME="$home_dir" \
-    OMARCHY_SUDOERS_DIR="$sudoers_dir" \
-    OMARCHY_SYSTEMD_SYSTEM_DIR="$systemd_dir" \
-    OMARCHY_RETIRED_INSTALLER_ARTIFACTS_MARKER="$machine_marker" \
+    AGENT0S_SUDOERS_DIR="$sudoers_dir" \
+    AGENT0S_SYSTEMD_SYSTEM_DIR="$systemd_dir" \
+    AGENT0S_RETIRED_INSTALLER_ARTIFACTS_MARKER="$machine_marker" \
     PATH="$test_dir/bin:$PATH" \
     bash -euo pipefail "$migration" >/dev/null
 }
@@ -75,7 +75,7 @@ run_migration() {
 # /etc/sudoers.d is 0750 root:root on a real machine, so the migration has to
 # escalate merely to see whether either grant is there. An empty call log is
 # therefore the wrong invariant: what must be absent unless a file really is
-# Omarchy's is a removal, or a unit being disabled or reloaded.
+# Agent0S's is a removal, or a unit being disabled or reloaded.
 assert_changed_nothing() {
   local label="$1"
 
@@ -124,7 +124,7 @@ EOF
 first_run_variants=(
   'installer ALL=(ALL) NOPASSWD: /usr/bin/ufw
 installer ALL=(ALL) NOPASSWD: /usr/bin/ufw-docker
-installer ALL=(ALL) NOPASSWD: /bin/rm -f /home/installer/.local/state/omarchy/first-run.mode'
+installer ALL=(ALL) NOPASSWD: /bin/rm -f /home/installer/.local/state/agent0s/first-run.mode'
   'installer ALL=(ALL) NOPASSWD: /usr/bin/ufw
 installer ALL=(ALL) NOPASSWD: /usr/bin/ufw-docker
 installer ALL=(ALL) NOPASSWD: /bin/rm -f /etc/sudoers.d/first-run'
@@ -162,7 +162,7 @@ installer ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/udev/rules.d/*
 installer ALL=(ALL) NOPASSWD: /usr/bin/udevadm
 installer ALL=(ALL) NOPASSWD: SYMLINK_RESOLVED
 installer ALL=(ALL) NOPASSWD: FIRST_RUN_CLEANUP'
-  'Cmnd_Alias FIRST_RUN_CLEANUP = /bin/rm -f /etc/sudoers.d/first-run, /bin/rm -f /etc/sudoers.d/99-omarchy-installer-reboot
+  'Cmnd_Alias FIRST_RUN_CLEANUP = /bin/rm -f /etc/sudoers.d/first-run, /bin/rm -f /etc/sudoers.d/99-agent0s-installer-reboot
 Cmnd_Alias SYMLINK_RESOLVED = /usr/bin/ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 installer ALL=(ALL) NOPASSWD: /usr/bin/systemctl
 installer ALL=(ALL) NOPASSWD: /usr/bin/ufw
@@ -199,7 +199,7 @@ grep -q '^sudo rm -f .*/sudoers\.d/first-run$' "$CALLS" ||
   fail "migration removes the first-run grant with elevated privileges" "$(cat "$CALLS")"
 pass "migration removes the first-run grant with elevated privileges"
 
-# The grant is only recognisable as Omarchy's because every line in it is one the
+# The grant is only recognisable as Agent0S's because every line in it is one the
 # installer emitted. One line an administrator added and the file is theirs.
 reset_machine
 cat >"$first_run" <<'EOF'
@@ -236,7 +236,7 @@ pass "migration does not delete an administrator grant that uses a generated com
 # line was edited or hand-written and makes the whole file administrator-owned.
 reset_machine
 cat >"$first_run" <<'EOF'
-alice ALL=(ALL) NOPASSWD: /bin/rm -f /home/bob/.local/state/omarchy/first-run.mode
+alice ALL=(ALL) NOPASSWD: /bin/rm -f /home/bob/.local/state/agent0s/first-run.mode
 EOF
 before=$(cat "$first_run")
 run_migration
@@ -246,7 +246,7 @@ run_migration
   fail "migration leaves the cross-account first-run file byte for byte"
 pass "migration requires the cleanup path account to match the granted account"
 
-# Nothing in this file ties it to Omarchy's first run: no self-cleanup line.
+# Nothing in this file ties it to Agent0S's first run: no self-cleanup line.
 reset_machine
 cat >"$first_run" <<'EOF'
 installer ALL=(ALL) NOPASSWD: /usr/bin/ufw
@@ -287,7 +287,7 @@ grep -q '^sudo rm -f .*/sudoers\.d/tsui$' "$CALLS" ||
   fail "migration removes the tsui grant with elevated privileges" "$(cat "$CALLS")"
 pass "migration removes the tsui grant pointing into the user's home"
 
-# The feature is gone from Omarchy either way, and unrestricted NOPASSWD on a TUI
+# The feature is gone from Agent0S either way, and unrestricted NOPASSWD on a TUI
 # that can shell out escalates from a root-owned path too.
 reset_machine
 printf 'installer ALL=(ALL) NOPASSWD: /usr/bin/tsui\n' >"$tsui"
@@ -298,7 +298,7 @@ pass "migration removes the tsui grant wherever the path points"
 
 reset_machine
 cat >"$tsui" <<'EOF'
-# Kept after Omarchy dropped tsui, extended for our operators
+# Kept after Agent0S dropped tsui, extended for our operators
 installer ALL=(ALL) NOPASSWD: /usr/bin/tsui
 operator ALL=(ALL) NOPASSWD: /usr/bin/tsui
 EOF
@@ -318,7 +318,7 @@ run_migration
 pass "migration keeps a lone grant for some other command"
 
 reset_machine
-write_plymouth_unit "/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync"
+write_plymouth_unit "/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync"
 run_migration
 
 [[ ! -e $plymouth_unit ]] ||
@@ -331,8 +331,8 @@ pass "migration removes the shutdown unit that runs out of a user home"
   fail "migration never stops the unit, which would run ExecStop as root" "$(cat "$CALLS")"
 pass "migration never stops the unit, which would run ExecStop as root"
 
-disable_at=$(grep -n '^systemctl disable omarchy-plymouth-shutdown\.service$' "$CALLS" | cut -d: -f1)
-remove_at=$(grep -n '^sudo rm -f .*omarchy-plymouth-shutdown\.service$' "$CALLS" | cut -d: -f1)
+disable_at=$(grep -n '^systemctl disable agent0s-plymouth-shutdown\.service$' "$CALLS" | cut -d: -f1)
+remove_at=$(grep -n '^sudo rm -f .*agent0s-plymouth-shutdown\.service$' "$CALLS" | cut -d: -f1)
 reload_at=$(grep -n '^systemctl daemon-reload$' "$CALLS" | cut -d: -f1)
 [[ -n $disable_at && -n $remove_at && -n $reload_at ]] ||
   fail "migration disables, removes, then reloads the unit" "$(cat "$CALLS")"
@@ -343,7 +343,7 @@ pass "migration disables the unit, removes it, then reloads systemd in that orde
 # Homes are not all under /home, and the account running this machine-wide
 # repair may not be the account that installed the unit.
 reset_machine
-write_plymouth_unit "/srv/retired-installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync"
+write_plymouth_unit "/srv/retired-installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync"
 run_migration
 
 [[ ! -e $plymouth_unit ]] ||
@@ -352,7 +352,7 @@ run_migration
 pass "migration removes another user's shutdown unit rooted outside /home"
 
 reset_machine
-write_plymouth_unit "/usr/bin/omarchy-plymouth-shutdown-sync"
+write_plymouth_unit "/usr/bin/agent0s-plymouth-shutdown-sync"
 run_migration
 
 [[ -e $plymouth_unit ]] ||
@@ -365,7 +365,7 @@ reset_machine
 cat >"$plymouth_unit" <<'EOF'
 [Service]
 Type=oneshot
-; ExecStop=/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync
+; ExecStop=/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync
 ExecStop=/usr/bin/true
 EOF
 run_migration
@@ -380,7 +380,7 @@ cat >"$plymouth_unit" <<'EOF'
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/true
-ExecStop=/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync
+ExecStop=/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync
 ExecStop=/usr/bin/true
 EOF
 run_migration
@@ -396,11 +396,11 @@ assert_changed_nothing "migration changes nothing when no retired artifact is pr
 pass "migration leaves a machine without any retired artifact alone"
 
 # All three at once, then the same run again: what a second account on the
-# machine does, and what running omarchy-migrate twice does.
+# machine does, and what running agent0s-migrate twice does.
 reset_machine
 printf '%s\n' "${first_run_variants[-1]}" >"$first_run"
 printf 'installer ALL=(ALL) NOPASSWD: /usr/bin/tsui\n' >"$tsui"
-write_plymouth_unit "/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync"
+write_plymouth_unit "/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync"
 run_migration
 
 [[ ! -e $first_run && ! -e $tsui && ! -e $plymouth_unit ]] ||
@@ -530,7 +530,7 @@ Type=oneshot
 ExecStart=/usr/bin/true
 ExecStop=\
 ; still one directive
-/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync
+/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync
 EOF
 run_migration
 
@@ -547,7 +547,7 @@ cat >"$plymouth_unit" <<'EOF'
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/true
-ExecStop=/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync
+ExecStop=/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync
 ExecStop=
 EOF
 before=$(cat "$plymouth_unit")
@@ -566,7 +566,7 @@ cat >"$plymouth_unit" <<'EOF'
 Type=oneshot
 ExecStart=/usr/bin/true
 ExecStop=
-ExecStop=/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync
+ExecStop=/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync
 EOF
 run_migration
 
@@ -577,7 +577,7 @@ pass "migration removes a unit whose ExecStop is set again after a reset"
 # systemd honours a directive whose line ends the file mid-continuation:
 # `systemd-analyze verify` resolves an ExecStop= written that way.
 reset_machine
-printf '[Service]\nType=oneshot\nExecStart=/usr/bin/true\nExecStop=/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync \\\n' >"$plymouth_unit"
+printf '[Service]\nType=oneshot\nExecStart=/usr/bin/true\nExecStop=/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync \\\n' >"$plymouth_unit"
 run_migration
 
 [[ ! -e $plymouth_unit ]] ||
@@ -588,7 +588,7 @@ pass "migration removes a unit whose last line ends mid-continuation"
 # needs to be forgotten. Persist that half of the repair so the retry reloads
 # systemd even though the unit file is already gone.
 reset_machine
-write_plymouth_unit "/home/installer/.local/share/omarchy/bin/omarchy-plymouth-shutdown-sync"
+write_plymouth_unit "/home/installer/.local/share/agent0s/bin/agent0s-plymouth-shutdown-sync"
 reload_failure_seen="$test_dir/reload-failure-seen"
 rm -f "$reload_failure_seen"
 
@@ -609,8 +609,8 @@ grep -q '^systemctl daemon-reload$' "$CALLS" ||
   fail "migration retries daemon-reload after the unit file is gone" "$(cat "$CALLS")"
 pass "migration retries daemon-reload after the unit file is gone"
 
-# sudo cannot prompt without a terminal, and omarchy-migrate runs from places that
-# have none. bin/omarchy-migrate writes the completion marker on a zero exit, so
+# sudo cannot prompt without a terminal, and agent0s-migrate runs from places that
+# have none. bin/agent0s-migrate writes the completion marker on a zero exit, so
 # reporting success after failing to look would mark this migration done for good.
 # Observed on a real machine before this guard existed: the run printed sudo's
 # "a terminal is required" and still exited 0.
@@ -624,9 +624,9 @@ printf '%s\n' "${first_run_variants[-1]}" >"$readable/first-run"
 : >"$CALLS"
 set +e
 HOME="$home_dir" \
-  OMARCHY_SUDOERS_DIR="$readable" \
-  OMARCHY_SYSTEMD_SYSTEM_DIR="$systemd_dir" \
-  OMARCHY_RETIRED_INSTALLER_ARTIFACTS_MARKER="$machine_marker" \
+  AGENT0S_SUDOERS_DIR="$readable" \
+  AGENT0S_SYSTEMD_SYSTEM_DIR="$systemd_dir" \
+  AGENT0S_RETIRED_INSTALLER_ARTIFACTS_MARKER="$machine_marker" \
   PATH="$test_dir/failing-bin:$PATH" \
   bash -euo pipefail "$migration" >"$test_dir/gate.out" 2>&1
 gate_status=$?
@@ -638,7 +638,7 @@ set -e
   fail "migration keeps a live grant when elevation fails"
 [[ ! -e $machine_marker ]] ||
   fail "migration leaves the machine repair unmarked when elevation fails"
-grep -q 'An administrator must run omarchy-migrate' "$test_dir/gate.out" ||
+grep -q 'An administrator must run agent0s-migrate' "$test_dir/gate.out" ||
   fail "migration explains how the machine-wide repair can complete" "$(cat "$test_dir/gate.out")"
 pass "migration fails without marking the machine repaired and names the administrator action"
 
@@ -646,9 +646,9 @@ pass "migration fails without marking the machine repaired and names the adminis
 # can finish their per-user migration without probing sudo again.
 touch "$machine_marker"
 HOME="$home_dir" \
-  OMARCHY_SUDOERS_DIR="$readable" \
-  OMARCHY_SYSTEMD_SYSTEM_DIR="$systemd_dir" \
-  OMARCHY_RETIRED_INSTALLER_ARTIFACTS_MARKER="$machine_marker" \
+  AGENT0S_SUDOERS_DIR="$readable" \
+  AGENT0S_SYSTEMD_SYSTEM_DIR="$systemd_dir" \
+  AGENT0S_RETIRED_INSTALLER_ARTIFACTS_MARKER="$machine_marker" \
   PATH="$test_dir/failing-bin:$PATH" \
   bash -euo pipefail "$migration" >/dev/null
 pass "machine marker lets a non-sudo user complete after the repair"

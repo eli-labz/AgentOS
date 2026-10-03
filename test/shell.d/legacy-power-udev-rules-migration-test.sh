@@ -61,10 +61,10 @@ echo "migration resolved mv through PATH" >&2
 exit 99
 STUB
 
-cat >"$test_dir/bin/omarchy-restart-xcompose" <<'STUB'
+cat >"$test_dir/bin/agent0s-restart-xcompose" <<'STUB'
 #!/bin/bash
 
-echo "omarchy-restart-xcompose" >>"$CALLS"
+echo "agent0s-restart-xcompose" >>"$CALLS"
 STUB
 
 chmod +x "$test_dir/bin/"*
@@ -83,9 +83,9 @@ export UDEVADM_STUB="$test_dir/bin/udevadm"
 
 rules_dir="$test_dir/rules.d"
 home_dir="$test_dir/home"
-omarchy_path="$test_dir/omarchy"
+agent0s_path="$test_dir/agent0s"
 xcompose="$home_dir/.XCompose"
-packaged_xcompose="include \"$omarchy_path/default/xcompose\""
+packaged_xcompose="include \"$agent0s_path/default/xcompose\""
 power_rule="$rules_dir/99-power-profile.rules"
 wifi_rule="$rules_dir/99-wifi-powersave.rules"
 reload_marker_prefix="$test_dir/reload-needed"
@@ -99,25 +99,25 @@ migration="$test_dir/migration.sh"
 # environment override would let the caller choose what root removes.
 grep -Fxq 'rules_dir=/etc/udev/rules.d' "$shipped_migration" ||
   fail "the production udev rules directory is a fixed literal"
-grep -Fxq 'reload_marker_prefix=/var/lib/omarchy/migrations/1788102906-udev-reload-needed' "$shipped_migration" ||
+grep -Fxq 'reload_marker_prefix=/var/lib/agent0s/migrations/1788102906-udev-reload-needed' "$shipped_migration" ||
   fail "the production reload marker is a fixed literal"
 grep -Fxq 'udev_control=/run/udev/control' "$shipped_migration" ||
   fail "the production udev control path is a fixed literal"
-if grep -q 'OMARCHY_UDEV_' "$shipped_migration"; then
+if grep -q 'AGENT0S_UDEV_' "$shipped_migration"; then
   fail "the migration does not accept caller-controlled privileged paths"
 fi
 
 sed \
   -e "s|^rules_dir=/etc/udev/rules.d$|rules_dir=$rules_dir|" \
-  -e "s|^reload_marker_prefix=/var/lib/omarchy/migrations/1788102906-udev-reload-needed$|reload_marker_prefix=$reload_marker_prefix|" \
+  -e "s|^reload_marker_prefix=/var/lib/agent0s/migrations/1788102906-udev-reload-needed$|reload_marker_prefix=$reload_marker_prefix|" \
   -e "s|^udev_control=/run/udev/control$|udev_control=$udev_control|" \
   "$shipped_migration" >"$migration"
 pass "migration keeps privileged production paths caller-independent"
 
 reset_machine() {
-  rm -rf "$rules_dir" "$home_dir" "$omarchy_path" "$power_reload_marker" "$wifi_reload_marker" "$udev_control"
-  mkdir -p "$rules_dir" "$home_dir" "$omarchy_path/default"
-  touch "$omarchy_path/default/xcompose"
+  rm -rf "$rules_dir" "$home_dir" "$agent0s_path" "$power_reload_marker" "$wifi_reload_marker" "$udev_control"
+  mkdir -p "$rules_dir" "$home_dir" "$agent0s_path/default"
+  touch "$agent0s_path/default/xcompose"
   touch "$udev_control"
 }
 
@@ -125,7 +125,7 @@ run_migration() {
   : >"$CALLS"
 
   HOME="$home_dir" \
-    OMARCHY_PATH="$omarchy_path" \
+    AGENT0S_PATH="$agent0s_path" \
     PATH="$test_dir/bin:$PATH" \
     bash -euo pipefail "$migration" >/dev/null
 }
@@ -148,21 +148,21 @@ EOF
 }
 
 # #8175's non-udev behavior belongs here so one migration owns the whole legacy
-# compatibility-link repair. Omarchy 3 emitted %H, while users may have changed
+# compatibility-link repair. Agent0S 3 emitted %H, while users may have changed
 # it to ~ or its expanded value.
 for legacy_include in \
-  'include "%H/.local/share/omarchy/default/xcompose"' \
-  'include "~/.local/share/omarchy/default/xcompose"' \
-  "include \"$home_dir/.local/share/omarchy/default/xcompose\""; do
+  'include "%H/.local/share/agent0s/default/xcompose"' \
+  'include "~/.local/share/agent0s/default/xcompose"' \
+  "include \"$home_dir/.local/share/agent0s/default/xcompose\""; do
   reset_machine
   write_xcompose "$legacy_include"
   run_migration
 
   grep -qxF "$packaged_xcompose" "$xcompose" ||
-    fail "migration repoints $legacy_include at the active Omarchy tree" "$(cat "$xcompose")"
+    fail "migration repoints $legacy_include at the active Agent0S tree" "$(cat "$xcompose")"
   grep -qF '<Multi_key> <space> <e> : "test@example.com"' "$xcompose" ||
     fail "migration discards the user's own compose sequences"
-  grep -qxF 'omarchy-restart-xcompose' "$CALLS" ||
+  grep -qxF 'agent0s-restart-xcompose' "$CALLS" ||
     fail "migration does not reload XCompose after rewriting its include" "$(cat "$CALLS")"
 done
 pass "migration repoints every legacy XCompose include and preserves custom sequences"
@@ -179,40 +179,40 @@ run_migration
 [[ ! -s $CALLS ]] || fail "migration acts when XCompose and legacy udev rules are absent" "$(cat "$CALLS")"
 pass "migration leaves a home without XCompose alone"
 
-# What Omarchy 3's unquoted heredoc actually left on disk: the installing user's
+# What Agent0S 3's unquoted heredoc actually left on disk: the installing user's
 # home expanded into a rule root runs on every power_supply event.
 write_vulnerable_power_rule() {
   cat >"$power_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-power-profile --property=After=power-profiles-daemon.service /home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set"
-SUBSYSTEM=="power_supply", ATTR{type}=="USB", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-power-profile --property=After=power-profiles-daemon.service /home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-power-profile --property=After=power-profiles-daemon.service /home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set"
+SUBSYSTEM=="power_supply", ATTR{type}=="USB", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-power-profile --property=After=power-profiles-daemon.service /home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set"
 RULE
 }
 
 write_initial_vulnerable_power_rule() {
   cat >"$power_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-power-profile-battery --property=After=power-profiles-daemon.service /home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set battery"
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-power-profile-ac --property=After=power-profiles-daemon.service /home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set ac"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-power-profile-battery --property=After=power-profiles-daemon.service /home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set battery"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-power-profile-ac --property=After=power-profiles-daemon.service /home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set ac"
 RULE
 }
 
 write_final_vulnerable_power_rule() {
   cat >"$power_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/usr/bin/systemd-run --no-block --collect --property=After=power-profiles-daemon.service /home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set"
-SUBSYSTEM=="power_supply", ATTR{type}=="USB", RUN+="/usr/bin/systemd-run --no-block --collect --property=After=power-profiles-daemon.service /home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/usr/bin/systemd-run --no-block --collect --property=After=power-profiles-daemon.service /home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set"
+SUBSYSTEM=="power_supply", ATTR{type}=="USB", RUN+="/usr/bin/systemd-run --no-block --collect --property=After=power-profiles-daemon.service /home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set"
 RULE
 }
 
 write_vulnerable_wifi_rule() {
   cat >"$wifi_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave on"
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave off"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave on"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave off"
 RULE
 }
 
 write_systemd_vulnerable_wifi_rule() {
   cat >"$wifi_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-wifi-powersave-on /home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave on"
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-wifi-powersave-off /home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave off"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-wifi-powersave-on /home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave on"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-wifi-powersave-off /home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave off"
 RULE
 }
 
@@ -248,10 +248,10 @@ write_final_vulnerable_power_rule
 run_migration
 
 [[ ! -e $power_rule ]] ||
-  fail "migration removes the final Omarchy 3 power rule" "$(cat "$power_rule")"
+  fail "migration removes the final Agent0S 3 power rule" "$(cat "$power_rule")"
 (( $(reload_count) == 1 )) ||
   fail "migration reloads udev after removing the final power rule" "$(cat "$CALLS")"
-pass "migration removes the final Omarchy 3 power rule body"
+pass "migration removes the final Agent0S 3 power rule body"
 
 reset_machine
 write_vulnerable_wifi_rule
@@ -369,7 +369,7 @@ run_migration
 pass "migration permits environments with no running udev daemon"
 
 # The second run is what every other account on the machine does, and what a
-# user gets from running omarchy-migrate again.
+# user gets from running agent0s-migrate again.
 run_migration
 
 (( $(reload_count) == 0 )) ||
@@ -398,7 +398,7 @@ set -e
 
 (( unreadable_status != 0 )) || fail "migration accepts a rule it could not inspect"
 [[ -e $power_rule ]] || fail "migration disables a rule it could not inspect"
-grep -q 'Ask an administrator to run omarchy-migrate' "$test_dir/unreadable-rule.out" ||
+grep -q 'Ask an administrator to run agent0s-migrate' "$test_dir/unreadable-rule.out" ||
   fail "migration gives no administrator guidance for an unreadable rule" "$(cat "$test_dir/unreadable-rule.out")"
 [[ ! -s $CALLS ]] || fail "migration escalates before classifying an unreadable rule" "$(cat "$CALLS")"
 chmod 644 "$power_rule"
@@ -414,7 +414,7 @@ unsearchable_status=$?
 set -e
 
 (( unsearchable_status != 0 )) || fail "migration accepts a rules directory it could not inspect"
-grep -q 'Ask an administrator to run omarchy-migrate' "$test_dir/unsearchable-rules-dir.out" ||
+grep -q 'Ask an administrator to run agent0s-migrate' "$test_dir/unsearchable-rules-dir.out" ||
   fail "migration gives no administrator guidance for an unsearchable rules directory" "$(cat "$test_dir/unsearchable-rules-dir.out")"
 [[ ! -s $CALLS ]] || fail "migration escalates before inspecting the rules directory" "$(cat "$CALLS")"
 chmod 755 "$rules_dir"
@@ -424,13 +424,13 @@ pass "migration fails closed when it cannot search the rules directory"
 # the file talks about the legacy checkout. udev never runs a comment.
 reset_machine
 cat >"$power_rule" <<'RULE'
-# Replaces the rule Omarchy used to install from
-# /home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set
-#SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set"
+# Replaces the rule Agent0S used to install from
+# /home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set
+#SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set"
 SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/usr/local/bin/my-own-power-hook"
 RULE
 cat >"$wifi_rule" <<'RULE'
-# Kept from the old local/share/omarchy setup, rewritten to my own script
+# Kept from the old local/share/agent0s setup, rewritten to my own script
 SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/local/bin/my-own-wifi-hook off"
 RULE
 before=$(cat "$power_rule" "$wifi_rule")
@@ -445,7 +445,7 @@ run_migration
 pass "migration keeps same-named rules that only mention the legacy path"
 
 # A vulnerable rule that an administrator extended is no longer the exact file
-# Omarchy generated. Preserve the whole file under a suffix udev ignores rather
+# Agent0S generated. Preserve the whole file under a suffix udev ignores rather
 # than deleting their addition or leaving the vulnerable command active.
 reset_machine
 write_vulnerable_power_rule
@@ -461,29 +461,29 @@ mixed_status=$?
 set -e
 
 (( mixed_status == 0 )) || fail "migration fails after safely quarantining a modified vulnerable rule" "$(cat "$test_dir/mixed-power-rule.out")"
-[[ ! -e $power_rule && -e $power_rule.omarchy-disabled && ! -e $wifi_rule ]] ||
+[[ ! -e $power_rule && -e $power_rule.agent0s-disabled && ! -e $wifi_rule ]] ||
   fail "migration leaves a modified vulnerable rule active"
-cmp -s "$test_dir/mixed-power-rule.before" "$power_rule.omarchy-disabled" ||
-  fail "migration changes a mixed rule while quarantining it" "$(cat "$power_rule.omarchy-disabled")"
+cmp -s "$test_dir/mixed-power-rule.before" "$power_rule.agent0s-disabled" ||
+  fail "migration changes a mixed rule while quarantining it" "$(cat "$power_rule.agent0s-disabled")"
 (( $(reload_count) == 2 )) || fail "migration does not continue through every vulnerable rule after quarantine" "$(cat "$CALLS")"
-grep -q 'Quarantined.*\.omarchy-disabled' "$test_dir/mixed-power-rule.out" ||
+grep -q 'Quarantined.*\.agent0s-disabled' "$test_dir/mixed-power-rule.out" ||
   fail "migration does not explain where it preserved a mixed rule" "$(cat "$test_dir/mixed-power-rule.out")"
 [[ ! -e $power_reload_marker ]] || fail "migration leaves a completed quarantine reload pending"
-grep -q '^sudo /usr/bin/mv --no-clobber -- .*99-power-profile\.rules .*99-power-profile\.rules\.omarchy-disabled$' "$CALLS" ||
+grep -q '^sudo /usr/bin/mv --no-clobber -- .*99-power-profile\.rules .*99-power-profile\.rules\.agent0s-disabled$' "$CALLS" ||
   fail "migration does not pin quarantine moves to root-owned mv" "$(cat "$CALLS")"
 pass "migration quarantines a mixed rule and continues repairing the machine"
 
 run_migration
-[[ ! -e $power_rule && -e $power_rule.omarchy-disabled ]] ||
+[[ ! -e $power_rule && -e $power_rule.agent0s-disabled ]] ||
   fail "a quarantine retry does not preserve the disabled rule"
 [[ ! -s $CALLS ]] || fail "a quarantine retry changes machine state" "$(cat "$CALLS")"
 pass "migration is a no-op after completing a quarantine"
 
 # Reformatting RUN does not make the user-controlled command safe, but it does
-# make the file something Omarchy cannot delete wholesale without guessing.
+# make the file something Agent0S cannot delete wholesale without guessing.
 reset_machine
 cat >"$wifi_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN += "/home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave on"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN += "/home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave on"
 RULE
 cp "$wifi_rule" "$test_dir/reformatted-wifi-rule.before"
 
@@ -493,10 +493,10 @@ reformatted_status=$?
 set -e
 
 (( reformatted_status == 0 )) || fail "migration fails after quarantining a reformatted vulnerable rule" "$(cat "$test_dir/reformatted-wifi-rule.out")"
-[[ ! -e $wifi_rule && -e $wifi_rule.omarchy-disabled ]] ||
+[[ ! -e $wifi_rule && -e $wifi_rule.agent0s-disabled ]] ||
   fail "migration leaves a reformatted vulnerable rule active"
-cmp -s "$test_dir/reformatted-wifi-rule.before" "$wifi_rule.omarchy-disabled" ||
-  fail "migration changes a reformatted rule while quarantining it" "$(cat "$wifi_rule.omarchy-disabled")"
+cmp -s "$test_dir/reformatted-wifi-rule.before" "$wifi_rule.agent0s-disabled" ||
+  fail "migration changes a reformatted rule while quarantining it" "$(cat "$wifi_rule.agent0s-disabled")"
 (( $(reload_count) == 1 )) || fail "migration does not reload udev after quarantining a reformatted rule" "$(cat "$CALLS")"
 pass "migration quarantines reformatted vulnerable rules"
 
@@ -506,7 +506,7 @@ variant_number=0
 for run_assignment in 'RUN{program}+=' 'RUN=' 'RUN:=' 'RUN+=e'; do
   ((++variant_number))
   reset_machine
-  printf 'SUBSYSTEM=="power_supply", ATTR{type}=="Mains", %s"/home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave on"\n' "$run_assignment" >"$wifi_rule"
+  printf 'SUBSYSTEM=="power_supply", ATTR{type}=="Mains", %s"/home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave on"\n' "$run_assignment" >"$wifi_rule"
   cp "$wifi_rule" "$test_dir/run-variant-$variant_number.before"
 
   set +e
@@ -515,9 +515,9 @@ for run_assignment in 'RUN{program}+=' 'RUN=' 'RUN:=' 'RUN+=e'; do
   set -e
 
   (( variant_status == 0 )) || fail "migration fails after quarantining udev assignment $run_assignment" "$(cat "$test_dir/run-variant-$variant_number.out")"
-  [[ ! -e $wifi_rule && -e $wifi_rule.omarchy-disabled ]] ||
+  [[ ! -e $wifi_rule && -e $wifi_rule.agent0s-disabled ]] ||
     fail "migration leaves udev assignment $run_assignment active"
-  cmp -s "$test_dir/run-variant-$variant_number.before" "$wifi_rule.omarchy-disabled" ||
+  cmp -s "$test_dir/run-variant-$variant_number.before" "$wifi_rule.agent0s-disabled" ||
     fail "migration changes udev assignment $run_assignment while quarantining it"
   (( $(reload_count) == 1 )) || fail "migration does not reload after quarantining $run_assignment" "$(cat "$CALLS")"
 done
@@ -527,11 +527,11 @@ pass "migration quarantines every valid RUN assignment form"
 # the active vulnerability is still neutralized without losing either copy.
 reset_machine
 cat >"$wifi_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN="/home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave on"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN="/home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave on"
 RULE
 cp "$wifi_rule" "$test_dir/collision-active.before"
-printf '%s\n' 'older preserved rule' >"$wifi_rule.omarchy-disabled"
-cp "$wifi_rule.omarchy-disabled" "$test_dir/collision-backup.before"
+printf '%s\n' 'older preserved rule' >"$wifi_rule.agent0s-disabled"
+cp "$wifi_rule.agent0s-disabled" "$test_dir/collision-backup.before"
 
 set +e
 run_migration 2>"$test_dir/quarantine-collision.out"
@@ -539,10 +539,10 @@ collision_status=$?
 set -e
 
 (( collision_status == 0 )) || fail "migration fails to resolve an existing quarantine" "$(cat "$test_dir/quarantine-collision.out")"
-[[ ! -e $wifi_rule && -e $wifi_rule.omarchy-disabled.1 ]] || fail "migration leaves the colliding vulnerable rule active"
-cmp -s "$test_dir/collision-backup.before" "$wifi_rule.omarchy-disabled" || fail "migration overwrites the existing quarantine"
-cmp -s "$test_dir/collision-active.before" "$wifi_rule.omarchy-disabled.1" || fail "migration changes the new quarantine"
-grep -q 'Quarantined.*\.omarchy-disabled\.1' "$test_dir/quarantine-collision.out" ||
+[[ ! -e $wifi_rule && -e $wifi_rule.agent0s-disabled.1 ]] || fail "migration leaves the colliding vulnerable rule active"
+cmp -s "$test_dir/collision-backup.before" "$wifi_rule.agent0s-disabled" || fail "migration overwrites the existing quarantine"
+cmp -s "$test_dir/collision-active.before" "$wifi_rule.agent0s-disabled.1" || fail "migration changes the new quarantine"
+grep -q 'Quarantined.*\.agent0s-disabled\.1' "$test_dir/quarantine-collision.out" ||
   fail "migration does not report the unique quarantine path" "$(cat "$test_dir/quarantine-collision.out")"
 (( $(reload_count) == 1 )) || fail "migration does not reload after resolving a quarantine collision" "$(cat "$CALLS")"
 pass "migration preserves both files on a quarantine collision"
@@ -551,7 +551,7 @@ pass "migration preserves both files on a quarantine collision"
 # no active RUN+= at all and stays.
 reset_machine
 cat >"$power_rule" <<'RULE'
-# SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/home/someuser/.local/share/omarchy/bin/omarchy-powerprofiles-set"
+# SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/home/someuser/.local/share/agent0s/bin/agent0s-powerprofiles-set"
 RULE
 run_migration
 
@@ -564,7 +564,7 @@ pass "migration keeps a rule that is only ever mentioned in a comment"
 # privilege escalation this migration exists to clear, so it is not ours to take.
 reset_machine
 cat >"$power_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-power-profile-ac --property=After=power-profiles-daemon.service /usr/bin/powerprofilesctl set performance"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-power-profile-ac --property=After=power-profiles-daemon.service /usr/bin/powerprofilesctl set performance"
 RULE
 run_migration
 
@@ -576,8 +576,8 @@ pass "migration keeps a legacy filename already repointed at /usr/bin"
 # machine-wide repair after the installer account has gone away.
 reset_machine
 cat >"$wifi_rule" <<RULE
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-wifi-powersave-on /srv/retired-installer/.local/share/omarchy/bin/omarchy-wifi-powersave on"
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=omarchy-wifi-powersave-off /srv/retired-installer/.local/share/omarchy/bin/omarchy-wifi-powersave off"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-wifi-powersave-on /srv/retired-installer/.local/share/agent0s/bin/agent0s-wifi-powersave on"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemd-run --no-block --collect --unit=agent0s-wifi-powersave-off /srv/retired-installer/.local/share/agent0s/bin/agent0s-wifi-powersave off"
 RULE
 run_migration
 
@@ -599,7 +599,7 @@ set -e
 
 (( failure_status != 0 )) || fail "migration fails when sudo cannot remove a vulnerable rule"
 [[ -e $wifi_rule ]] || fail "migration keeps the vulnerable rule when its elevated removal fails"
-grep -q 'Ask an administrator to run omarchy-migrate' "$test_dir/elevation-failure.out" ||
+grep -q 'Ask an administrator to run agent0s-migrate' "$test_dir/elevation-failure.out" ||
   fail "migration explains how a non-sudo user can complete the repair" "$(cat "$test_dir/elevation-failure.out")"
 pass "migration fails loudly with administrator guidance when removal cannot elevate"
 
@@ -642,7 +642,7 @@ pass "a later removal failure cannot leave an already-deleted rule loaded"
 # is a rule this migration cannot claim to know anything about.
 reset_machine
 cat >"$power_rule" <<'RULE'
-SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/home/someuser/.local/share/omarchy/bin/omarchy-wifi-powersave on"
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="/home/someuser/.local/share/agent0s/bin/agent0s-wifi-powersave on"
 RULE
 run_migration
 

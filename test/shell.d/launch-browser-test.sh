@@ -18,8 +18,8 @@ EOF
 
 cat >"$mock_bin/xdg-settings" <<'SH'
 #!/bin/bash
-[[ -z ${BROWSER:-} ]] || printf '%s\n' "$BROWSER" >"$OMARCHY_TEST_XDG_SETTINGS_BROWSER"
-[[ ${OMARCHY_TEST_XDG_SETTINGS_EMPTY:-0} == "1" ]] || echo chromium.desktop
+[[ -z ${BROWSER:-} ]] || printf '%s\n' "$BROWSER" >"$AGENT0S_TEST_XDG_SETTINGS_BROWSER"
+[[ ${AGENT0S_TEST_XDG_SETTINGS_EMPTY:-0} == "1" ]] || echo chromium.desktop
 SH
 cat >"$mock_bin/xdg-mime" <<'SH'
 #!/bin/bash
@@ -33,11 +33,11 @@ exit 0
 SH
 cat >"$mock_bin/systemd-run" <<'SH'
 #!/bin/bash
-printf '%s\n' "$*" >"$OMARCHY_TEST_BROWSER_LAUNCH"
+printf '%s\n' "$*" >"$AGENT0S_TEST_BROWSER_LAUNCH"
 SH
-cat >"$mock_bin/omarchy-hyprland-focus-app" <<'SH'
+cat >"$mock_bin/agent0s-hyprland-focus-app" <<'SH'
 #!/bin/bash
-printf '%s\n' "$1" >"$OMARCHY_TEST_BROWSER_FOCUS"
+printf '%s\n' "$1" >"$AGENT0S_TEST_BROWSER_FOCUS"
 SH
 chmod +x "$mock_bin"/*
 
@@ -45,20 +45,20 @@ launch_log="$test_tmp/launch"
 focus_log="$test_tmp/focus"
 xdg_settings_browser="$test_tmp/xdg-settings-browser"
 HOME="$test_home" PATH="$mock_bin:$PATH" HYPRLAND_INSTANCE_SIGNATURE=test \
-  OMARCHY_TEST_BROWSER_LAUNCH="$launch_log" OMARCHY_TEST_BROWSER_FOCUS="$focus_log" \
-  bash "$ROOT/bin/omarchy-launch-browser"
+  AGENT0S_TEST_BROWSER_LAUNCH="$launch_log" AGENT0S_TEST_BROWSER_FOCUS="$focus_log" \
+  bash "$ROOT/bin/agent0s-launch-browser"
 
 [[ ! -e $focus_log ]] || fail "browser launcher leaves a new window on the current workspace"
 
 HOME="$test_home" PATH="$mock_bin:$PATH" HYPRLAND_INSTANCE_SIGNATURE=test \
-  OMARCHY_TEST_BROWSER_LAUNCH="$launch_log" OMARCHY_TEST_BROWSER_FOCUS="$focus_log" \
-  bash "$ROOT/bin/omarchy-launch-browser" --private
+  AGENT0S_TEST_BROWSER_LAUNCH="$launch_log" AGENT0S_TEST_BROWSER_FOCUS="$focus_log" \
+  bash "$ROOT/bin/agent0s-launch-browser" --private
 
 [[ ! -e $focus_log ]] || fail "private browser launcher leaves a new window on the current workspace"
 
 HOME="$test_home" PATH="$mock_bin:$PATH" HYPRLAND_INSTANCE_SIGNATURE=test \
-  OMARCHY_TEST_BROWSER_LAUNCH="$launch_log" OMARCHY_TEST_BROWSER_FOCUS="$focus_log" \
-  bash "$ROOT/bin/omarchy-launch-browser" "https://example.test/authorize"
+  AGENT0S_TEST_BROWSER_LAUNCH="$launch_log" AGENT0S_TEST_BROWSER_FOCUS="$focus_log" \
+  bash "$ROOT/bin/agent0s-launch-browser" "https://example.test/authorize"
 
 grep -F 'https://example.test/authorize' "$launch_log" >/dev/null || fail "browser launcher passes through the URL"
 grep -Fx '^chromium.*$' "$focus_log" >/dev/null || fail "browser launcher focuses the default browser window"
@@ -66,10 +66,10 @@ grep -Fx '^chromium.*$' "$focus_log" >/dev/null || fail "browser launcher focuse
 rm -f "$focus_log" "$xdg_settings_browser"
 
 HOME="$test_home" PATH="$mock_bin:$PATH" HYPRLAND_INSTANCE_SIGNATURE=test \
-  BROWSER=omarchy-launch-browser OMARCHY_TEST_XDG_SETTINGS_EMPTY=1 \
-  OMARCHY_TEST_BROWSER_LAUNCH="$launch_log" OMARCHY_TEST_BROWSER_FOCUS="$focus_log" \
-  OMARCHY_TEST_XDG_SETTINGS_BROWSER="$xdg_settings_browser" \
-  bash "$ROOT/bin/omarchy-launch-browser" "https://example.test/fallback"
+  BROWSER=agent0s-launch-browser AGENT0S_TEST_XDG_SETTINGS_EMPTY=1 \
+  AGENT0S_TEST_BROWSER_LAUNCH="$launch_log" AGENT0S_TEST_BROWSER_FOCUS="$focus_log" \
+  AGENT0S_TEST_XDG_SETTINGS_BROWSER="$xdg_settings_browser" \
+  bash "$ROOT/bin/agent0s-launch-browser" "https://example.test/fallback"
 
 grep -F 'https://example.test/fallback' "$launch_log" >/dev/null ||
   fail "browser launcher falls back to the HTTPS handler when xdg-settings is empty"

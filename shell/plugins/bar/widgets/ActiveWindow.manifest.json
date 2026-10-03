@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.active-window",
+  "id": "agent0s.active-window",
   "name": "Active window",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Title of the focused window",
   "kinds": [
     "bar-widget"

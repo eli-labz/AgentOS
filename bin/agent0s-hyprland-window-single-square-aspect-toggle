@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# agent0s:summary=Toggle single-window square aspect ratio.
+
+case $(agent0s-hyprland-toggle single-window-aspect-ratio) in
+  on) agent0s-notification-send -g  "Enable single-window square aspect ratio" ;;
+  off) agent0s-notification-send -g  "Disable single-window square aspect ratio" ;;
+esac

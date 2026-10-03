@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.indicators",
+  "id": "agent0s.indicators",
   "name": "Indicators",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Manual state indicators",
   "kinds": [
     "bar-widget"
@@ -67,7 +67,7 @@
       }
     ]
   },
-  "omarchy": {
+  "agent0s": {
     "clonePaths": [
       {
         "source": "../indicators",

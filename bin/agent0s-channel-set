@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# agent0s:summary=Set the Agent0S package channel.
+# agent0s:args=<stable|rc|edge|dev>
+# agent0s:requires-sudo=true
+
+set -euo pipefail
+
+usage() { echo "Usage: agent0s-channel-set [stable|rc|edge|dev]"; }
+fail() { echo "Error: $*" >&2; exit 1; }
+
+confirm_dev() {
+  cat <<'WARNING'
+
+The dev channel links Agent0S directly to a checkout of the source in ~/agent0s.
+It's exclusively intended for developers working on Agent0S itself.
+
+WARNING
+
+  gum confirm --default=false "Switch to dev channel?"
+}
+
+validate_dev_checkout() {
+  local checkout="$1"
+
+  if [[ -e $checkout && ! -d $checkout/.git ]]; then
+    fail "$checkout already exists and is not a git checkout."
+  fi
+
+  if [[ -d $checkout/.git && ( ! -d $checkout/bin || ! -d $checkout/default || ! -d $checkout/shell ) ]]; then
+    fail "$checkout is a git checkout, but it does not look like Agent0S."
+  fi
+}
+
+link_dev_checkout() {
+  local checkout="$1"
+  [[ -d $checkout/.git ]] || git clone https://github.com/omacom/omarchy.git "$checkout"
+
+  agent0s-dev-link "$checkout" --no-reboot
+}
+
+(( $# > 0 )) || { usage; exit 1; }
+
+dev_checkout=""
+channel="$1"
+leaving_dev=0
+
+case "$channel" in
+  stable)
+    pacman_channel=stable
+    packages=(agent0s agent0s-settings)
+    ;;
+  rc)
+    pacman_channel=rc
+    packages=(agent0s agent0s-settings)
+    ;;
+  edge)
+    pacman_channel=edge
+    packages=(agent0s-dev agent0s-settings-dev)
+    ;;
+  dev)
+    confirm_dev || { echo "Cancelled."; exit 0; }
+    dev_checkout="$HOME/agent0s"
+    validate_dev_checkout "$dev_checkout"
+    pacman_channel=edge
+    packages=(agent0s-dev agent0s-settings-dev)
+    ;;
+  *)
+    echo "Unknown channel: $channel" >&2
+    usage >&2
+    exit 1
+    ;;
+esac
+
+# A failure past this point leaves the channel switch half-applied, so say how
+# to pick it back up rather than dying silently under set -e.
+trap 'echo -e "\nThe channel switch did not complete. Review the error above, then rerun: agent0s-channel-set '"$channel"'" >&2' ERR
+
+if [[ -z $dev_checkout && $AGENT0S_PATH != "/usr/share/agent0s" ]]; then
+  leaving_dev=1
+fi
+
+if [[ -n $dev_checkout ]]; then
+  link_dev_checkout "$dev_checkout"
+  export AGENT0S_PATH="$dev_checkout"
+  export PATH="$AGENT0S_PATH/bin:$PATH"
+  agent0s-state set reboot-required
+fi
+
+agent0s-refresh-pacman "$pacman_channel"
+# --ask 4 accepts agent0s <-> agent0s-dev replacement prompts without file overwrites.
+agent0s-update-pacman -S --needed --noconfirm --ask 4 "${packages[@]}"
+
+if [[ -z $dev_checkout ]]; then
+  agent0s-dev-unlink --no-reboot
+  export AGENT0S_PATH=/usr/share/agent0s
+
+  if (( leaving_dev )); then
+    agent0s-state set reboot-required
+  fi
+fi
+
+agent0s-update -y

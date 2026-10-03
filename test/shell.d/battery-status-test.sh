@@ -36,7 +36,7 @@ exit 1
 STUB
 chmod +x "$tmp_dir/bin/upower"
 
-shell_output=$(OMARCHY_POWER_SUPPLY_PATH="$tmp_dir/power" PATH="$tmp_dir/bin:$PATH" "$ROOT/bin/omarchy-battery-status" --shell)
+shell_output=$(AGENT0S_POWER_SUPPLY_PATH="$tmp_dir/power" PATH="$tmp_dir/bin:$PATH" "$ROOT/bin/agent0s-battery-status" --shell)
 
 grep -Fx $'percentage\t51%' <<<"$shell_output" >/dev/null || fail "battery status reports percentage"
 grep -Fx $'state\tdischarging' <<<"$shell_output" >/dev/null || fail "battery status reports state"
@@ -44,7 +44,7 @@ grep -Fx $'rate\t10.8W' <<<"$shell_output" >/dev/null || fail "battery status re
 grep -Fx $'size\t56Wh' <<<"$shell_output" >/dev/null || fail "battery status reports full capacity"
 grep -Fx $'time\t2h 30m' <<<"$shell_output" >/dev/null || fail "battery status reports remaining time"
 
-if matches=$(rg -n 'omarchy-battery-(capacity|remaining|remaining-time)' "$ROOT/bin" "$ROOT/test" "$ROOT/shell" "$ROOT/docs"); then
+if matches=$(rg -n 'agent0s-battery-(capacity|remaining|remaining-time)' "$ROOT/bin" "$ROOT/test" "$ROOT/shell" "$ROOT/docs"); then
   fail "battery status owns capacity and remaining calculations" "$matches"
 fi
 

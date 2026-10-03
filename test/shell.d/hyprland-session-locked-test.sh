@@ -16,8 +16,8 @@ cat >"$fake_bin/hyprctl" <<'SH'
 #!/bin/bash
 
 [[ ${1:-} == "-j" && ${2:-} == "monitors" ]] || exit 1
-[[ ${OMARCHY_TEST_HYPRCTL_FAILS:-0} == 1 ]] && exit 4
-printf '%s\n' "$OMARCHY_TEST_MONITORS"
+[[ ${AGENT0S_TEST_HYPRCTL_FAILS:-0} == 1 ]] && exit 4
+printf '%s\n' "$AGENT0S_TEST_MONITORS"
 SH
 chmod +x "$fake_bin/hyprctl"
 
@@ -29,9 +29,9 @@ assert_status() {
   local expected="$1" monitors="$2" description="$3" hyprctl_fails="${4:-0}" actual=0
 
   PATH="$fake_bin:$PATH" \
-  OMARCHY_TEST_MONITORS="$monitors" \
-  OMARCHY_TEST_HYPRCTL_FAILS="$hyprctl_fails" \
-    "$ROOT/bin/omarchy-hyprland-session-locked" || actual=$?
+  AGENT0S_TEST_MONITORS="$monitors" \
+  AGENT0S_TEST_HYPRCTL_FAILS="$hyprctl_fails" \
+    "$ROOT/bin/agent0s-hyprland-session-locked" || actual=$?
 
   (( actual == expected )) || fail "$description" "expected exit $expected, got $actual"
   pass "$description"

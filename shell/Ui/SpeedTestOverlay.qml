@@ -21,7 +21,7 @@ PanelWindow {
   required property string rightLabel
   property string unit: "Mbps"
   property string title: ""
-  property string layerNamespace: "omarchy-speed-test"
+  property string layerNamespace: "agent0s-speed-test"
   property string runAgainTooltip: "Measure again"
   property real leftValue: 0
   property real rightValue: 0

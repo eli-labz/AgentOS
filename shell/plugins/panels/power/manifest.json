@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.power",
+  "id": "agent0s.power",
   "name": "Power",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Battery, power profile, and system stats",
   "kinds": [
     "bar-widget"

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# agent0s:summary=Create a new Agent0S migration in the current source tree.
+# agent0s:args=[--no-edit]
+
+set -euo pipefail
+
+no_edit=0
+
+while (($#)); do
+  case "$1" in
+    --no-edit)
+      no_edit=1
+      shift
+      ;;
+    system|user)
+      echo "agent0s-dev-add-migration: migration scopes are no longer used; creating a regular migration." >&2
+      shift
+      ;;
+    -h|--help)
+      echo "Usage: agent0s-dev-add-migration [--no-edit]"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      echo "Usage: agent0s-dev-add-migration [--no-edit]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+cd "${AGENT0S_PATH:-$(pwd)}"
+mkdir -p migrations
+migration_file="migrations/$(git log -1 --format=%cd --date=unix).sh"
+touch "$migration_file"
+
+if (( ! no_edit )); then
+  nvim "$migration_file"
+fi
+
+printf '%s\n' "$PWD/$migration_file"

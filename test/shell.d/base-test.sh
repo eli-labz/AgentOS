@@ -49,7 +49,7 @@ compositor_reachable() {
   [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] || return 0
 
   # Hyprland can miss a query while it reconfigures outputs, and one miss is not
-  # a dead compositor; retry the way omarchy-launch-shell does rather than
+  # a dead compositor; retry the way agent0s-launch-shell does rather than
   # discard a whole file's runtime coverage. Only a leftover socket gets this
   # far, so the waiting is rare.
   local attempt

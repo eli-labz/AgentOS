@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.keyboard-layout",
+  "id": "agent0s.keyboard-layout",
   "name": "Keyboard layout",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Current xkb layout, click cycles",
   "kinds": [
     "bar-widget"
@@ -17,7 +17,7 @@
     "category": "Compositor",
     "allowMultiple": false
   },
-  "omarchy": {
+  "agent0s": {
     "clonePaths": [
       {
         "source": "KeyboardLayoutModel.js",

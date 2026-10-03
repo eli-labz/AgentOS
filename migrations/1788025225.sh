@@ -1,8 +1,8 @@
-echo "Remove privileged files left behind by retired Omarchy installers"
+echo "Remove privileged files left behind by retired Agent0S installers"
 
-sudoers_dir="${OMARCHY_SUDOERS_DIR:-/etc/sudoers.d}"
-systemd_dir="${OMARCHY_SYSTEMD_SYSTEM_DIR:-/etc/systemd/system}"
-machine_marker="${OMARCHY_RETIRED_INSTALLER_ARTIFACTS_MARKER:-/var/lib/omarchy/migrations/1788025225}"
+sudoers_dir="${AGENT0S_SUDOERS_DIR:-/etc/sudoers.d}"
+systemd_dir="${AGENT0S_SYSTEMD_SYSTEM_DIR:-/etc/systemd/system}"
+machine_marker="${AGENT0S_RETIRED_INSTALLER_ARTIFACTS_MARKER:-/var/lib/agent0s/migrations/1788025225}"
 reload_needed_marker="$machine_marker.daemon-reload"
 
 [[ ! -e $machine_marker ]] || exit 0
@@ -16,7 +16,7 @@ as_root() {
 }
 
 # Three installers that no longer exist each left a root-owned file behind, and
-# nothing in Omarchy has ever removed any of them. Each is judged against what
+# nothing in Agent0S has ever removed any of them. Each is judged against what
 # the installer that wrote it actually produced, so a file of the same name that
 # an administrator wrote themselves is left alone.
 #
@@ -103,7 +103,7 @@ sudoers_hash_is_active() {
 # install/preflight/first-run-mode.sh (2025-08-25 to 2026-05-25) granted the
 # installing account passwordless sudo for the rest of the first boot, including
 # an unrestricted /usr/bin/systemctl from 2025-10-14 on -- enough to link and
-# start a unit of the user's own, which is root. bin/omarchy-first-run was meant
+# start a unit of the user's own, which is root. bin/agent0s-first-run was meant
 # to delete the grant, but it clears its first-run.mode guard as the very first
 # statement and only reaches the removal after eight set -e steps, two of which
 # touch the network. Any failure in between leaves the grant on the machine with
@@ -118,7 +118,7 @@ sudoers_hash_is_active() {
 # hand-written line anywhere in the file and it is not ours to delete.
 first_run_sudoers_is_generated() {
   local spec_pattern='^([^[:space:]]+) ALL=\(ALL\) NOPASSWD: (.+)$'
-  local marker_pattern='^/bin/rm -f /home/([^/]+)/\.local/state/omarchy/first-run\.mode$'
+  local marker_pattern='^/bin/rm -f /home/([^/]+)/\.local/state/agent0s/first-run\.mode$'
   local line user command marker_user generated_user=""
   local seen_any=0 seen_marker=0 seen_spec=0
 
@@ -130,7 +130,7 @@ first_run_sudoers_is_generated() {
         continue
         ;;
       "Cmnd_Alias FIRST_RUN_CLEANUP = /bin/rm -f /etc/sudoers.d/first-run" | \
-        "Cmnd_Alias FIRST_RUN_CLEANUP = /bin/rm -f /etc/sudoers.d/first-run, /bin/rm -f /etc/sudoers.d/99-omarchy-installer-reboot" | \
+        "Cmnd_Alias FIRST_RUN_CLEANUP = /bin/rm -f /etc/sudoers.d/first-run, /bin/rm -f /etc/sudoers.d/99-agent0s-installer-reboot" | \
         "Cmnd_Alias FIRST_RUN_CLEANUP = /usr/bin/rm -f /etc/sudoers.d/first-run, /bin/rm -f /etc/sudoers.d/first-run")
         seen_marker=1
         continue
@@ -176,12 +176,12 @@ first_run_sudoers_is_generated() {
   (( seen_any && seen_marker && seen_spec ))
 }
 
-# bin/omarchy-install-tailscale (2025-08-22 to 2026-02-02) ran
+# bin/agent0s-install-tailscale (2025-08-22 to 2026-02-02) ran
 # "echo \"\$USER ALL=(ALL) NOPASSWD: \$(which tsui)\" | sudo tee
 # /etc/sudoers.d/tsui" one line after installing tsui by piping a vendor script
 # to bash with no sudo at all, so the path it resolved was usually the user's own
 # ~/.local/bin. Overwrite that file, run sudo tsui, and you are root. The grant
-# goes whatever the path turned out to be: the feature was dropped from Omarchy,
+# goes whatever the path turned out to be: the feature was dropped from Agent0S,
 # and unrestricted NOPASSWD on a TUI that can shell out is an escalation from a
 # root-owned path too.
 tsui_sudoers_is_generated() {
@@ -211,9 +211,9 @@ tsui_sudoers_is_generated() {
 # unit is enabled WantedBy=multi-user.target, so systemd runs that path as uid 0
 # on every shutdown, with no hardware event needed to reach it.
 plymouth_unit_runs_from_home() {
-  local binary="omarchy-plymouth-shutdown-sync"
+  local binary="agent0s-plymouth-shutdown-sync"
   local exec_stop_pattern='^ExecStop[[:space:]]*=[[:space:]]*(.*)$'
-  local home_pattern="^/.+/\\.local/share/omarchy/bin/$binary\$"
+  local home_pattern="^/.+/\\.local/share/agent0s/bin/$binary\$"
   local line word
   local -a words
   local matched=1
@@ -251,7 +251,7 @@ plymouth_unit_runs_from_home() {
   return $matched
 }
 
-# /etc/sudoers.d is 0750 root:root as shipped, and omarchy-migrate runs as the
+# /etc/sudoers.d is 0750 root:root as shipped, and agent0s-migrate runs as the
 # logged-in user, so an unelevated [[ -f ]] on a file in there is false whether or
 # not the file exists and an unelevated read returns nothing. Both tests and both
 # reads have to be elevated or this migration reports success having done nothing.
@@ -259,7 +259,7 @@ first_run_sudoers="$sudoers_dir/first-run"
 tsui_sudoers="$sudoers_dir/tsui"
 
 fail_privileged_repair() {
-  echo "Cannot complete the privileged installer-artifact repair. An administrator must run omarchy-migrate to repair this machine." >&2
+  echo "Cannot complete the privileged installer-artifact repair. An administrator must run agent0s-migrate to repair this machine." >&2
   exit 1
 }
 
@@ -310,7 +310,7 @@ inspect_sudoers_file "$first_run_sudoers" first_run_sudoers_is_generated
 inspect_sudoers_file "$tsui_sudoers" tsui_sudoers_is_generated
 
 # /etc/systemd/system is 0755, so this one needs no elevation to look at.
-plymouth_unit="$systemd_dir/omarchy-plymouth-shutdown.service"
+plymouth_unit="$systemd_dir/agent0s-plymouth-shutdown.service"
 if [[ -f $plymouth_unit ]] && plymouth_unit_runs_from_home <"$plymouth_unit"; then
   # Disable, never stop. Stopping the unit is precisely what runs ExecStop, and
   # ExecStop is the path this migration exists to keep root away from; disabling
@@ -318,7 +318,7 @@ if [[ -f $plymouth_unit ]] && plymouth_unit_runs_from_home <"$plymouth_unit"; th
   if ! as_root install -Dm644 /dev/null "$reload_needed_marker"; then
     fail_privileged_repair
   fi
-  if ! as_root systemctl disable omarchy-plymouth-shutdown.service >/dev/null 2>&1; then
+  if ! as_root systemctl disable agent0s-plymouth-shutdown.service >/dev/null 2>&1; then
     fail_privileged_repair
   fi
   if ! as_root rm -f "$plymouth_unit"; then

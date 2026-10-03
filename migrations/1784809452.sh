@@ -1,6 +1,6 @@
 echo "Remove Snapper timeline snapshots leaked by earlier defaults"
 
-SNAPPER_CONFIG_PATH="${OMARCHY_SNAPPER_CONFIG_PATH:-/etc/snapper/configs/root}"
+SNAPPER_CONFIG_PATH="${AGENT0S_SNAPPER_CONFIG_PATH:-/etc/snapper/configs/root}"
 
 as_root() {
   if (( EUID == 0 )); then
@@ -13,7 +13,7 @@ as_root() {
 command -v snapper >/dev/null || exit 0
 [[ -f $SNAPPER_CONFIG_PATH ]] || exit 0
 
-# Only clean up when timeline snapshotting is off, as Omarchy configures it.
+# Only clean up when timeline snapshotting is off, as Agent0S configures it.
 # Anyone who deliberately turned it back on keeps their snapshots. Snapper's
 # own create-config leaves the file readable by root alone, and a config this
 # user cannot read must not pass for one that wants its snapshots kept.
@@ -34,7 +34,7 @@ echo "Deleting $(wc -w <<<"$leaked") leaked timeline snapshots (disk space is re
 
 # Delete in small batches; one big delete can die on a DBus timeout partway.
 # A failed batch must not take the rest of the migration run down with it, so
-# the drain is best effort. omarchy-migrate records the migration either way,
+# the drain is best effort. agent0s-migrate records the migration either way,
 # so say what is left rather than counting on a rerun that will not come.
 failed=0
 batch=()

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# agent0s:summary=Reset shell.json to Agent0S defaults
+# agent0s:examples=agent0s refresh shell
+
+set -euo pipefail
+
+agent0s-refresh-config agent0s/shell.json
+agent0s-bar defaults
+
+agent0s-restart-shell

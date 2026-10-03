@@ -1,4 +1,4 @@
 cat <<EOF |
-command=$HOME/.local/share/omarchy/bin/example
+command=$HOME/.local/share/agent0s/bin/example
 EOF
-  sudo tee /etc/omarchy/example.conf
+  sudo tee /etc/agent0s/example.conf

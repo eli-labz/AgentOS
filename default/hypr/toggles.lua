@@ -1,7 +1,7 @@
 local paths = require("default.hypr.paths")
 local require_all = require("default.hypr.require_all")
 
-local toggles_dir = paths.state_home .. "/omarchy/toggles/hypr"
+local toggles_dir = paths.state_home .. "/agent0s/toggles/hypr"
 package.path = toggles_dir .. "/?.lua;" .. package.path
 
 -- touchpad-disabled.lua / touchscreen-disabled.lua were generated Lua in older

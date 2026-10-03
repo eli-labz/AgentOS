@@ -4,14 +4,14 @@ set -euo pipefail
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
-apply_lock="$ROOT/bin/omarchy-apply-lock"
+apply_lock="$ROOT/bin/agent0s-apply-lock"
 
 root_path_guard=$(awk '
   /^if \(\( EUID == 0 \)\); then$/ { inside = 1 }
   inside { print }
   inside && /^fi$/ { exit }
 ' "$apply_lock")
-grep -Fx '  export PATH=/usr/share/omarchy/bin:/usr/local/bin:/usr/bin:/bin' <<<"$root_path_guard" >/dev/null ||
+grep -Fx '  export PATH=/usr/share/agent0s/bin:/usr/local/bin:/usr/bin:/bin' <<<"$root_path_guard" >/dev/null ||
   fail "the root lock helper replaces its inherited command path"
 if grep -E '(\.local/bin|target_user|target_home)' <<<"$root_path_guard" >/dev/null; then
   fail "the root lock helper does not retain a user-controlled command directory"
@@ -22,7 +22,7 @@ grep -F '[[ -x /usr/bin/fprintd-list ]]' "$apply_lock" >/dev/null ||
   fail "the lock helper checks the trusted fprintd-list executable"
 grep -F '/usr/bin/fprintd-list "$target_user"' "$apply_lock" >/dev/null ||
   fail "the lock helper invokes fprintd-list by its trusted absolute path"
-if grep -F 'omarchy-cmd-present fprintd-list' "$apply_lock" >/dev/null ||
+if grep -F 'agent0s-cmd-present fprintd-list' "$apply_lock" >/dev/null ||
   grep -E '(^|[[:space:];&|])fprintd-list([[:space:]]|$)' "$apply_lock" >/dev/null ||
   grep -E 'command[[:space:]]+-v[[:space:]]+fprintd-list' "$apply_lock" >/dev/null; then
   fail "the lock helper does not resolve fprintd-list through PATH"
@@ -56,17 +56,17 @@ trap 'rm -rf "$test_tmp"' EXIT
 poison_bin="$test_tmp/poison-bin"
 trusted_root_bin="$test_tmp/trusted-root-bin"
 trusted_fprintd="$test_tmp/trusted-fprintd-list"
-password_pam="$test_tmp/omarchy-lock-password"
-fingerprint_pam="$test_tmp/omarchy-lock-fingerprint"
+password_pam="$test_tmp/agent0s-lock-password"
+fingerprint_pam="$test_tmp/agent0s-lock-fingerprint"
 attack_marker="$test_tmp/user-fprintd-list-ran"
 trusted_uid="$test_tmp/trusted-fprintd-list.uid"
 trusted_args="$test_tmp/trusted-fprintd-list.args"
 attack_args="$test_tmp/user-fprintd-list.args"
-patched_helper="$test_tmp/omarchy-apply-lock-patched"
-absolute_only_helper="$test_tmp/omarchy-apply-lock-absolute-only"
-root_path_only_helper="$test_tmp/omarchy-apply-lock-root-path-only"
-unprotected_helper="$test_tmp/omarchy-apply-lock-unprotected"
-target_user=omarchy-regression-user
+patched_helper="$test_tmp/agent0s-apply-lock-patched"
+absolute_only_helper="$test_tmp/agent0s-apply-lock-absolute-only"
+root_path_only_helper="$test_tmp/agent0s-apply-lock-root-path-only"
+unprotected_helper="$test_tmp/agent0s-apply-lock-unprotected"
+target_user=agent0s-regression-user
 mkdir -p "$poison_bin" "$trusted_root_bin"
 
 # The runtime copy pins to this isolated root path. It contains every bare
@@ -110,14 +110,14 @@ prepare_helper() {
     -v use_absolute_fprintd="$use_absolute_fprintd" '
     {
       line = $0
-      gsub("/etc/pam\\.d/omarchy-lock-password", "\"" password_pam "\"", line)
-      gsub("/etc/pam\\.d/omarchy-lock-fingerprint", "\"" fingerprint_pam "\"", line)
+      gsub("/etc/pam\\.d/agent0s-lock-password", "\"" password_pam "\"", line)
+      gsub("/etc/pam\\.d/agent0s-lock-fingerprint", "\"" fingerprint_pam "\"", line)
 
       if (line == "if (( EUID == 0 )); then" && keep_root_path == 0) {
         print "if (( 0 )); then"
         next
       }
-      if (line == "  export PATH=/usr/share/omarchy/bin:/usr/local/bin:/usr/bin:/bin") {
+      if (line == "  export PATH=/usr/share/agent0s/bin:/usr/local/bin:/usr/bin:/bin") {
         print "  export PATH=\"" trusted_root_bin "\""
         next
       }
@@ -137,7 +137,7 @@ prepare_helper() {
         }
         next
       }
-      if (line == "if omarchy-shell lock status >/dev/null 2>&1; then") {
+      if (line == "if agent0s-shell lock status >/dev/null 2>&1; then") {
         print "if false; then"
         next
       }
@@ -156,7 +156,7 @@ prepare_helper "$unprotected_helper" 0 0
 for helper in "$patched_helper" "$absolute_only_helper" "$root_path_only_helper" "$unprotected_helper"; do
   if grep -F '/etc/pam.d/' "$helper" >/dev/null ||
     grep -F '/usr/bin/fprintd-list' "$helper" >/dev/null ||
-    grep -F 'omarchy-shell lock status' "$helper" >/dev/null; then
+    grep -F 'agent0s-shell lock status' "$helper" >/dev/null; then
     fail "the isolated root fixture redirects every live-system lock-helper target"
   fi
 done
@@ -168,7 +168,7 @@ reset_runtime_files() {
 run_as_root() {
   local helper="$1" description="$2" output
 
-  if ! output=$(PATH="$poison_bin:/usr/bin:/bin" OMARCHY_INSTALL_USER="$target_user" \
+  if ! output=$(PATH="$poison_bin:/usr/bin:/bin" AGENT0S_INSTALL_USER="$target_user" \
     "${root_runner[@]}" /bin/bash "$helper" 2>&1); then
     fail "$description" "$output"
   fi

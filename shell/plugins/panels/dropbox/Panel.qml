@@ -9,11 +9,11 @@ import "Model.js" as Model
 
 Panel {
   id: root
-  moduleName: "omarchy.dropbox"
-  ipcTarget: "omarchy.dropbox"
+  moduleName: "agent0s.dropbox"
+  ipcTarget: "agent0s.dropbox"
   manageIpc: false
 
-  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
+  property string agent0sPath: Quickshell.env("AGENT0S_PATH")
   property string focusSection: "login"
   property int fileIndex: 0
   property bool cursorActive: false
@@ -146,7 +146,7 @@ Panel {
   Service {
     id: dropbox
     settings: root.settings
-    omarchyPath: root.omarchyPath
+    agent0sPath: root.agent0sPath
   }
 
   Connections {

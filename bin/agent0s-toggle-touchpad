@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Enable, disable, or toggle the touchpad
+# agent0s:args=[on|off|toggle]
+
+exec agent0s-toggle-input-device touchpad "${1:-toggle}"

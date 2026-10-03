@@ -11,7 +11,7 @@ import "AppSearch.js" as AppSearch
 Item {
   id: root
 
-  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
+  property string agent0sPath: Quickshell.env("AGENT0S_PATH")
 
   property var configuredHiddenEntryIds: ({})
   property var desktopHiddenEntryIds: ({})
@@ -88,7 +88,7 @@ Item {
   function remove(desktopId, name) {
     var id = String(desktopId || "")
     if (!id) return
-    Util.execDetached(Util.shellQuote(root.omarchyPath + "/bin/omarchy-remove-launcher-entry") + " " + Util.shellQuote(id) + " " + Util.shellQuote(String(name || id)))
+    Util.execDetached(Util.shellQuote(root.agent0sPath + "/bin/agent0s-remove-launcher-entry") + " " + Util.shellQuote(id) + " " + Util.shellQuote(String(name || id)))
   }
 
   function normalizeDesktopId(id) {
@@ -149,7 +149,7 @@ Item {
 
   function hiddenEntryScanCommand() {
     var desktop = [Quickshell.env("XDG_CURRENT_DESKTOP"), Quickshell.env("XDG_SESSION_DESKTOP"), Quickshell.env("DESKTOP_SESSION")].filter(function(v) { return String(v || "").length > 0 }).join(":")
-    var script = root.omarchyPath + "/shell/services/hidden-entries.sh"
+    var script = root.agent0sPath + "/shell/services/hidden-entries.sh"
     return Util.shellQuote(script) + " " + Util.shellQuote(desktop)
   }
 
@@ -171,7 +171,7 @@ Item {
     launchDelay.stop()
     launchTimeout.stop()
     if (root.launchOsdOpen) {
-      Quickshell.execDetached(["omarchy-shell", "osd", "close"])
+      Quickshell.execDetached(["agent0s-shell", "osd", "close"])
       root.launchOsdOpen = false
     }
   }
@@ -218,7 +218,7 @@ Item {
   }
 
   FileView {
-    path: root.omarchyPath + "/default/omarchy/launcher.hides"
+    path: root.agent0sPath + "/default/agent0s/launcher.hides"
     watchChanges: true
     printErrors: false
     onLoaded: root.loadConfiguredHides(text())
@@ -242,7 +242,7 @@ Item {
     onTriggered: {
       if (root.toplevelCount() > root.launchToplevelCount || ToplevelManager.activeToplevel !== root.launchActiveToplevel) return
       root.launchOsdOpen = true
-      Quickshell.execDetached(["omarchy-shell", "osd", "show", JSON.stringify({ icon: "󱓞", message: root.launchOsdMessage, duration: 0 })])
+      Quickshell.execDetached(["agent0s-shell", "osd", "show", JSON.stringify({ icon: "󱓞", message: root.launchOsdMessage, duration: 0 })])
     }
   }
 

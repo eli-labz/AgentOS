@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.media",
+  "id": "agent0s.media",
   "name": "Media",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "MPRIS media control service",
   "kinds": [
     "service",

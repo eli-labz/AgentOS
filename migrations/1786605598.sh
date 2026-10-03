@@ -1,20 +1,20 @@
 echo "Rebuild the initramfs so NVIDIA-only systems shed nouveau's unused GSP firmware"
 
-# omarchy_hooks.conf now filters the kms hook out of HOOKS when the proprietary
+# agent0s_hooks.conf now filters the kms hook out of HOOKS when the proprietary
 # NVIDIA driver handles early KMS and NVIDIA owns every display controller
 # (#6790). The settings package deploys that conditional, but nothing rebuilds
 # the initramfs for a mkinitcpio drop-in change, so affected machines would
 # carry ~100 MB of dead nouveau firmware until their next kernel update.
 # Rebuild once, and only where the conditional actually changes the outcome:
 # evaluate the installed drop-ins the way mkinitcpio does and check that kms
-# dropped out. A user-edited omarchy_hooks.conf (pacman leaves the packaged
+# dropped out. A user-edited agent0s_hooks.conf (pacman leaves the packaged
 # update as a .pacnew) keeps kms and correctly skips the rebuild.
 
-hooks_conf="${OMARCHY_MKINITCPIO_HOOKS_CONF:-/etc/mkinitcpio.conf.d/omarchy_hooks.conf}"
-nvidia_conf="${OMARCHY_MKINITCPIO_NVIDIA_CONF:-/etc/mkinitcpio.conf.d/nvidia.conf}"
-rebuild_marker="${OMARCHY_KMS_REBUILD_MARKER:-/var/lib/omarchy/migrations/1786605598}"
+hooks_conf="${AGENT0S_MKINITCPIO_HOOKS_CONF:-/etc/mkinitcpio.conf.d/agent0s_hooks.conf}"
+nvidia_conf="${AGENT0S_MKINITCPIO_NVIDIA_CONF:-/etc/mkinitcpio.conf.d/nvidia.conf}"
+rebuild_marker="${AGENT0S_KMS_REBUILD_MARKER:-/var/lib/agent0s/migrations/1786605598}"
 
-omarchy-cmd-present limine-mkinitcpio || exit 0
+agent0s-cmd-present limine-mkinitcpio || exit 0
 [[ -f $hooks_conf && -f $nvidia_conf ]] || exit 0
 
 # The rebuild is machine-wide, but migrations run once per user: a marker

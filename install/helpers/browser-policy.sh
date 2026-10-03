@@ -1,5 +1,5 @@
 # Chromium-family machine policy is mandatory for every profile. Directories
-# stay 0755 root:root; omarchy-theme-set-browser-policy is the privileged
+# stay 0755 root:root; agent0s-theme-set-browser-policy is the privileged
 # write for color.json.
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/as-root.sh"
@@ -153,14 +153,14 @@ browser_policy_firefox_hardened() {
 
 browser_policy_install_firefox_policies() {
   local distribution_dir=$1
-  local policies=${2:-$OMARCHY_PATH/default/firefox/policies.json}
+  local policies=${2:-$AGENT0S_PATH/default/firefox/policies.json}
 
   as_root install -m 644 -o root -g root -T "$policies" "$distribution_dir/policies.json"
 }
 
 browser_policy_setup_firefox_distribution() {
   local distribution_dir=$1
-  local policies=${2:-$OMARCHY_PATH/default/firefox/policies.json}
+  local policies=${2:-$AGENT0S_PATH/default/firefox/policies.json}
 
   browser_policy_setup_parent "$distribution_dir"
   browser_policy_purge_dir "$distribution_dir"

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Compatibility wrapper for agent0s-migrate-notify.
+# agent0s:hidden=true
+
+exec agent0s-migrate-notify "$@"

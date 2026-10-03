@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# agent0s:summary=Dismiss a notification by summary substring. Used by the first-run notifications to dismiss them after clicking for action.
+# agent0s:args=<summary>
+
+if (($# == 0)); then
+  echo "Usage: agent0s-notification-dismiss <summary>"
+  exit 1
+fi
+
+agent0s-shell -q notifications dismiss "$1"

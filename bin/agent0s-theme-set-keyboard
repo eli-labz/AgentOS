@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# agent0s:summary=Apply the current theme keyboard color to supported keyboards
+# agent0s:hidden=true
+
+agent0s-theme-set-keyboard-asus-rog
+agent0s-theme-set-keyboard-f16

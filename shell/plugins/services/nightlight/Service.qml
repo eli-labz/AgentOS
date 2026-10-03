@@ -5,10 +5,10 @@ import "NightlightModel.js" as NightlightModel
 Item {
   id: root
 
-  // Injected by omarchy-shell (the first-party service loader).
+  // Injected by agent0s-shell (the first-party service loader).
   property var shell: null
 
-  // Keep in sync with bin/omarchy-toggle-nightlight, which sets the same
+  // Keep in sync with bin/agent0s-toggle-nightlight, which sets the same
   // temperatures for callers outside the shell (keybindings, menu, ssh).
   readonly property int nightTemperature: 4000
   readonly property int dayTemperature: 6500

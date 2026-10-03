@@ -1,9 +1,9 @@
-# The Omarchy menu
+# The Agent0S menu
 
-The menu is the `omarchy.menu` plugin of the Quickshell desktop, with its
-content defined as data in `default/omarchy/omarchy-menu.jsonc` (read at
-runtime from `$OMARCHY_PATH`) and overlaid by the user's
-`~/.config/omarchy/extensions/omarchy-menu.jsonc`. The shell parses both files
+The menu is the `agent0s.menu` plugin of the Quickshell desktop, with its
+content defined as data in `default/agent0s/agent0s-menu.jsonc` (read at
+runtime from `$AGENT0S_PATH`) and overlaid by the user's
+`~/.config/agent0s/extensions/agent0s-menu.jsonc`. The shell parses both files
 at startup and watches them for changes, so the keybind → IPC → visible path
 never shells out to parse anything, and edits to either file take effect
 without restarting the shell. Rendering and behavior live in
@@ -33,13 +33,13 @@ submenu. The fields:
 | Field | Meaning |
 |---|---|
 | `icon` | Glyph in the icon column (usually Nerd Font) |
-| `iconFont` | Font family for the glyph when it differs from the menu font — how the private `omarchy` font's brand glyphs render |
+| `iconFont` | Font family for the glyph when it differs from the menu font — how the private `agent0s` font's brand glyphs render |
 | `label` | Visible row title; defaults to the id |
 | `title` | Header text when the submenu is open; defaults to `label`. Lets a row read "Browser" under Defaults while the open menu says "Default Browser" |
 | `action` | Shell command to run, detached, when selected |
 | `target` | Existing submenu id to open; makes the row a link |
 | `provider` | Runtime row source for this submenu (see Providers) |
-| `aliases` | Alternate `omarchy menu summon <name>` routes; also searchable |
+| `aliases` | Alternate `agent0s menu summon <name>` routes; also searchable |
 | `description` | Subtitle shown while searching, and extra search text matched by whole word |
 | `when` / `checked` / `disabled` | Shell conditions (see Guards) |
 
@@ -56,7 +56,7 @@ or re-icon a row without re-declaring its action, and an overridden entry
 keeps its original position in the list. New ids append. A `root` entry is
 injected if neither file declares one.
 
-The sample extension at `config/omarchy/extensions/omarchy-menu.jsonc`
+The sample extension at `config/agent0s/extensions/agent0s-menu.jsonc`
 (refreshed into `~/.config/`) documents the format in its header and ships
 only comments, so the default state adds nothing.
 
@@ -69,13 +69,13 @@ lines. The menu opens immediately on the previous evaluation's answers, so
 the batch's runtime is exactly how long a row can contradict the state it
 describes — which is why the batch works hard to be fast:
 
-- Package and command presence (`omarchy-pkg-present` and friends) are
+- Package and command presence (`agent0s-pkg-present` and friends) are
   answered in-process from one `pacman -Q` snapshot instead of a fork per
   row. The snapshot resolves provides too, so gvim answers for vim.
 - Commands that several rows read a value from — every Defaults > Browser row
-  compares against `$(omarchy-default-browser)` — run once, with the captured
+  compares against `$(agent0s-default-browser)` — run once, with the captured
   answer substituted into each expression. The reader list is
-  `GUARD_READERS` in `MenuModel.js`; a new `$(omarchy-...)` reader used by
+  `GUARD_READERS` in `MenuModel.js`; a new `$(agent0s-...)` reader used by
   more than one row must be added there, and `menu-guards-test.sh` fails the
   build if it is not.
 
@@ -90,7 +90,7 @@ The three guards differ in what failure means:
   unselectable: cursor, pointer, and Enter all step over it, and search omits
   it. The Install submenus use it so software already on the machine reads as
   installed rather than vanishing from the list it was installed from — the
-  list stays a catalog of what Omarchy can install. Since a dimmed row means
+  list stays a catalog of what Agent0S can install. Since a dimmed row means
   "you already have this", it earns the same ✓ as `checked` does elsewhere.
 
 Install rows should therefore carry `disabled:` with the presence check, not
@@ -132,15 +132,15 @@ it with `provider:`.
 
 ## Driving the menu from the CLI
 
-`bin/omarchy-menu` is a thin wrapper over the standard plugin IPC surface:
+`bin/agent0s-menu` is a thin wrapper over the standard plugin IPC surface:
 
 ```bash
-omarchy menu                    # toggle the root menu
-omarchy menu toggle system      # open at a route, or close if already open
-omarchy menu summon style.theme # always open (no close-if-visible)
-omarchy menu close
-omarchy menu refresh            # re-parse the JSONC files
-omarchy menu ping
+agent0s menu                    # toggle the root menu
+agent0s menu toggle system      # open at a route, or close if already open
+agent0s menu summon style.theme # always open (no close-if-visible)
+agent0s menu close
+agent0s menu refresh            # re-parse the JSONC files
+agent0s menu ping
 ```
 
 A route is an item id or a declared alias, case-insensitive, with
@@ -155,13 +155,13 @@ link is followed to its target. The default Hyprland bindings in
 
 ## Select and input modes
 
-The same plugin doubles as the system's dmenu. `omarchy-menu-select` and
-`omarchy-menu-input` summon it with a `mode: select` or `mode: input`
+The same plugin doubles as the system's dmenu. `agent0s-menu-select` and
+`agent0s-menu-input` summon it with a `mode: select` or `mode: input`
 payload, then block on a tempfile handshake: the shell writes the selection
 to `selectionFile` and touches `doneFile`, and cancellation (empty
 selection) exits 1. A select option is `label`, `glyph\tlabel`, or
 `glyph\tlabel\tsubtext` — the glyph shows but never returns, the subtext
 renders under the label, filters with it, and comes back as
 `label\tsubtext` so callers with same-named rows get a stable key. This is
-how the pickers behind menu actions (`omarchy-menu-plugin`,
-`omarchy-menu-timezone`, ...) present lists without owning any UI.
+how the pickers behind menu actions (`agent0s-menu-plugin`,
+`agent0s-menu-timezone`, ...) present lists without owning any UI.

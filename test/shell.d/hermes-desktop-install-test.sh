@@ -8,7 +8,7 @@ for command in git jq python3; do require_command "$command"; done
 
 test_tmp=$(mktemp -d)
 trap 'rm -rf -- "$test_tmp"' EXIT
-export OMARCHY_TEST_ROOT="$test_tmp"
+export AGENT0S_TEST_ROOT="$test_tmp"
 mkdir -p "$test_tmp/bin" "$test_tmp/package/resources" "$test_tmp/share" "$test_tmp/seed"
 
 # Real Git exercises patch checks and preservation; all package, desktop and
@@ -29,7 +29,7 @@ def _write_desktop_build_stamp(project_root, *, source_mode):
     assert source_mode is False
     assert (project_root / 'apps/desktop/release/linux-unpacked/resources/app.asar').is_file()
     (home / 'desktop-build-stamp.json').write_text('upstream build stamp')
-    with (Path(os.environ['OMARCHY_TEST_ROOT']) / 'events').open('a') as log:
+    with (Path(os.environ['AGENT0S_TEST_ROOT']) / 'events').open('a') as log:
         log.write('build-stamp\n')
 PY
 git -C "$test_tmp/seed" add .
@@ -42,7 +42,7 @@ printf 'newer desktop source\n' >"$test_tmp/seed/apps/desktop/src/main.js"
 git -C "$test_tmp/seed" add apps/desktop/src/main.js
 git -C "$test_tmp/seed" -c user.name=Test -c user.email=test@example.invalid commit -qm newer-main
 origin_commit=$(git -C "$test_tmp/seed" rev-parse HEAD)
-export OMARCHY_TEST_RELEASE_COMMIT="$release_commit"
+export AGENT0S_TEST_RELEASE_COMMIT="$release_commit"
 printf '{"branch":"main","commit":"%s"}\n' "$release_commit" >"$test_tmp/package/resources/install-stamp.json"
 printf 'packaged app\n' >"$test_tmp/package/resources/app.asar"
 printf '#!/bin/bash\nexit 0\n' >"$test_tmp/package/Hermes"
@@ -53,10 +53,10 @@ chmod 4755 "$test_tmp/package/chrome-sandbox"
 cat >"$test_tmp/share/install.sh" <<'MOCK'
 #!/bin/bash
 set -e
-printf 'bootstrap\n' >>"$OMARCHY_TEST_ROOT/events"
-printf '%s\n' "$@" >"$OMARCHY_TEST_ROOT/install-args"
-[[ ${OMARCHY_TEST_INSTALL_FAIL:-0} != 1 ]] || exit 7
-commit=$OMARCHY_TEST_RELEASE_COMMIT
+printf 'bootstrap\n' >>"$AGENT0S_TEST_ROOT/events"
+printf '%s\n' "$@" >"$AGENT0S_TEST_ROOT/install-args"
+[[ ${AGENT0S_TEST_INSTALL_FAIL:-0} != 1 ]] || exit 7
+commit=$AGENT0S_TEST_RELEASE_COMMIT
 force=false
 while (( $# )); do
   case "$1" in
@@ -69,7 +69,7 @@ while (( $# )); do
 done
 mkdir -p -- "${runtime%/*}"
 if [[ ! -d $runtime ]]; then
-  git clone -q --depth 1 "file://$OMARCHY_TEST_ROOT/seed" "$runtime"
+  git clone -q --depth 1 "file://$AGENT0S_TEST_ROOT/seed" "$runtime"
 else
   git -C "$runtime" checkout -q main
   git -C "$runtime" pull -q --ff-only origin main
@@ -84,7 +84,7 @@ printf '#!/bin/bash\nexit 0\n' >"$runtime/venv/bin/hermes"
 chmod +x "$runtime/venv/bin/hermes"
 printf '#!/bin/bash\nexec /usr/bin/python3 "$@"\n' >"$runtime/venv/bin/python"
 chmod +x "$runtime/venv/bin/python"
-[[ ${OMARCHY_TEST_NO_MARKER:-0} == 1 ]] || touch "$runtime/.hermes-bootstrap-complete"
+[[ ${AGENT0S_TEST_NO_MARKER:-0} == 1 ]] || touch "$runtime/.hermes-bootstrap-complete"
 mkdir -p "$HOME/.local/bin"
 for command in hermes hermes-agent hermes-acp; do
   rm -f "$HOME/.local/bin/$command"
@@ -92,19 +92,19 @@ for command in hermes hermes-agent hermes-acp; do
 done
 MOCK
 
-cat >"$test_tmp/bin/omarchy-pkg-add" <<'MOCK'
+cat >"$test_tmp/bin/agent0s-pkg-add" <<'MOCK'
 #!/bin/bash
-printf 'package %s\n' "$*" >>"$OMARCHY_TEST_ROOT/events"
-[[ ${OMARCHY_TEST_PACKAGE_FAIL:-0} != 1 ]]
+printf 'package %s\n' "$*" >>"$AGENT0S_TEST_ROOT/events"
+[[ ${AGENT0S_TEST_PACKAGE_FAIL:-0} != 1 ]]
 MOCK
 cat >"$test_tmp/bin/git" <<'MOCK'
 #!/bin/bash
-if [[ ${OMARCHY_TEST_FETCH_FAIL:-0} == 1 && " $* " == *" --unshallow "* ]]; then exit 8; fi
+if [[ ${AGENT0S_TEST_FETCH_FAIL:-0} == 1 && " $* " == *" --unshallow "* ]]; then exit 8; fi
 exec /usr/bin/git "$@"
 MOCK
-cat >"$test_tmp/bin/omarchy-install-hermes-cli" <<'MOCK'
+cat >"$test_tmp/bin/agent0s-install-hermes-cli" <<'MOCK'
 #!/bin/bash
-printf 'handoff\n' >>"$OMARCHY_TEST_ROOT/events"
+printf 'handoff\n' >>"$AGENT0S_TEST_ROOT/events"
 exit 1
 MOCK
 cat >"$test_tmp/bin/setsid" <<'MOCK'
@@ -113,7 +113,7 @@ exec "$@"
 MOCK
 cat >"$test_tmp/bin/cp" <<'MOCK'
 #!/bin/bash
-if [[ ${OMARCHY_TEST_COPY_FAIL:-0} == 1 ]]; then
+if [[ ${AGENT0S_TEST_COPY_FAIL:-0} == 1 ]]; then
   touch "${@: -1}/partial-copy"
   exit 9
 fi
@@ -121,7 +121,7 @@ exec /usr/bin/cp "$@"
 MOCK
 cat >"$test_tmp/bin/mv" <<'MOCK'
 #!/bin/bash
-if [[ ${OMARCHY_TEST_COPY_RACE:-0} == 1 && $1 == -T ]]; then
+if [[ ${AGENT0S_TEST_COPY_RACE:-0} == 1 && $1 == -T ]]; then
   mkdir -p "${@: -1}"
 fi
 exec /usr/bin/mv "$@"
@@ -137,21 +137,21 @@ cat >"$test_tmp/bin/hermes-desktop" <<'MOCK'
 sleep 0.05
 native="$HERMES_HOME/hermes-agent/apps/desktop/release/linux-unpacked"
 if [[ -x $native/Hermes && -f $native/resources/app.asar ]]; then
-  printf 'launch\n' >>"$OMARCHY_TEST_ROOT/events"
+  printf 'launch\n' >>"$AGENT0S_TEST_ROOT/events"
 else
-  printf 'launch-before-copy\n' >>"$OMARCHY_TEST_ROOT/events"
+  printf 'launch-before-copy\n' >>"$AGENT0S_TEST_ROOT/events"
 fi
 MOCK
 cat >"$test_tmp/bin/systemctl" <<'MOCK'
 #!/bin/bash
-printf 'theme-stop\n' >>"$OMARCHY_TEST_ROOT/events"
+printf 'theme-stop\n' >>"$AGENT0S_TEST_ROOT/events"
 MOCK
 cat >"$test_tmp/bin/systemd-run" <<'MOCK'
 #!/bin/bash
-printf 'theme-start\n' >>"$OMARCHY_TEST_ROOT/events"
+printf 'theme-start\n' >>"$AGENT0S_TEST_ROOT/events"
 # Join the mock asynchronous launch so every test owns its full lifetime.
 for (( attempt=0; attempt<100; attempt++ )); do
-  if grep -q '^launch' "$OMARCHY_TEST_ROOT/events"; then exit 0; fi
+  if grep -q '^launch' "$AGENT0S_TEST_ROOT/events"; then exit 0; fi
   sleep 0.01
 done
 exit 1
@@ -159,7 +159,7 @@ MOCK
 chmod +x "$test_tmp/bin/"*
 
 # Substitute only system package paths in a scratch copy of the actual script.
-python3 - "$ROOT/bin/omarchy-install-ai-hermes" "$test_tmp" <<'PY'
+python3 - "$ROOT/bin/agent0s-install-ai-hermes" "$test_tmp" <<'PY'
 from pathlib import Path
 import sys
 source, scratch = Path(sys.argv[1]), Path(sys.argv[2])
@@ -182,7 +182,7 @@ new_home() {
   : >"$test_tmp/events"
 }
 run_installer() {
-  HOME="$test_home" HERMES_HOME="${OMARCHY_TEST_HOME:-$hermes_home}" PATH="$test_tmp/bin:$PATH" \
+  HOME="$test_home" HERMES_HOME="${AGENT0S_TEST_HOME:-$hermes_home}" PATH="$test_tmp/bin:$PATH" \
     bash "$test_tmp/installer" >"$test_tmp/output" 2>&1
 }
 assert_stopped() {
@@ -252,9 +252,9 @@ pass "a matching commit with modified desktop sources is preserved without seedi
 for failure in package install marker; do
   new_home "$failure-failure"
   case "$failure" in
-    package) OMARCHY_TEST_PACKAGE_FAIL=1 run_installer && fail "package failure stops setup" ;;
-    install) OMARCHY_TEST_INSTALL_FAIL=1 run_installer && fail "installer failure stops setup" ;;
-    marker) OMARCHY_TEST_NO_MARKER=1 run_installer && fail "missing marker stops setup" ;;
+    package) AGENT0S_TEST_PACKAGE_FAIL=1 run_installer && fail "package failure stops setup" ;;
+    install) AGENT0S_TEST_INSTALL_FAIL=1 run_installer && fail "installer failure stops setup" ;;
+    marker) AGENT0S_TEST_NO_MARKER=1 run_installer && fail "missing marker stops setup" ;;
   esac
   [[ ! -e $native ]] || fail "failed setup does not seed the app"
   assert_stopped "failed setup prevents launch and theme setup"
@@ -264,10 +264,10 @@ pass "package, upstream installer and readiness failures stop before launch"
 for failure in copy race; do
   new_home "$failure-failure"
   if [[ $failure == "copy" ]]; then
-    OMARCHY_TEST_COPY_FAIL=1 run_installer && fail "copy failure stops setup"
+    AGENT0S_TEST_COPY_FAIL=1 run_installer && fail "copy failure stops setup"
     [[ ! -e $native ]] || fail "partial copy is never published"
   else
-    OMARCHY_TEST_COPY_RACE=1 run_installer && fail "concurrent native app stops publication"
+    AGENT0S_TEST_COPY_RACE=1 run_installer && fail "concurrent native app stops publication"
     [[ -d $native && -z $(ls -A "$native") ]] || fail "concurrent empty app directory is preserved"
   fi
   [[ -z $(find "${native%/*}" -maxdepth 1 -name '.linux-unpacked.*' -print) ]] || fail "owned staging directory is cleaned up"
@@ -318,7 +318,7 @@ run_installer && fail "local main commits cannot be reset by upstream installati
 pass "detached release checkouts do not hide local main work from the installer guard"
 
 new_home deepen-retry
-OMARCHY_TEST_FETCH_FAIL=1 run_installer && fail "history fetch failure stops setup"
+AGENT0S_TEST_FETCH_FAIL=1 run_installer && fail "history fetch failure stops setup"
 [[ ! -e $native ]] || fail "failed history fetch does not seed the app"
 assert_stopped "failed history fetch prevents launch"
 : >"$test_tmp/events"
@@ -344,7 +344,7 @@ pass "pre-existing command files and symlinks are backed up before replacement"
 new_home old-package
 mv "$test_tmp/package/resources/install-stamp.json" "$test_tmp/saved-install-stamp.json"
 run_installer && fail "an old installed package cannot bootstrap"
-grep -q 'omarchy update' "$test_tmp/output" || fail "old package has actionable upgrade guidance"
+grep -q 'agent0s update' "$test_tmp/output" || fail "old package has actionable upgrade guidance"
 ! grep -qx handoff "$test_tmp/events" || fail "old package is rejected before CLI handoff"
 ! grep -qx bootstrap "$test_tmp/events" || fail "old package never reaches upstream installer"
 mv "$test_tmp/saved-install-stamp.json" "$test_tmp/package/resources/install-stamp.json"
@@ -353,7 +353,7 @@ pass "old package fails with upgrade guidance before changing the runtime or CLI
 new_home custom-profile
 hermes_home="$test_home/custom home"
 runtime="$hermes_home/hermes-agent"
-OMARCHY_TEST_HOME="$hermes_home/PrOfIlEs/coder/../coder/" run_installer || fail "profile setup succeeds"
+AGENT0S_TEST_HOME="$hermes_home/PrOfIlEs/coder/../coder/" run_installer || fail "profile setup succeeds"
 [[ -x $runtime/apps/desktop/release/linux-unpacked/Hermes ]] || fail "profile uses the canonical root runtime"
 grep -qxF "$hermes_home" "$test_tmp/install-args" || fail "canonical custom home reaches upstream installer"
 pass "custom profile paths normalize to the shared Hermes home"
@@ -365,7 +365,7 @@ printf 'raise AssertionError("legacy module imported after desktop split")\n' >"
 git -C "$test_tmp/seed" add hermes_cli/main.py
 git -C "$test_tmp/seed" -c user.name=Test -c user.email=test@example.invalid commit -qm split-desktop
 release_commit=$(git -C "$test_tmp/seed" rev-parse HEAD)
-export OMARCHY_TEST_RELEASE_COMMIT="$release_commit"
+export AGENT0S_TEST_RELEASE_COMMIT="$release_commit"
 printf '{"branch":"main","commit":"%s"}\n' "$release_commit" >"$test_tmp/package/resources/install-stamp.json"
 new_home split-desktop
 run_installer || fail "setup supports the relocated desktop helper" "$(cat "$test_tmp/output")"

@@ -1,27 +1,27 @@
-# Single source of truth for OMARCHY_PATH + PATH adjustments. Sourced by:
-#   /etc/profile.d/omarchy.sh                 (system login shells)
+# Single source of truth for AGENT0S_PATH + PATH adjustments. Sourced by:
+#   /etc/profile.d/agent0s.sh                 (system login shells)
 #   /etc/skel/.bashrc                         (interactive shells)
-#   /usr/share/uwsm/env.d/10-omarchy          (Hyprland session via uwsm)
-#   /usr/share/omarchy/default/bash/envs      (bash rc chain; SSH/non-login)
+#   /usr/share/uwsm/env.d/10-agent0s          (Hyprland session via uwsm)
+#   /usr/share/agent0s/default/bash/envs      (bash rc chain; SSH/non-login)
 
-# /etc/omarchy.conf is written by omarchy-dev-link and reset by
-# omarchy-dev-unlink. When absent, force the packaged default instead of
+# /etc/agent0s.conf is written by agent0s-dev-link and reset by
+# agent0s-dev-unlink. When absent, force the packaged default instead of
 # preserving a stale inherited value.
-if [ -f /etc/omarchy.conf ]; then
-  . /etc/omarchy.conf
-  : "${OMARCHY_PATH:=/usr/share/omarchy}"
+if [ -f /etc/agent0s.conf ]; then
+  . /etc/agent0s.conf
+  : "${AGENT0S_PATH:=/usr/share/agent0s}"
 else
-  OMARCHY_PATH=/usr/share/omarchy
+  AGENT0S_PATH=/usr/share/agent0s
 fi
-export OMARCHY_PATH
+export AGENT0S_PATH
 
 # Only prepend in dev-link mode. On a production install, the binaries are
-# already on PATH as /usr/bin/omarchy-* via the omarchy package — prepending
-# /usr/share/omarchy/bin would just be noise.
-if [ "$OMARCHY_PATH" != /usr/share/omarchy ]; then
+# already on PATH as /usr/bin/agent0s-* via the agent0s package — prepending
+# /usr/share/agent0s/bin would just be noise.
+if [ "$AGENT0S_PATH" != /usr/share/agent0s ]; then
   case ":$PATH:" in
-    *":${OMARCHY_PATH%/}/bin:"*) ;;
-    *) PATH="${OMARCHY_PATH%/}/bin${PATH:+:$PATH}" ;;
+    *":${AGENT0S_PATH%/}/bin:"*) ;;
+    *) PATH="${AGENT0S_PATH%/}/bin${PATH:+:$PATH}" ;;
   esac
 fi
 

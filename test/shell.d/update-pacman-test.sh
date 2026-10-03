@@ -17,7 +17,7 @@ STUB
 chmod +x "$stub_bin/sudo"
 
 run_helper() {
-  PATH="$stub_bin:$PATH" SUDO_CALL_LOG="$test_tmp/call" "$ROOT/bin/omarchy-update-pacman" "$@"
+  PATH="$stub_bin:$PATH" SUDO_CALL_LOG="$test_tmp/call" "$ROOT/bin/agent0s-update-pacman" "$@"
 }
 
 # The scope wrapper only applies on a systemd-booted host, so expect what the
@@ -29,11 +29,11 @@ else
 fi
 
 run_helper -Syu --noconfirm
-[[ $(cat "$test_tmp/call") == "env OMARCHY_UPDATE_PACMAN=1 ${expected_scope}pacman -Syu --noconfirm" ]] ||
+[[ $(cat "$test_tmp/call") == "env AGENT0S_UPDATE_PACMAN=1 ${expected_scope}pacman -Syu --noconfirm" ]] ||
   fail "helper composes the guarded pacman invocation" "$(cat "$test_tmp/call")"
 pass "helper composes the guarded pacman invocation"
 
 LC_ALL=C run_helper -Syu
-[[ $(cat "$test_tmp/call") == "env OMARCHY_UPDATE_PACMAN=1 LC_ALL=C ${expected_scope}pacman -Syu" ]] ||
+[[ $(cat "$test_tmp/call") == "env AGENT0S_UPDATE_PACMAN=1 LC_ALL=C ${expected_scope}pacman -Syu" ]] ||
   fail "helper forwards LC_ALL to the transaction" "$(cat "$test_tmp/call")"
 pass "helper forwards LC_ALL to the transaction"

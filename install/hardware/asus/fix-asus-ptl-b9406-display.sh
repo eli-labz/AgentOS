@@ -6,7 +6,7 @@
 # the screen only updates on a full modeset (e.g. a VT switch). The older
 # xe.enable_psr=0 knob does not cover Panel Replay.
 
-if omarchy-hw-asus-expertbook-b9406; then
+if agent0s-hw-asus-expertbook-b9406; then
   mkdir -p /etc/limine-entry-tool.d
   cat > /etc/limine-entry-tool.d/asus-expertbook-b9406-display.conf <<'EOF'
 # ASUS ExpertBook B9406 (Panther Lake / Xe3) display workaround

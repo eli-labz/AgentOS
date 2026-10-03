@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.osd",
+  "id": "agent0s.osd",
   "name": "On-screen display",
   "version": "1.0.0",
   "description": "Quickshell volume, brightness, and status overlays.",

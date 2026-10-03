@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Toggles the window gaps globally between no gaps and the default.
+
+agent0s-hyprland-toggle window-no-gaps

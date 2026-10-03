@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Returns true when Hyprland has an active external monitor
+# agent0s:hidden=true
+
+hyprctl monitors all -j | jq -e '.[] | select(.name | test("^(eDP|LVDS|DSI)-") | not) | select(.disabled == false)' >/dev/null 2>&1

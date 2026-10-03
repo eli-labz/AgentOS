@@ -1,0 +1,9 @@
+{
+  "name": "com.agent0s.ytdlp",
+  "description": "Agent0S yt-dlp download host",
+  "path": "__HOST_PATH__",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://dedjgknigfeelejglamclffonmophnfl/"
+  ]
+}

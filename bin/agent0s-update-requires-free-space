@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# agent0s:summary=Check free disk space required for an update
+# agent0s:hidden=true
+
+set -e
+
+if [[ ${AGENT0S_UPDATE_FORCE:-0} == "1" ]]; then
+  exit 0
+elif read -r available_bytes < <(df --output=avail --block-size=1 / 2>/dev/null | tail -n 1) &&
+  [[ $available_bytes =~ ^[0-9]+$ ]] &&
+  (( available_bytes < 10 * 1024 * 1024 * 1024 )); then
+  echo "You need at least 10 GiB free to safely update Agent0S."
+  exit 1
+else
+  exit 0
+fi

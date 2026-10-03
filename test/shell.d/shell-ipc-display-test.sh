@@ -17,15 +17,15 @@ STUB
 chmod +x "$test_dir/bin/qs"
 
 export PATH="$test_dir/bin:$PATH"
-export OMARCHY_PATH="$ROOT"
+export AGENT0S_PATH="$ROOT"
 export XDG_RUNTIME_DIR="$test_dir/run"
 
 # Callers from a stripped environment have no WAYLAND_DISPLAY, and qs matches
 # instances by display.
-output=$(env -u WAYLAND_DISPLAY "$ROOT/bin/omarchy-shell" omarchy.indicators refresh)
+output=$(env -u WAYLAND_DISPLAY "$ROOT/bin/agent0s-shell" agent0s.indicators refresh)
 [[ $output == "display=[wayland-1]" ]] || fail "shell ipc recovers a missing display" "$output"
 pass "shell ipc recovers a missing display"
 
-output=$(WAYLAND_DISPLAY=wayland-9 "$ROOT/bin/omarchy-shell" omarchy.indicators refresh)
+output=$(WAYLAND_DISPLAY=wayland-9 "$ROOT/bin/agent0s-shell" agent0s.indicators refresh)
 [[ $output == "display=[wayland-9]" ]] || fail "shell ipc keeps an existing display" "$output"
 pass "shell ipc keeps an existing display"

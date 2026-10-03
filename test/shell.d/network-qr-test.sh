@@ -42,7 +42,7 @@ run_success_case() {
 
   export QR_NMCLI_FIELDS=$fields
   export QR_PAYLOAD_FILE="$tmp/payload"
-  output=$(PATH="$tmp/bin:$PATH" "$ROOT/bin/omarchy-network-qr" "$@")
+  output=$(PATH="$tmp/bin:$PATH" "$ROOT/bin/agent0s-network-qr" "$@")
 
   expected_matrix=$'100\n010\n001'
   if [[ $with_meta == "true" ]]; then
@@ -110,7 +110,7 @@ run_success_case \
 
 export QR_NMCLI_FIELDS=$'Enterprise\nwpa-eap\nsecret\nno\n'
 export QR_PAYLOAD_FILE="$tmp/enterprise-payload"
-if PATH="$tmp/bin:$PATH" "$ROOT/bin/omarchy-network-qr" wlan0 >"$tmp/enterprise-output" 2>"$tmp/enterprise-error"; then
+if PATH="$tmp/bin:$PATH" "$ROOT/bin/agent0s-network-qr" wlan0 >"$tmp/enterprise-output" 2>"$tmp/enterprise-error"; then
   fail "network QR helper rejects enterprise networks" "helper unexpectedly succeeded"
 fi
 enterprise_error=$(<"$tmp/enterprise-error")

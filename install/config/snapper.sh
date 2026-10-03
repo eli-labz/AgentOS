@@ -1,13 +1,13 @@
-SNAPPER_CONFIG_PATH="${OMARCHY_SNAPPER_CONFIG_PATH:-/etc/snapper/configs/root}"
-SNAPPER_CONF_PATH="${OMARCHY_SNAPPER_CONF_PATH:-/etc/conf.d/snapper}"
-template="${OMARCHY_SNAPPER_TEMPLATE:-${OMARCHY_PATH:-/usr/share/omarchy}/default/snapper/root}"
+SNAPPER_CONFIG_PATH="${AGENT0S_SNAPPER_CONFIG_PATH:-/etc/snapper/configs/root}"
+SNAPPER_CONF_PATH="${AGENT0S_SNAPPER_CONF_PATH:-/etc/conf.d/snapper}"
+template="${AGENT0S_SNAPPER_TEMPLATE:-${AGENT0S_PATH:-/usr/share/agent0s}/default/snapper/root}"
 
-echo "Configuring Omarchy Snapper snapshot retention"
+echo "Configuring Agent0S Snapper snapshot retention"
 
 if [[ ! -f $SNAPPER_CONFIG_PATH ]]; then
   mkdir -p "$(dirname "$SNAPPER_CONFIG_PATH")"
 
-  if [[ ${OMARCHY_SNAPPER_CONFIGURE_TEST:-0} == "1" ]]; then
+  if [[ ${AGENT0S_SNAPPER_CONFIGURE_TEST:-0} == "1" ]]; then
     : >"$SNAPPER_CONFIG_PATH"
   else
     snapper --no-dbus -c root create-config / >/dev/null 2>&1 || snapper -c root create-config / >/dev/null

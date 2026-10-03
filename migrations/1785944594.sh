@@ -4,10 +4,10 @@ if ! lspci -nn | grep "106b:180[12]" >/dev/null; then
   exit 0
 fi
 
-limine_conf="${OMARCHY_T2_LIMINE_CONF:-/etc/limine-entry-tool.d/t2-mac.conf}"
-fan_conf="${OMARCHY_T2_FAN_CONF:-/etc/t2fand.conf}"
-running_cmdline="${OMARCHY_T2_RUNNING_CMDLINE:-/proc/cmdline}"
-repair_marker="${OMARCHY_T2_REPAIR_MARKER:-/var/lib/omarchy/migrations/1785944594}"
+limine_conf="${AGENT0S_T2_LIMINE_CONF:-/etc/limine-entry-tool.d/t2-mac.conf}"
+fan_conf="${AGENT0S_T2_FAN_CONF:-/etc/t2fand.conf}"
+running_cmdline="${AGENT0S_T2_RUNNING_CMDLINE:-/proc/cmdline}"
+repair_marker="${AGENT0S_T2_REPAIR_MARKER:-/var/lib/agent0s/migrations/1785944594}"
 needs_limine_rebuild=0
 
 if [[ -f $limine_conf ]] && grep -q 'pcie_ports=compat' "$limine_conf"; then
@@ -33,9 +33,9 @@ fi
 
 # The kernel's built-in Boot Camp-style Touch Bar works without tiny-dfr. The
 # optional daemon holds stale device descriptors across suspend with t2bce.
-if omarchy-pkg-present tiny-dfr; then
+if agent0s-pkg-present tiny-dfr; then
   sudo systemctl disable --now tiny-dfr.service || true
-  omarchy-pkg-drop tiny-dfr
+  agent0s-pkg-drop tiny-dfr
 fi
 
 # The current kernel keeps its old command line until reboot. Record a

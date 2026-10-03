@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# agent0s:summary=Edit, set, or reset screensaver branding
+# agent0s:group=branding
+# agent0s:name=screensaver
+# agent0s:args=<image|text|reset>
+# agent0s:examples=agent0s branding screensaver image | agent0s branding screensaver text | agent0s branding screensaver reset
+
+set -euo pipefail
+
+case "${1:-}" in
+image)
+  image=$(agent0s-file-select --title "Pick PNG or SVG for screensaver" --extensions "png svg")
+  if agent0s-transcode-ascii "$image" ~/.config/agent0s/branding/screensaver.txt; then
+    agent0s-launch-screensaver force >/dev/null 2>&1
+  fi
+  ;;
+text)
+  agent0s-launch-editor ~/.config/agent0s/branding/screensaver.txt >/dev/null 2>&1 && agent0s-launch-screensaver force >/dev/null 2>&1
+  ;;
+reset)
+  cp "$AGENT0S_PATH/logo.txt" ~/.config/agent0s/branding/screensaver.txt && agent0s-launch-screensaver force >/dev/null 2>&1
+  ;;
+*)
+  echo "Usage: agent0s-branding-screensaver <image|text|reset>" >&2
+  exit 1
+  ;;
+esac

@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# agent0s:summary=Measure Agent0S CLI response times
+# agent0s:args=[--repeat=<count>]
+# agent0s:examples=agent0s dev benchmark cli | agent0s dev benchmark cli --repeat=10
+
+set -euo pipefail
+
+AGENT0S_BIN_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+CLI="$AGENT0S_BIN_DIR/agent0s"
+REPEAT=5
+
+show_help() {
+  cat <<'EOF'
+Usage:
+  agent0s dev benchmark cli [--repeat=<count>]
+
+Measure response times for common Agent0S CLI surfaces.
+
+Options:
+  --repeat=<count>  Number of times to run each case (default: 5)
+EOF
+}
+
+now_us() {
+  local now="${EPOCHREALTIME/./}"
+  printf '%s' "$now"
+}
+
+format_ms() {
+  local us="$1"
+  printf '%d.%03d' "$(( us / 1000 ))" "$(( us % 1000 ))"
+}
+
+run_case() {
+  local label="$1"
+  shift
+  local total_us=0
+  local min_us=0
+  local max_us=0
+  local elapsed_us=0
+  local start_us=0
+  local end_us=0
+  local status=0
+
+  for (( i = 1; i <= REPEAT; i++ )); do
+    start_us=$(now_us)
+    if "$@" >/dev/null; then
+      status=0
+    else
+      status=$?
+    fi
+    end_us=$(now_us)
+
+    if (( status != 0 )); then
+      printf '%-34s failed (exit %d)\n' "$label" "$status"
+      return "$status"
+    fi
+
+    elapsed_us=$(( end_us - start_us ))
+    total_us=$(( total_us + elapsed_us ))
+
+    if (( i == 1 || elapsed_us < min_us )); then
+      min_us=$elapsed_us
+    fi
+
+    if (( elapsed_us > max_us )); then
+      max_us=$elapsed_us
+    fi
+  done
+
+  printf '%-34s avg %8s ms  min %8s ms  max %8s ms\n' \
+    "$label" \
+    "$(format_ms "$(( total_us / REPEAT ))")" \
+    "$(format_ms "$min_us")" \
+    "$(format_ms "$max_us")"
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+  --repeat=*)
+    REPEAT="${1#*=}"
+    ;;
+  --help | -h)
+    show_help
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    show_help >&2
+    exit 2
+    ;;
+  esac
+  shift
+done
+
+if [[ ! $REPEAT =~ ^[0-9]+$ ]] || (( REPEAT < 1 )); then
+  echo "--repeat must be a positive integer" >&2
+  exit 2
+fi
+
+printf 'Agent0S CLI benchmark (%d runs each)\n\n' "$REPEAT"
+run_case "agent0s" "$CLI"
+run_case "agent0s --help" "$CLI" --help
+run_case "agent0s commands" "$CLI" commands
+run_case "agent0s commands --json" "$CLI" commands --json
+run_case "agent0s commands --all --json" "$CLI" commands --all --json
+run_case "agent0s theme set --help" "$CLI" theme set --help
+run_case "agent0s screenshot --help" "$CLI" screenshot --help
+run_case "agent0s restart --help" "$CLI" restart --help
+run_case "agent0s theme current" "$CLI" theme current

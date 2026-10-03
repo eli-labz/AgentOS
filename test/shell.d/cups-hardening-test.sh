@@ -4,11 +4,11 @@ set -euo pipefail
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
-packages="$ROOT/install/omarchy-base.packages"
+packages="$ROOT/install/agent0s-base.packages"
 cups_browsed_conf="$ROOT/etc/cups/cups-browsed.conf"
 cups_files_conf="$ROOT/etc/cups/cups-files.conf"
-sysusers_conf="$ROOT/etc/sysusers.d/omarchy-cups-browsed.conf"
-service_dropin="$ROOT/etc/systemd/system/cups-browsed.service.d/10-omarchy.conf"
+sysusers_conf="$ROOT/etc/sysusers.d/agent0s-cups-browsed.conf"
+service_dropin="$ROOT/etc/systemd/system/cups-browsed.service.d/10-agent0s.conf"
 
 # Only discovery goes. Everything else printing needs stays, or this stops
 # being a removal of one daemon and becomes a removal of printing.
@@ -24,7 +24,7 @@ grep -qxF cups-pk-helper "$packages" || fail "Polkit printer administration is i
 ! grep -qxF cups-browsed "$packages" || fail "automatic printer discovery is out of the base package set"
 ! grep -q 'cups-browsed' "$ROOT/install/config/enable-services.sh" ||
   fail "a fresh install does not enable a discovery service it no longer installs"
-! grep -q 'enable_system_service cups-browsed' "$ROOT/bin/omarchy-upgrade-to-quattro" ||
+! grep -q 'enable_system_service cups-browsed' "$ROOT/bin/agent0s-upgrade-to-quattro" ||
   fail "the Quattro upgrade does not enable a discovery service it no longer installs"
 
 pass "the base install keeps CUPS and Polkit administration, without automatic discovery"
@@ -94,7 +94,7 @@ test_tmp=$(mktemp -d)
 trap 'rm -rf "$test_tmp"' EXIT
 
 mock_bin="$test_tmp/bin"
-mkdir -p "$mock_bin" "$test_tmp/var/lib/omarchy/migrations"
+mkdir -p "$mock_bin" "$test_tmp/var/lib/agent0s/migrations"
 
 passwd_db="$test_tmp/passwd"
 group_db="$test_tmp/group"
@@ -103,8 +103,8 @@ touch "$passwd_db" "$group_db"
 cat >"$mock_bin/getent" <<'SH'
 #!/bin/bash
 case "$1" in
-  passwd) database="$OMARCHY_CUPS_TEST_PASSWD" ;;
-  group) database="$OMARCHY_CUPS_TEST_GROUP" ;;
+  passwd) database="$AGENT0S_CUPS_TEST_PASSWD" ;;
+  group) database="$AGENT0S_CUPS_TEST_GROUP" ;;
   *) exit 2 ;;
 esac
 
@@ -114,39 +114,39 @@ else
   awk -F: -v name="$2" '$1 == name { print; found = 1 } END { exit !found }' "$database"
 fi
 SH
-cat >"$mock_bin/omarchy-pkg-present" <<'SH'
+cat >"$mock_bin/agent0s-pkg-present" <<'SH'
 #!/bin/bash
 [[ $1 == "cups" || $1 == "cups-browsed" ]]
 SH
-for command in omarchy-pkg-add omarchy-pkg-drop; do
+for command in agent0s-pkg-add agent0s-pkg-drop; do
   cat >"$mock_bin/$command" <<'SH'
 #!/bin/bash
-printf '%s\t%s\n' "${0##*/}" "$*" >>"$OMARCHY_CUPS_TEST_LOG"
+printf '%s\t%s\n' "${0##*/}" "$*" >>"$AGENT0S_CUPS_TEST_LOG"
 SH
 done
 cat >"$mock_bin/systemctl" <<'SH'
 #!/bin/bash
-printf 'systemctl\t%s\n' "$*" >>"$OMARCHY_CUPS_TEST_LOG"
+printf 'systemctl\t%s\n' "$*" >>"$AGENT0S_CUPS_TEST_LOG"
 exit 0
 SH
 cat >"$mock_bin/sudo" <<'SH'
 #!/bin/bash
-printf 'sudo\t%s\n' "$*" >>"$OMARCHY_CUPS_TEST_LOG"
+printf 'sudo\t%s\n' "$*" >>"$AGENT0S_CUPS_TEST_LOG"
 exec "$@"
 SH
 chmod +x "$mock_bin"/*
 
 log="$test_tmp/actions.log"
 touch "$log"
-export OMARCHY_CUPS_TEST_LOG="$log"
-export OMARCHY_CUPS_TEST_PASSWD="$passwd_db"
-export OMARCHY_CUPS_TEST_GROUP="$group_db"
+export AGENT0S_CUPS_TEST_LOG="$log"
+export AGENT0S_CUPS_TEST_PASSWD="$passwd_db"
+export AGENT0S_CUPS_TEST_GROUP="$group_db"
 
 printf 'cups-browsed:x:1000:1000:Desktop user:/home/cups-browsed:/usr/bin/bash\n' >"$passwd_db"
 printf 'cups-browsed:x:1000:\n' >"$group_db"
 if PATH="$mock_bin:$PATH" \
-  OMARCHY_PATH="$ROOT" \
-  OMARCHY_CUPS_MIGRATION_MARKER="$test_tmp/desktop-collision-marker" \
+  AGENT0S_PATH="$ROOT" \
+  AGENT0S_CUPS_MIGRATION_MARKER="$test_tmp/desktop-collision-marker" \
   bash -euo pipefail "$ROOT/migrations/1787815267.sh" 2>/dev/null; then
   fail "the migration accepts an existing desktop user named cups-browsed"
 fi
@@ -155,8 +155,8 @@ fi
 printf 'alice:x:1000:947:Desktop user:/home/alice:/usr/bin/bash\n' >"$passwd_db"
 printf 'cups-browsed:x:947:alice\n' >"$group_db"
 if PATH="$mock_bin:$PATH" \
-  OMARCHY_PATH="$ROOT" \
-  OMARCHY_CUPS_MIGRATION_MARKER="$test_tmp/group-collision-marker" \
+  AGENT0S_PATH="$ROOT" \
+  AGENT0S_CUPS_MIGRATION_MARKER="$test_tmp/group-collision-marker" \
   bash -euo pipefail "$ROOT/migrations/1787815267.sh" 2>/dev/null; then
   fail "the migration accepts an existing cups-browsed group with members"
 fi
@@ -167,15 +167,15 @@ printf 'cups-browsed:x:947:\n' >"$group_db"
 
 pass "the migration rejects account and group collisions before changing printing"
 
-marker="$test_tmp/var/lib/omarchy/migrations/1787815267"
+marker="$test_tmp/var/lib/agent0s/migrations/1787815267"
 PATH="$mock_bin:$PATH" \
-  OMARCHY_PATH="$ROOT" \
-  OMARCHY_CUPS_MIGRATION_MARKER="$marker" \
+  AGENT0S_PATH="$ROOT" \
+  AGENT0S_CUPS_MIGRATION_MARKER="$marker" \
   bash -euo pipefail "$ROOT/migrations/1787815267.sh"
 
-grep -qxF $'omarchy-pkg-drop\tcups-pdf' "$log" ||
+grep -qxF $'agent0s-pkg-drop\tcups-pdf' "$log" ||
   fail "the migration removes CUPS-PDF"
-grep -qxF $'omarchy-pkg-add\tcups-pk-helper' "$log" ||
+grep -qxF $'agent0s-pkg-add\tcups-pk-helper' "$log" ||
   fail "the migration installs authenticated printer administration"
 grep -qxF $'systemctl\tstop cups-browsed.service' "$log" ||
   fail "the migration stops the root cups-browsed process before reconfiguration"
@@ -189,8 +189,8 @@ grep -qxF $'systemctl\trestart cups-browsed.service' "$log" ||
 
 actions_after_first_run=$(wc -l <"$log")
 PATH="$mock_bin:$PATH" \
-  OMARCHY_PATH="$ROOT" \
-  OMARCHY_CUPS_MIGRATION_MARKER="$marker" \
+  AGENT0S_PATH="$ROOT" \
+  AGENT0S_CUPS_MIGRATION_MARKER="$marker" \
   bash -euo pipefail "$ROOT/migrations/1787815267.sh"
 [[ $(wc -l <"$log") == "$actions_after_first_run" ]] ||
   fail "the machine-wide migration repeats privileged work"
@@ -201,19 +201,19 @@ pass "the migration safely converts an active existing installation once"
 # to resume an enabled service before recording completion.
 cat >"$mock_bin/systemctl" <<'SH'
 #!/bin/bash
-printf 'systemctl\t%s\n' "$*" >>"$OMARCHY_CUPS_TEST_LOG"
+printf 'systemctl\t%s\n' "$*" >>"$AGENT0S_CUPS_TEST_LOG"
 [[ $1 == "is-active" ]] && exit 1
 exit 0
 SH
 chmod +x "$mock_bin/systemctl"
 
 retry_log="$test_tmp/retry.log"
-retry_marker="$test_tmp/var/lib/omarchy/migrations/1787815267-retry"
+retry_marker="$test_tmp/var/lib/agent0s/migrations/1787815267-retry"
 
-OMARCHY_CUPS_TEST_LOG="$retry_log" \
+AGENT0S_CUPS_TEST_LOG="$retry_log" \
   PATH="$mock_bin:$PATH" \
-  OMARCHY_PATH="$ROOT" \
-  OMARCHY_CUPS_MIGRATION_MARKER="$retry_marker" \
+  AGENT0S_PATH="$ROOT" \
+  AGENT0S_CUPS_MIGRATION_MARKER="$retry_marker" \
   bash -euo pipefail "$ROOT/migrations/1787815267.sh"
 
 grep -qxF $'systemctl\trestart cups-browsed.service' "$retry_log" ||
@@ -224,19 +224,19 @@ pass "a run following an interrupted one still resumes printer discovery"
 # A masked or disabled unit is deliberately left alone.
 cat >"$mock_bin/systemctl" <<'SH'
 #!/bin/bash
-printf 'systemctl\t%s\n' "$*" >>"$OMARCHY_CUPS_TEST_LOG"
+printf 'systemctl\t%s\n' "$*" >>"$AGENT0S_CUPS_TEST_LOG"
 [[ $1 == "is-active" || $1 == "is-enabled" ]] && exit 1
 exit 0
 SH
 chmod +x "$mock_bin/systemctl"
 
 masked_log="$test_tmp/masked.log"
-masked_marker="$test_tmp/var/lib/omarchy/migrations/1787815267-masked"
+masked_marker="$test_tmp/var/lib/agent0s/migrations/1787815267-masked"
 
-OMARCHY_CUPS_TEST_LOG="$masked_log" \
+AGENT0S_CUPS_TEST_LOG="$masked_log" \
   PATH="$mock_bin:$PATH" \
-  OMARCHY_PATH="$ROOT" \
-  OMARCHY_CUPS_MIGRATION_MARKER="$masked_marker" \
+  AGENT0S_PATH="$ROOT" \
+  AGENT0S_CUPS_MIGRATION_MARKER="$masked_marker" \
   bash -euo pipefail "$ROOT/migrations/1787815267.sh"
 
 ! grep -qxF $'systemctl\trestart cups-browsed.service' "$masked_log" ||

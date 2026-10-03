@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# agent0s:summary=Install Emacs with Agent0S theme and font integration via the agent0s-emacs AUR package
+
+echo "Installing Emacs..."
+agent0s-pkg-aur-add agent0s-emacs && agent0s-install-emacs
+
+# emacsclient opens a frame on the running daemon, not a second Emacs
+setsid uwsm-app -- gtk-launch emacsclient >/dev/null 2>&1 &

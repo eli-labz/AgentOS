@@ -1,13 +1,13 @@
-_omarchy_complete() {
+_agent0s_complete() {
   COMPREPLY=()
   local cur="${COMP_WORDS[COMP_CWORD]}"
 
-  local omarchy_path bin_dir
-  omarchy_path=$(command -v omarchy 2>/dev/null) || return 0
-  bin_dir=$(dirname -- "$(readlink -f -- "$omarchy_path" 2>/dev/null || printf '%s' "$omarchy_path")")
+  local agent0s_path bin_dir
+  agent0s_path=$(command -v agent0s 2>/dev/null) || return 0
+  bin_dir=$(dirname -- "$(readlink -f -- "$agent0s_path" 2>/dev/null || printf '%s' "$agent0s_path")")
   [[ -d $bin_dir ]] || return 0
 
-  local prefix="omarchy"
+  local prefix="agent0s"
   local i part
   for ((i = 1; i < COMP_CWORD; i++)); do
     part="${COMP_WORDS[i]}"
@@ -43,7 +43,7 @@ _omarchy_complete() {
   if (( ${#candidates[@]} == 0 )); then
     local command_prefix command_path first_arg_index n j
     for ((n = COMP_CWORD - 1; n >= 0; n--)); do
-      command_prefix="omarchy"
+      command_prefix="agent0s"
       for ((j = 1; j <= n; j++)); do
         part="${COMP_WORDS[j]}"
         [[ -z $part || $part == -* ]] && continue
@@ -59,8 +59,8 @@ _omarchy_complete() {
 
     if [[ -n ${command_path:-} && -x $command_path ]]; then
       local args spec alt token actual alts value match current_arg_index
-      args=$(grep -m 1 '^# omarchy:args=' "$command_path" 2>/dev/null)
-      args="${args#*omarchy:args=}"
+      args=$(grep -m 1 '^# agent0s:args=' "$command_path" 2>/dev/null)
+      args="${args#*agent0s:args=}"
       current_arg_index=$((COMP_CWORD - first_arg_index))
 
       alts="${args// | /$'\n'}"
@@ -122,8 +122,8 @@ _omarchy_complete() {
   fi
 }
 
-complete -o default -F _omarchy_complete omarchy
+complete -o default -F _agent0s_complete agent0s
 
-# Hide individual omarchy-* binaries from initial-word command completion;
-# the unified `omarchy` dispatcher is the user-facing entry point.
-complete -I -A command -X 'omarchy-*'
+# Hide individual agent0s-* binaries from initial-word command completion;
+# the unified `agent0s` dispatcher is the user-facing entry point.
+complete -I -A command -X 'agent0s-*'

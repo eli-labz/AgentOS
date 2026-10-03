@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Overwrite the user herdr config with the Agent0S default and reload herdr.
+
+agent0s-refresh-config herdr/config.toml
+agent0s-restart-herdr

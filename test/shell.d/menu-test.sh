@@ -8,7 +8,7 @@ run_node_test <<'JS'
 const fs = require('fs')
 const menu = requireFromRoot('shell/plugins/menu/MenuModel.js')
 const menuQml = fs.readFileSync(path.join(root, 'shell/plugins/menu/Menu.qml'), 'utf8')
-const defaultMenuJsonc = fs.readFileSync(path.join(root, 'default/omarchy/omarchy-menu.jsonc'), 'utf8')
+const defaultMenuJsonc = fs.readFileSync(path.join(root, 'default/agent0s/agent0s-menu.jsonc'), 'utf8')
 
 const parsed = menu.parseMenuJsonc(`
 {
@@ -20,7 +20,7 @@ const parsed = menu.parseMenuJsonc(`
       "label": "Themes",
       "aliases": "theme",
       "description": "appearance colors",
-      "action": "omarchy-theme-set"
+      "action": "agent0s-theme-set"
     },
   },
 }
@@ -39,7 +39,7 @@ assertDeepEqual(
     title: '',
     target: '',
     description: 'appearance colors',
-    action: 'omarchy-theme-set',
+    action: 'agent0s-theme-set',
     provider: '',
     aliases: ['theme'],
     when: '',
@@ -83,7 +83,7 @@ assert(menu.isVisible(visibilityItems, visibilityOrder, {}, visibilityItems.dyna
 
 // `disabled:` is the softer guard: the row stays listed and only loses the
 // cursor, which is how an already-installed app keeps its place in Install.
-const installed = menu.normalizeItem('install.browser.zen', { label: 'Zen', disabled: 'omarchy-pkg-present zen-browser-bin', action: 'install-zen' })
+const installed = menu.normalizeItem('install.browser.zen', { label: 'Zen', disabled: 'agent0s-pkg-present zen-browser-bin', action: 'install-zen' })
 assert(menu.isVisible({ 'install.browser.zen': installed }, ['install.browser.zen'], { 'install.browser.zen': false }, installed), 'menu keeps a disabled row visible')
 assert(menu.isDisabled({ 'install.browser.zen': true }, installed), 'menu disables a row whose disabled: succeeded')
 assert(!menu.isDisabled({ 'install.browser.zen': false }, installed), 'menu leaves a row selectable when its disabled: failed')
@@ -181,20 +181,20 @@ assertEqual(
 )
 assertEqual(
   defaultById['trigger.emoji'].action,
-  'omarchy-menu-emoji',
+  'agent0s-menu-emoji',
   'menu opens the emoji picker from Trigger'
 )
 assert(
-  defaultById['update.omarchy'].icon === '\ue900',
-  'menu update Omarchy entry uses the Omarchy glyph'
+  defaultById['update.agent0s'].icon === '\ue900',
+  'menu update Agent0S entry uses the Agent0S glyph'
 )
 assert(
-  defaultById['update.omarchy'].iconFont === 'omarchy',
-  'menu update Omarchy entry renders the private glyph with the Omarchy font'
+  defaultById['update.agent0s'].iconFont === 'agent0s',
+  'menu update Agent0S entry renders the private glyph with the Agent0S font'
 )
 assertEqual(
   defaultById['update.themes'].when,
-  'omarchy-theme-extras',
+  'agent0s-theme-extras',
   'menu hides Extra Themes until a theme cloned from git is there to update'
 )
 assert(
@@ -202,11 +202,11 @@ assert(
   'menu keeps Input as a direct config action'
 )
 assert(
-  defaultById['setup.direct-boot'].action.includes('omarchy-setup-direct-boot'),
+  defaultById['setup.direct-boot'].action.includes('agent0s-setup-direct-boot'),
   'menu places Direct Boot directly under Setup'
 )
 assert(
-  defaultById['setup.reset'].action.includes('omarchy-system-factory-reset'),
+  defaultById['setup.reset'].action.includes('agent0s-system-factory-reset'),
   'menu exposes Reset Computer under Setup'
 )
 const setupEntries = defaultItems.filter(item => item.parent === 'setup')
@@ -217,19 +217,19 @@ assertEqual(
 )
 const expectedAgents = {
   agy: { icon: '󰫢', label: 'Antigravity' },
-  pi: { icon: '\ue901', iconFont: 'omarchy', label: 'Pi' },
-  omp: { icon: '\ue903', iconFont: 'omarchy', label: 'omp' },
-  opencode: { icon: '\ue902', iconFont: 'omarchy', label: 'OpenCode' },
-  ori: { icon: '\ue909', iconFont: 'omarchy', label: 'Ori' },
+  pi: { icon: '\ue901', iconFont: 'agent0s', label: 'Pi' },
+  omp: { icon: '\ue903', iconFont: 'agent0s', label: 'omp' },
+  opencode: { icon: '\ue902', iconFont: 'agent0s', label: 'OpenCode' },
+  ori: { icon: '\ue909', iconFont: 'agent0s', label: 'Ori' },
   claude: { icon: '󰛄', label: 'Claude' },
-  codex: { icon: '\ue905', iconFont: 'omarchy', label: 'Codex' },
-  grok: { icon: '\ue904', iconFont: 'omarchy', label: 'Grok' },
-  hermes: { icon: '\ue90a', iconFont: 'omarchy', label: 'Hermes' },
-  openclaw: { icon: '\ue90c', iconFont: 'omarchy', label: 'OpenClaw' },
+  codex: { icon: '\ue905', iconFont: 'agent0s', label: 'Codex' },
+  grok: { icon: '\ue904', iconFont: 'agent0s', label: 'Grok' },
+  hermes: { icon: '\ue90a', iconFont: 'agent0s', label: 'Hermes' },
+  openclaw: { icon: '\ue90c', iconFont: 'agent0s', label: 'OpenClaw' },
   copilot: { icon: '', label: 'Copilot' },
   crush: { icon: '󰋑', label: 'Crush' },
   muse: { icon: '󰛤', label: 'Muse Code' },
-  'cursor-agent': { icon: '\ue90d', iconFont: 'omarchy', label: 'Cursor CLI' },
+  'cursor-agent': { icon: '\ue90d', iconFont: 'agent0s', label: 'Cursor CLI' },
 
 }
 assert(
@@ -239,7 +239,7 @@ assert(
       && entry.icon === expected.icon
       && entry.iconFont === (expected.iconFont || '')
       && entry.label === expected.label
-      && entry.action === `omarchy-default-agent ${agent}`
+      && entry.action === `agent0s-default-agent ${agent}`
       && !entry.when
       && entry.checked.includes(`== \"${agent}\"`)
   }),
@@ -267,7 +267,7 @@ assert(
 )
 assert(!defaultById['install.ai.crush'], 'menu removes Crush from Install > AI')
 // Software you already have keeps its place in Install, dimmed rather than
-// dropped, so the list reads as a catalog of what Omarchy can install.
+// dropped, so the list reads as a catalog of what Agent0S can install.
 // Chromium Account is the sole Install row with anything left to hide for, so
 // any other `when:` here is a row that went back to vanishing once installed.
 assertDeepEqual(
@@ -285,7 +285,7 @@ assert(
 )
 assertEqual(
   defaultById['install.browser.zen'].disabled,
-  'omarchy-pkg-present zen-browser-bin',
+  'agent0s-pkg-present zen-browser-bin',
   'menu asks the same presence question it used to hide the row with'
 )
 // A guard can still be about something other than having the software: no
@@ -297,7 +297,7 @@ assert(
 )
 assert(
   defaultItems.filter(item => item.id.startsWith('remove.')).every(item => !item.disabled)
-    && defaultById['remove.browser.zen'].when === 'omarchy-pkg-present zen-browser-bin',
+    && defaultById['remove.browser.zen'].when === 'agent0s-pkg-present zen-browser-bin',
   'menu still hides Remove rows for software that is not installed'
 )
 assertDeepEqual(
@@ -321,7 +321,7 @@ assertDeepEqual(
   'menu orders Remove categories like their Install counterparts, followed by Remove-only categories'
 )
 assert(
-  defaultById['setup.security.passwordless-sudo'].action.includes('omarchy-sudo-passwordless'),
+  defaultById['setup.security.passwordless-sudo'].action.includes('agent0s-sudo-passwordless'),
   'menu places Passwordless Sudo under Setup > Security'
 )
 assert(
@@ -333,12 +333,12 @@ assert(
   'menu groups Menu Bar positions in a submenu'
 )
 assert(
-  ['top', 'bottom', 'left', 'right'].every(position => defaultById[`style.bar.position.${position}`].action === `omarchy-bar position ${position}`),
+  ['top', 'bottom', 'left', 'right'].every(position => defaultById[`style.bar.position.${position}`].action === `agent0s-bar position ${position}`),
   'menu lists all Menu Bar positions under Position'
 )
 assertEqual(
   defaultById['style.bar.transparency'].action,
-  'omarchy-bar transparent toggle',
+  'agent0s-bar transparent toggle',
   'menu exposes Menu Bar transparency as a toggle'
 )
 assertDeepEqual(
@@ -348,7 +348,7 @@ assertDeepEqual(
 )
 assert(
   ['enable', 'disable', 'clone', 'remove'].every(
-    verb => defaultById[`setup.plugin.${verb}`].action === `omarchy-menu-plugin ${verb}`
+    verb => defaultById[`setup.plugin.${verb}`].action === `agent0s-menu-plugin ${verb}`
   ),
   'menu picks a plugin the way it already picks a theme or a timezone'
 )
@@ -357,15 +357,15 @@ assert(
   'menu always offers Enable and Disable, which cover the built-in plugins too'
 )
 assert(
-  defaultById['setup.plugin.remove'].when.includes('.config/omarchy/plugins'),
+  defaultById['setup.plugin.remove'].when.includes('.config/agent0s/plugins'),
   'menu hides Remove until a plugin the user installed exists to delete'
 )
 assert(
-  defaultById['setup.plugin.add'].action.includes('omarchy-plugin-add'),
+  defaultById['setup.plugin.add'].action.includes('agent0s-plugin-add'),
   'menu adds a plugin through the CLI, where the trust warning and clone output are visible'
 )
 
-const pluginPicker = fs.readFileSync(path.join(root, 'bin/omarchy-menu-plugin'), 'utf8')
+const pluginPicker = fs.readFileSync(path.join(root, 'bin/agent0s-menu-plugin'), 'utf8')
 assert(
   /enable\).*\(\.enabled \| not\)/.test(pluginPicker) && /disable\).*\.canDisable and \.enabled/.test(pluginPicker),
   'plugin picker offers what each verb can act on'
@@ -377,11 +377,11 @@ assert(
   'plugin picker leaves plugin-kind decisions to its data and the plugin command'
 )
 
-const pluginAdd = fs.readFileSync(path.join(root, 'bin/omarchy-plugin-add'), 'utf8')
-const pluginEnable = fs.readFileSync(path.join(root, 'bin/omarchy-plugin-enable'), 'utf8')
+const pluginAdd = fs.readFileSync(path.join(root, 'bin/agent0s-plugin-add'), 'utf8')
+const pluginEnable = fs.readFileSync(path.join(root, 'bin/agent0s-plugin-enable'), 'utf8')
 assert(
   /Now using \$id as the bar/.test(pluginEnable)
-    && /omarchy-plugin-enable "\$id" "\$\{ENABLE_PLACEMENT\[@\]\}"/.test(pluginAdd),
+    && /agent0s-plugin-enable "\$id" "\$\{ENABLE_PLACEMENT\[@\]\}"/.test(pluginAdd),
   'plugin enable reports a bar as replacing the one in use, whether enabled or freshly added'
 )
 assert(
@@ -390,7 +390,7 @@ assert(
   'interactive plugin add selects the manifest placement or center fallback by default'
 )
 assert(
-  /"omarchy-plugin-\$1" "\$id"/.test(pluginPicker),
+  /"agent0s-plugin-\$1" "\$id"/.test(pluginPicker),
   'plugin picker delegates enable and disable without interpreting plugin kinds'
 )
 // Icons ride along as "<glyph>\tlabel\tsubtext"; the menu shows the glyph,
@@ -407,7 +407,7 @@ assert(
   'menu select mode reads a leading icon and a trailing subtext off an option'
 )
 assert(
-  /omarchy-launch-floating-terminal-with-presentation "omarchy-plugin-remove/.test(pluginPicker),
+  /agent0s-launch-floating-terminal-with-presentation "agent0s-plugin-remove/.test(pluginPicker),
   'plugin picker removes where the confirmation and backup path are visible'
 )
 
@@ -430,17 +430,17 @@ assert(
 )
 assertEqual(
   defaultById['trigger.hardware.laptop-display'].when,
-  'omarchy-hw-laptop',
+  'agent0s-hw-laptop',
   'menu only shows Laptop Display on laptops'
 )
 assertEqual(
   defaultById['trigger.hardware.mirror-display'].when,
-  'omarchy-hw-laptop',
+  'agent0s-hw-laptop',
   'menu only shows Mirror Display on laptops'
 )
 assertEqual(
   defaultById['trigger.capture.screenrecord.webcam'].when,
-  'omarchy-hw-webcam',
+  'agent0s-hw-webcam',
   'menu only shows webcam screen recording when a webcam is available'
 )
 assert(
@@ -640,6 +640,6 @@ assert(
 )
 JS
 
-font_charset=$(fc-query --format='%{charset}' "$ROOT/default/fonts/omarchy/omarchy.ttf")
-[[ $font_charset == *"e900-e90e"* ]] || fail "Omarchy icon font includes every custom menu glyph"
-pass "Omarchy icon font includes the official agent marks"
+font_charset=$(fc-query --format='%{charset}' "$ROOT/default/fonts/agent0s/agent0s.ttf")
+[[ $font_charset == *"e900-e90e"* ]] || fail "Agent0S icon font includes every custom menu glyph"
+pass "Agent0S icon font includes the official agent marks"

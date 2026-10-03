@@ -2,7 +2,7 @@ local paths = require("default.hypr.paths")
 local require_optional = require("default.hypr.require_optional")
 
 -- GUM environment variables for styling purposes.
-require_optional.module("omarchy.current.theme.gum_env")
+require_optional.module("agent0s.current.theme.gum_env")
 
 -- Cursor size.
 hl.env("XCURSOR_SIZE", "24")
@@ -25,9 +25,9 @@ hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 hl.env("XCOMPOSEFILE", paths.home .. "/.XCompose")
 
 -- hyprctl setenv doesn't reach keybind dispatcher env; use hl.env.
-hl.env("OMARCHY_PATH", paths.omarchy_path)
+hl.env("AGENT0S_PATH", paths.agent0s_path)
 
-local bin_dir = paths.omarchy_path .. "/bin"
+local bin_dir = paths.agent0s_path .. "/bin"
 local kept = {}
 for entry in (os.getenv("PATH") or "/usr/local/bin:/usr/bin"):gmatch("[^:]+") do
   if entry ~= bin_dir then table.insert(kept, entry) end

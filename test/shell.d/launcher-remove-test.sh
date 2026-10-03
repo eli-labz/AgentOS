@@ -15,20 +15,20 @@ write_fake_command() {
 
   cat >"$tmp_dir/bin/$name" <<SCRIPT
 #!/bin/bash
-printf '%s:%s:%s\\n' '$prefix' "\${OMARCHY_REMOVE_NOTIFY:-}" "\$*" >>"\$TEST_LOG"
+printf '%s:%s:%s\\n' '$prefix' "\${AGENT0S_REMOVE_NOTIFY:-}" "\$*" >>"\$TEST_LOG"
 SCRIPT
   chmod +x "$tmp_dir/bin/$name"
 }
 
-write_fake_command omarchy-webapp-remove web
-write_fake_command omarchy-tui-remove tui
-write_fake_command omarchy-launch-floating-terminal-with-presentation terminal
+write_fake_command agent0s-webapp-remove web
+write_fake_command agent0s-tui-remove tui
+write_fake_command agent0s-launch-floating-terminal-with-presentation terminal
 
-cat >"$tmp_dir/bin/omarchy-notification-send" <<'SCRIPT'
+cat >"$tmp_dir/bin/agent0s-notification-send" <<'SCRIPT'
 #!/bin/bash
 printf 'notify::%s\n' "$*" >>"$TEST_LOG"
 SCRIPT
-chmod +x "$tmp_dir/bin/omarchy-notification-send"
+chmod +x "$tmp_dir/bin/agent0s-notification-send"
 
 cat >"$tmp_dir/bin/update-desktop-database" <<'SCRIPT'
 #!/bin/bash
@@ -47,7 +47,7 @@ chmod +x "$tmp_dir/bin/pacman"
 cat >"$tmp_dir/data/applications/Basecamp.desktop" <<'DESKTOP'
 [Desktop Entry]
 Name=Basecamp
-Exec=omarchy-launch-webapp https://example.com
+Exec=agent0s-launch-webapp https://example.com
 DESKTOP
 
 cat >"$tmp_dir/data/applications/Docker.desktop" <<'DESKTOP'
@@ -73,10 +73,10 @@ export PATH="$tmp_dir/bin:$PATH"
 export XDG_DATA_HOME="$tmp_dir/data"
 export XDG_DATA_DIRS="$tmp_dir/system"
 
-"$ROOT/bin/omarchy-remove-launcher-entry" Basecamp.desktop Basecamp
-"$ROOT/bin/omarchy-remove-launcher-entry" Docker.desktop Docker
-"$ROOT/bin/omarchy-remove-launcher-entry" native.desktop Native
-"$ROOT/bin/omarchy-remove-launcher-entry" aliens.desktop Aliens
+"$ROOT/bin/agent0s-remove-launcher-entry" Basecamp.desktop Basecamp
+"$ROOT/bin/agent0s-remove-launcher-entry" Docker.desktop Docker
+"$ROOT/bin/agent0s-remove-launcher-entry" native.desktop Native
+"$ROOT/bin/agent0s-remove-launcher-entry" aliens.desktop Aliens
 
 mapfile -t lines <"$TEST_LOG"
 

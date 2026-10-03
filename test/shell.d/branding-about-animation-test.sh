@@ -7,7 +7,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
-animation="$ROOT/bin/omarchy-branding-about-animation"
+animation="$ROOT/bin/agent0s-branding-about-animation"
 source "$animation"
 
 logo="$tmp_dir/logo.txt"

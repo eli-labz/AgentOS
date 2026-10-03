@@ -61,7 +61,7 @@
 "ui.linenr.selected" = { fg = "foreground" }
 
 # Statusline uses an inverted band (background-color text on foreground-color
-# background) to guarantee contrast across both light and dark Omarchy themes.
+# background) to guarantee contrast across both light and dark Agent0S themes.
 "ui.statusline" = { fg = "background", bg = "foreground" }
 "ui.statusline.inactive" = { fg = "background", bg = "color8" }
 "ui.statusline.normal" = { fg = "background", bg = "color4", modifiers = ["bold"] }

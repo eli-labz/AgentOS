@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# agent0s:summary=Install the Claude desktop app
+# agent0s:requires-sudo=true
+
+set -euo pipefail
+
+echo "Installing Claude..."
+agent0s-pkg-add claude-desktop
+
+echo "Opening Claude..."
+setsid uwsm-app -- /usr/bin/claude-desktop >/dev/null 2>&1 &
+
+echo ""
+echo "Claude has been installed."

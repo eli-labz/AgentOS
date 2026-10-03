@@ -12,36 +12,36 @@ test_home="$test_tmp/home"
 mise_log="$test_tmp/mise-log"
 mkdir -p "$mock_bin" "$test_home/.local/bin"
 
-cat >"$mock_bin/omarchy-pkg-present" <<'SH'
+cat >"$mock_bin/agent0s-pkg-present" <<'SH'
 #!/bin/bash
-[[ ${OMARCHY_TEST_DESKTOP_INSTALLED:-0} == 1 ]]
+[[ ${AGENT0S_TEST_DESKTOP_INSTALLED:-0} == 1 ]]
 SH
 
-cat >"$mock_bin/omarchy-cmd-missing" <<'SH'
+cat >"$mock_bin/agent0s-cmd-missing" <<'SH'
 #!/bin/bash
 ! command -v "$1" >/dev/null 2>&1
 SH
 
 # `mise where` must fail so the installer sees no Hermes behind the stub.
 #
-# With OMARCHY_TEST_MISE_X_HERMES=1, `mise x -- hermes ...` emulates the Hermes
-# the Omarchy stub runs, so the readiness probe can be exercised through a
+# With AGENT0S_TEST_MISE_X_HERMES=1, `mise x -- hermes ...` emulates the Hermes
+# the Agent0S stub runs, so the readiness probe can be exercised through a
 # mise-installed hermes and not only the foreign and desktop wrappers. Off by
 # default, so `mise x` stays silent for every test that does not opt in.
 cat >"$mock_bin/mise" <<'SH'
 #!/bin/bash
-printf '%s\0' "$@" >>"$OMARCHY_TEST_MISE_LOG"
-if [[ $1 == "where" && ${OMARCHY_TEST_MISE_WHERE_OK:-0} == 1 ]]; then
-  printf '%s\n' "$OMARCHY_TEST_MISE_ROOT"
+printf '%s\0' "$@" >>"$AGENT0S_TEST_MISE_LOG"
+if [[ $1 == "where" && ${AGENT0S_TEST_MISE_WHERE_OK:-0} == 1 ]]; then
+  printf '%s\n' "$AGENT0S_TEST_MISE_ROOT"
   exit 0
 fi
-if [[ $1 == "x" && ${OMARCHY_TEST_MISE_X_HERMES:-0} == 1 ]]; then
+if [[ $1 == "x" && ${AGENT0S_TEST_MISE_X_HERMES:-0} == 1 ]]; then
   # Args are `x <tool> -- hermes <hermes-args...>`; skip to what follows hermes.
   shift
   while (( $# )) && [[ $1 != "--" ]]; do shift; done
   shift 2
   if [[ ${1:-} == "chat" && ${2:-} == "--help" ]]; then
-    [[ ${OMARCHY_TEST_HERMES_CAPABLE:-1} == 1 ]] && echo "[-q QUERY, --query QUERY] [--tui]"
+    [[ ${AGENT0S_TEST_HERMES_CAPABLE:-1} == 1 ]] && echo "[-q QUERY, --query QUERY] [--tui]"
   else
     echo "hermes-agent 0.0.0-test"
   fi
@@ -53,16 +53,16 @@ SH
 chmod +x "$mock_bin"/*
 
 run_installer() {
-  OMARCHY_TEST_DESKTOP_INSTALLED="$1" \
-    OMARCHY_TEST_MISE_WHERE_OK="${OMARCHY_TEST_MISE_WHERE_OK:-0}" \
-    OMARCHY_TEST_MISE_ROOT="$test_tmp/mise" \
-    OMARCHY_TEST_MISE_LOG="$mise_log" \
+  AGENT0S_TEST_DESKTOP_INSTALLED="$1" \
+    AGENT0S_TEST_MISE_WHERE_OK="${AGENT0S_TEST_MISE_WHERE_OK:-0}" \
+    AGENT0S_TEST_MISE_ROOT="$test_tmp/mise" \
+    AGENT0S_TEST_MISE_LOG="$mise_log" \
     HOME="$test_home" \
     PATH="$mock_bin:$PATH" \
-    bash "$ROOT/bin/omarchy-install-hermes-cli" ${2:+"$2"} >/dev/null 2>&1
+    bash "$ROOT/bin/agent0s-install-hermes-cli" ${2:+"$2"} >/dev/null 2>&1
 }
 
-stub_marker="# Written by omarchy-install-hermes-cli."
+stub_marker="# Written by agent0s-install-hermes-cli."
 python_pin="3.13"
 app_stub_body='#!/bin/bash
 exec /home/x/.hermes/hermes-agent/venv/bin/hermes "$@"'
@@ -99,7 +99,7 @@ pass "the app's own hermes command is left alone"
 printf '%s\n' "#!/bin/bash" "$stub_marker" >"$test_home/.local/bin/hermes"
 chmod +x "$test_home/.local/bin/hermes"
 : >"$mise_log"
-OMARCHY_TEST_MISE_WHERE_OK=1 run_installer 1 || true
+AGENT0S_TEST_MISE_WHERE_OK=1 run_installer 1 || true
 tr '\0' '\n' <"$mise_log" | grep -q "uninstall" ||
   fail "takeover removes a mise copy even when it is not healthy"
 pass "takeover removes an unhealthy mise copy"
@@ -115,7 +115,7 @@ mkdir -p "$test_home/.hermes/hermes-agent/venv/bin"
 cat >"$test_home/.hermes/hermes-agent/venv/bin/hermes" <<'SH'
 #!/bin/bash
 if [[ ${1:-} == "chat" && ${2:-} == "--help" ]]; then
-  [[ ${OMARCHY_TEST_HERMES_CAPABLE:-1} == 1 ]] && echo "[-q QUERY, --query QUERY] [--tui]"
+  [[ ${AGENT0S_TEST_HERMES_CAPABLE:-1} == 1 ]] && echo "[-q QUERY, --query QUERY] [--tui]"
 else
   echo "hermes-agent 0.0.0-test"
 fi
@@ -151,9 +151,9 @@ run_installer 0 --now || fail "--now over a foreign hermes command returns succe
   fail "a foreign hermes command is left untouched"
 pass "a foreign hermes command is preserved and satisfies --check"
 
-OMARCHY_TEST_HERMES_CAPABLE=0 run_installer 0 --check &&
+AGENT0S_TEST_HERMES_CAPABLE=0 run_installer 0 --check &&
   fail "--check rejects a foreign Hermes without native prompted sessions"
-OMARCHY_TEST_HERMES_CAPABLE=0 run_installer 0 &&
+AGENT0S_TEST_HERMES_CAPABLE=0 run_installer 0 &&
   fail "installing refuses a foreign Hermes without native prompted sessions"
 [[ $(cat "$test_home/.local/bin/hermes") == "$official_body" ]] ||
   fail "an older foreign Hermes command is left untouched"
@@ -227,7 +227,7 @@ pass "a directory at the hermes path is preserved and rejected"
 # Mentioning the installer is not the same as being written by it.
 rmdir "$test_home/.local/bin/hermes"
 mentions_body="#!/bin/bash
-# Replaces the stub omarchy-install-hermes-cli used to write.
+# Replaces the stub agent0s-install-hermes-cli used to write.
 exec $test_home/.hermes/hermes-agent/venv/bin/hermes \"\$@\""
 printf '%s\n' "$mentions_body" >"$test_home/.local/bin/hermes"
 chmod +x "$test_home/.local/bin/hermes"
@@ -245,11 +245,11 @@ run_installer 0 || fail "reinstalling over our own stub succeeds"
 grep -qxF "$stub_marker" "$test_home/.local/bin/hermes" || fail "the refreshed stub still carries the marker"
 grep -q "stale template" "$test_home/.local/bin/hermes" && fail "reinstalling rewrites our own stub"
 grep -q "exec env -u UV_PYTHON mise x" "$test_home/.local/bin/hermes" || fail "the refreshed stub is the current template"
-pass "reinstalling refreshes the Omarchy stub"
+pass "reinstalling refreshes the Agent0S stub"
 
 mkdir -p "$test_tmp/mise/hermes-agent/lib/python$python_pin"
 : >"$mise_log"
-OMARCHY_TEST_MISE_WHERE_OK=1 run_installer 0 || fail "reinstalling replaces an older owned Hermes environment"
+AGENT0S_TEST_MISE_WHERE_OK=1 run_installer 0 || fail "reinstalling replaces an older owned Hermes environment"
 tr '\0' '\n' <"$mise_log" | grep -q '^rm$' || fail "an older owned Hermes environment is removed from mise config"
 tr '\0' '\n' <"$mise_log" | grep -q '^uninstall$' || fail "an older owned Hermes environment is uninstalled"
 pass "reinstalling replaces an older owned Hermes environment"
@@ -260,33 +260,33 @@ pass "reinstalling replaces an older owned Hermes environment"
 # here in both directions, since the desktop and foreign cases cover only their
 # own wrappers.
 run_mise_check() {
-  OMARCHY_TEST_DESKTOP_INSTALLED=0 \
-    OMARCHY_TEST_MISE_WHERE_OK=1 \
-    OMARCHY_TEST_MISE_ROOT="$test_tmp/mise" \
-    OMARCHY_TEST_MISE_LOG="$mise_log" \
-    OMARCHY_TEST_MISE_X_HERMES=1 \
-    OMARCHY_TEST_HERMES_CAPABLE="$1" \
+  AGENT0S_TEST_DESKTOP_INSTALLED=0 \
+    AGENT0S_TEST_MISE_WHERE_OK=1 \
+    AGENT0S_TEST_MISE_ROOT="$test_tmp/mise" \
+    AGENT0S_TEST_MISE_LOG="$mise_log" \
+    AGENT0S_TEST_MISE_X_HERMES=1 \
+    AGENT0S_TEST_HERMES_CAPABLE="$1" \
     HOME="$test_home" \
     PATH="$mock_bin:$PATH" \
-    bash "$ROOT/bin/omarchy-install-hermes-cli" --check >/dev/null 2>&1
+    bash "$ROOT/bin/agent0s-install-hermes-cli" --check >/dev/null 2>&1
 }
 run_mise_check 1 || fail "--check accepts a mise-installed hermes that runs the seeded session"
-run_mise_check 0 && fail "--check rejects a mise-installed hermes without the flags omarchy-agent passes"
+run_mise_check 0 && fail "--check rejects a mise-installed hermes without the flags agent0s-agent passes"
 pass "--check follows the mise-installed hermes it would actually run"
 
 rm -f "$test_home/.local/bin/hermes"
 : >"$mise_log"
-OMARCHY_TEST_MISE_WHERE_OK=1 run_installer 0 &&
+AGENT0S_TEST_MISE_WHERE_OK=1 run_installer 0 &&
   fail "installing refuses to claim an unmarked Hermes mise environment"
 tr '\0' '\n' <"$mise_log" | grep -Eq '^(rm|uninstall)$' &&
   fail "an unmarked Hermes mise environment is never removed"
 [[ ! -e $test_home/.local/bin/hermes ]] ||
-  fail "an unmarked Hermes mise environment is not given an Omarchy wrapper"
+  fail "an unmarked Hermes mise environment is not given an Agent0S wrapper"
 pass "a Hermes mise environment needs wrapper ownership before replacement"
 
 # install/user/mise.sh is sourced by install/user/all.sh through run_logged,
 # which runs it under `bash -eE` and hands its exit code back to
-# omarchy-provision-user's `set -euo pipefail`. Everything that finalizes a user
+# agent0s-provision-user's `set -euo pipefail`. Everything that finalizes a user
 # -- the default browser, the mailto handler, the first-install migration
 # markers, the finalize-user marker -- runs after that source, so this leaf
 # returning non-zero costs the user all of it. The Hermes installer is the only
@@ -296,23 +296,23 @@ pass "a Hermes mise environment needs wrapper ownership before replacement"
 mise_sh_home="$test_tmp/mise-sh-home"
 mkdir -p "$mise_sh_home/.local/bin"
 
-cat >"$mock_bin/omarchy-mise-install" <<'SH'
+cat >"$mock_bin/agent0s-mise-install" <<'SH'
 #!/bin/bash
 exit 0
 SH
-chmod +x "$mock_bin/omarchy-mise-install"
+chmod +x "$mock_bin/agent0s-mise-install"
 
-# Desktop installed, nothing bootstrapped: omarchy-install-hermes-cli exits 1.
-OMARCHY_TEST_DESKTOP_INSTALLED=1 \
-  OMARCHY_TEST_MISE_LOG="$mise_log" \
+# Desktop installed, nothing bootstrapped: agent0s-install-hermes-cli exits 1.
+AGENT0S_TEST_DESKTOP_INSTALLED=1 \
+  AGENT0S_TEST_MISE_LOG="$mise_log" \
   HOME="$mise_sh_home" \
   PATH="$mock_bin:$ROOT/bin:$PATH" \
-  bash "$ROOT/bin/omarchy-install-hermes-cli" >/dev/null 2>&1 &&
+  bash "$ROOT/bin/agent0s-install-hermes-cli" >/dev/null 2>&1 &&
   fail "the Hermes installer exits non-zero when the desktop app has not set Hermes up"
 
 # Sourced exactly as run_logged does it.
-OMARCHY_TEST_DESKTOP_INSTALLED=1 \
-  OMARCHY_TEST_MISE_LOG="$mise_log" \
+AGENT0S_TEST_DESKTOP_INSTALLED=1 \
+  AGENT0S_TEST_MISE_LOG="$mise_log" \
   HOME="$mise_sh_home" \
   PATH="$mock_bin:$ROOT/bin:$PATH" \
   bash -eE -c 'source "$1"' bash "$ROOT/install/user/mise.sh" >/dev/null 2>&1 ||
@@ -341,11 +341,11 @@ esac
 SH
 chmod +x "$leak_bin/mise"
 
-OMARCHY_TEST_DESKTOP_INSTALLED=0 \
-  OMARCHY_TEST_MISE_LOG="$mise_log" \
+AGENT0S_TEST_DESKTOP_INSTALLED=0 \
+  AGENT0S_TEST_MISE_LOG="$mise_log" \
   HOME="$leak_home" \
   PATH="$mock_bin:$PATH" \
-  bash "$ROOT/bin/omarchy-install-hermes-cli" >/dev/null 2>&1 ||
+  bash "$ROOT/bin/agent0s-install-hermes-cli" >/dev/null 2>&1 ||
   fail "the installer writes a stub for the leak check"
 
 HOME="$leak_home" PATH="$leak_bin:$mock_bin:$PATH" \
@@ -363,11 +363,11 @@ owns_home="$test_tmp/owns-home"
 mkdir -p "$owns_home/.local/bin"
 
 run_owns() {
-  OMARCHY_TEST_DESKTOP_INSTALLED=0 \
-    OMARCHY_TEST_MISE_LOG="$mise_log" \
+  AGENT0S_TEST_DESKTOP_INSTALLED=0 \
+    AGENT0S_TEST_MISE_LOG="$mise_log" \
     HOME="$owns_home" \
     PATH="$mock_bin:$PATH" \
-    bash "$ROOT/bin/omarchy-install-hermes-cli" --owns
+    bash "$ROOT/bin/agent0s-install-hermes-cli" --owns
 }
 
 rm -f "$owns_home/.local/bin/hermes"
@@ -377,7 +377,7 @@ printf '%s\n' "#!/bin/bash" "$stub_marker" >"$owns_home/.local/bin/hermes"
 chmod +x "$owns_home/.local/bin/hermes"
 run_owns || fail "--owns recognises the stub this installer wrote"
 
-printf '%s\n' "#!/bin/bash" "# Replaces the stub omarchy-install-hermes-cli used to write." \
+printf '%s\n' "#!/bin/bash" "# Replaces the stub agent0s-install-hermes-cli used to write." \
   >"$owns_home/.local/bin/hermes"
 run_owns && fail "--owns needs the exact marker line, not a mention"
 
@@ -396,10 +396,10 @@ pass "--owns answers for the wrapper this installer wrote and nothing else"
 
 # The marker lives in exactly one place. Every other caller asks --owns, so a
 # second copy is drift waiting to happen.
-marker_copies=$(grep -rl "Written by omarchy-install-hermes-cli" \
+marker_copies=$(grep -rl "Written by agent0s-install-hermes-cli" \
   "$ROOT/bin" "$ROOT/install" "$ROOT/migrations" 2>/dev/null | wc -l)
 (( marker_copies == 1 )) ||
-  fail "only omarchy-install-hermes-cli spells out the ownership marker"
+  fail "only agent0s-install-hermes-cli spells out the ownership marker"
 pass "the ownership marker is written down once"
 
 # --remove tears down a Hermes CLI this installer owns, so Remove Hermes can
@@ -409,20 +409,20 @@ remove_home="$test_tmp/remove-home"
 mkdir -p "$remove_home/.local/bin"
 
 run_remove() {
-  OMARCHY_TEST_DESKTOP_INSTALLED=0 \
-    OMARCHY_TEST_MISE_WHERE_OK="${OMARCHY_TEST_MISE_WHERE_OK:-0}" \
-    OMARCHY_TEST_MISE_ROOT="$test_tmp/mise" \
-    OMARCHY_TEST_MISE_LOG="$mise_log" \
+  AGENT0S_TEST_DESKTOP_INSTALLED=0 \
+    AGENT0S_TEST_MISE_WHERE_OK="${AGENT0S_TEST_MISE_WHERE_OK:-0}" \
+    AGENT0S_TEST_MISE_ROOT="$test_tmp/mise" \
+    AGENT0S_TEST_MISE_LOG="$mise_log" \
     HOME="$remove_home" \
     PATH="$mock_bin:$PATH" \
-    bash "$ROOT/bin/omarchy-install-hermes-cli" --remove
+    bash "$ROOT/bin/agent0s-install-hermes-cli" --remove
 }
 
 rm -f "$remove_home/.local/bin/hermes"
 : >"$mise_log"
 run_remove || fail "--remove succeeds when there is nothing to remove"
 # No stub means no proof the mise environment -- if one even exists -- is
-# Omarchy's, so nothing may reach mise at all.
+# Agent0S's, so nothing may reach mise at all.
 tr '\0' '\n' <"$mise_log" | grep -Eq '^(rm|uninstall)$' &&
   fail "--remove leaves mise alone when nothing proves ownership"
 pass "--remove is idempotent when no Hermes CLI is present"
@@ -440,7 +440,7 @@ pass "--remove tears down the mise CLI and the stub this installer owns"
 # survived whatever uninstall claimed, and --remove has to say so.
 printf '%s\n' "#!/bin/bash" "$stub_marker" >"$remove_home/.local/bin/hermes"
 chmod +x "$remove_home/.local/bin/hermes"
-OMARCHY_TEST_MISE_WHERE_OK=1 run_remove && fail "--remove claims success while mise still resolves the tool"
+AGENT0S_TEST_MISE_WHERE_OK=1 run_remove && fail "--remove claims success while mise still resolves the tool"
 pass "--remove fails when the mise environment survives the teardown"
 
 foreign_remove_body="#!/bin/bash
@@ -448,13 +448,13 @@ exec /usr/local/bin/my-own-hermes \"\$@\""
 printf '%s\n' "$foreign_remove_body" >"$remove_home/.local/bin/hermes"
 chmod +x "$remove_home/.local/bin/hermes"
 : >"$mise_log"
-OMARCHY_TEST_MISE_WHERE_OK=1 run_remove || fail "--remove succeeds with a foreign hermes present"
+AGENT0S_TEST_MISE_WHERE_OK=1 run_remove || fail "--remove succeeds with a foreign hermes present"
 [[ -f $remove_home/.local/bin/hermes && $(cat "$remove_home/.local/bin/hermes") == "$foreign_remove_body" ]] ||
   fail "--remove leaves a hermes it does not own untouched"
 # The wrapper may front a mise environment the user built against the very same
 # spec; without the marker there is no telling, so the environment stays too.
 tr '\0' '\n' <"$mise_log" | grep -Eq '^(rm|uninstall)$' &&
-  fail "--remove never removes a mise environment it cannot prove is Omarchy's"
+  fail "--remove never removes a mise environment it cannot prove is Agent0S's"
 pass "--remove leaves a Hermes the user installed themselves"
 
 # Judged by what is left, not by what rm claimed: a stub that survives the
@@ -478,11 +478,11 @@ printf '%s\n' "#!/bin/bash" "exec $ready_home/.hermes/hermes-agent/venv/bin/herm
 chmod +x "$ready_home/.local/bin/hermes"
 
 run_ready_check() {
-  OMARCHY_TEST_DESKTOP_INSTALLED=1 \
-    OMARCHY_TEST_MISE_LOG="$mise_log" \
+  AGENT0S_TEST_DESKTOP_INSTALLED=1 \
+    AGENT0S_TEST_MISE_LOG="$mise_log" \
     HOME="$ready_home" \
     PATH="$mock_bin:$PATH" \
-    bash "$ROOT/bin/omarchy-install-hermes-cli" --check >/dev/null 2>&1
+    bash "$ROOT/bin/agent0s-install-hermes-cli" --check >/dev/null 2>&1
 }
 
 run_ready_check && fail "--check rejects the app's wrapper when its runtime is gone"
@@ -500,7 +500,7 @@ run_ready_check || fail "--check accepts the app's wrapper once it runs"
 pass "readiness runs the app's command rather than trusting its marker"
 
 # A release whose help lists only the old probe's --oneshot marker cannot run
-# the seeded --tui --query session omarchy-agent starts, so it is not ready.
+# the seeded --tui --query session agent0s-agent starts, so it is not ready.
 cat >"$ready_home/.hermes/hermes-agent/venv/bin/hermes" <<'SH'
 #!/bin/bash
 if [[ ${1:-} == "chat" && ${2:-} == "--help" ]]; then
@@ -510,11 +510,11 @@ else
 fi
 SH
 chmod +x "$ready_home/.hermes/hermes-agent/venv/bin/hermes"
-run_ready_check && fail "--check accepts a release without the flags omarchy-agent passes"
+run_ready_check && fail "--check accepts a release without the flags agent0s-agent passes"
 pass "a release listing only --oneshot is not prompt-ready"
 
 # A release that lists --tui-theme and --query-log but has dropped the bare
-# --tui/--query omarchy-agent passes must not read as ready on the substring
+# --tui/--query agent0s-agent passes must not read as ready on the substring
 # alone. The probe matches at a flag boundary for exactly this case.
 cat >"$ready_home/.hermes/hermes-agent/venv/bin/hermes" <<'SH'
 #!/bin/bash

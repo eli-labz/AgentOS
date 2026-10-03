@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# agent0s:summary=Launch the default editor selected via Agent0S defaults.
+# agent0s:args=[--inline] <path>
+
+default_editor="$HOME/.local/state/agent0s/defaults/editor"
+
+if [[ ${1:-} == "--inline" ]]; then
+  inline=true
+  shift
+else
+  inline=false
+fi
+
+if [[ -f $default_editor ]]; then
+  read -r editor <"$default_editor"
+else
+  editor="nvim"
+fi
+
+agent0s-cmd-present "$editor" || editor="nvim"
+
+case "${editor##*/}" in
+nvim | vim | nano | micro | hx | helix | fresh)
+  if [[ $inline == "true" ]]; then
+    exec "$editor" "$@"
+  else
+    exec agent0s-launch-tui "$editor" "$@"
+  fi
+  ;;
+*)
+  exec setsid uwsm-app -- "$editor" "$@"
+  ;;
+esac

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=List available monospace fonts
+# agent0s:examples=agent0s font list | agent0s font set "CaskaydiaMono Nerd Font"
+
+fc-list :spacing=100 -f "%{family[0]}\n" | grep -v -i -E 'emoji|signwriting|agent0s' | sort -u

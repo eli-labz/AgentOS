@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.nightlight",
+  "id": "agent0s.nightlight",
   "name": "Night Light",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "description": "Owns the hyprsunset night light temperature for the bar indicator and CLI.",
   "kinds": [
     "service"

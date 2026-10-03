@@ -75,9 +75,9 @@ cp "$SHELL_TEST_DIR/fixtures/manifest-entrypoints/shell.qml" "$config_dir/shell.
 ln -s "$ROOT/shell/Ui" "$config_dir/Ui"
 ln -s "$ROOT/shell/Commons" "$config_dir/Commons"
 
-OMARCHY_PATH="$ROOT" \
-OMARCHY_QML_TEST_RESULT="$result" \
-OMARCHY_QML_MANIFESTS="$manifest_entries" \
+AGENT0S_PATH="$ROOT" \
+AGENT0S_QML_TEST_RESULT="$result" \
+AGENT0S_QML_MANIFESTS="$manifest_entries" \
 HOME="$TMPDIR/home" \
 XDG_CONFIG_HOME="$TMPDIR/home/.config" \
 XDG_CACHE_HOME="$TMPDIR/home/.cache" \

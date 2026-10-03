@@ -4,9 +4,9 @@ set -euo pipefail
 
 source "$(dirname "$0")/base-test.sh"
 
-dns="$ROOT/bin/omarchy-dns"
-sudoers_file="$ROOT/etc/sudoers.d/omarchy-dns"
-rule='%wheel ALL=(root) NOPASSWD: /usr/bin/omarchy-dns Cloudflare, /usr/bin/omarchy-dns Google, /usr/bin/omarchy-dns DHCP'
+dns="$ROOT/bin/agent0s-dns"
+sudoers_file="$ROOT/etc/sudoers.d/agent0s-dns"
+rule='%wheel ALL=(root) NOPASSWD: /usr/bin/agent0s-dns Cloudflare, /usr/bin/agent0s-dns Google, /usr/bin/agent0s-dns DHCP'
 
 # Exactly one rule, matched whole. A second line -- or the same command with its
 # arguments dropped, which sudoers reads as "any arguments" -- would widen the
@@ -19,32 +19,32 @@ if command -v visudo >/dev/null; then
   visudo -cf "$sudoers_file" >/dev/null || fail "dns sudoers rule parses"
 fi
 
-grep -Fx 'PACKAGED_PATH=/usr/bin/omarchy-dns' "$dns" >/dev/null ||
-  fail "omarchy-dns elevates the path the sudoers rule names"
+grep -Fx 'PACKAGED_PATH=/usr/bin/agent0s-dns' "$dns" >/dev/null ||
+  fail "agent0s-dns elevates the path the sudoers rule names"
 
 # `sudo -l` on its own answers whether a command is permitted, not whether it
-# is passwordless, and Omarchy ships a blanket %wheel rule that permits
+# is passwordless, and Agent0S ships a blanket %wheel rule that permits
 # everything. Only the long listing prints the matched entry's tags.
 grep -E 'sudo -n -l -l' "$dns" >/dev/null ||
-  fail "omarchy-dns reads the grant from the long sudo listing"
+  fail "agent0s-dns reads the grant from the long sudo listing"
 
 pass "dns sudoers rule is scoped to the stock providers"
 
 # The privileged half runs as root under sudo's secure_path, and a dev link
-# (etc/sudoers.d/omarchy-dev-path) prepends a user-writable checkout bin/ to it.
+# (etc/sudoers.d/agent0s-dev-path) prepends a user-writable checkout bin/ to it.
 # Every helper the script calls by bare name -- dirname, install, tee, nmcli,
 # systemctl, awk -- is a system tool, so once it holds root the script pins PATH
 # to trusted system directories and never resolves one of them out of the
 # checkout. The unprivileged wrapper phase keeps the caller's PATH, which is why
 # the pin is gated on EUID rather than set unconditionally.
 grep -Eq '^\s*export PATH=/usr/local/sbin:/usr/local/bin:/usr/bin' "$dns" ||
-  fail "omarchy-dns pins PATH to trusted system directories when it holds root"
+  fail "agent0s-dns pins PATH to trusted system directories when it holds root"
 # require_root carries its own `(( EUID == 0 ))`, so matching that text alone
 # would pass with the pin deleted. Anchor on the unindented guard and require the
 # pin to be the line it opens.
 gated=$(grep -A1 -E '^if \(\( EUID == 0 \)\); then$' "$dns" || true)
 [[ $gated == *"export PATH=/usr/local/sbin:/usr/local/bin:/usr/bin"* ]] ||
-  fail "omarchy-dns gates the trusted-PATH pin on holding root"
+  fail "agent0s-dns gates the trusted-PATH pin on holding root"
 
 # The no-argument path only reads DNS config, so exercise the privileged phase
 # directly when the suite is root and as namespaced root otherwise. This reaches
@@ -72,14 +72,14 @@ SH
 
   if ! PATH="$poison_dir:$PATH" "${root_runner[@]}" bash "$dns" </dev/null >/dev/null 2>&1; then
     rm -rf "$poison_dir"
-    fail "root omarchy-dns failed its read-only trusted-PATH probe"
+    fail "root agent0s-dns failed its read-only trusted-PATH probe"
   fi
   if [[ -e $poison_ran ]]; then
     rm -rf "$poison_dir"
-    fail "root omarchy-dns resolved a bare helper from the front of PATH instead of a trusted system path"
+    fail "root agent0s-dns resolved a bare helper from the front of PATH instead of a trusted system path"
   fi
   rm -rf "$poison_dir"
-  pass "root omarchy-dns resolves system helpers from a trusted PATH, not the invocation PATH"
+  pass "root agent0s-dns resolves system helpers from a trusted PATH, not the invocation PATH"
 else
   pass "no unprivileged user namespace; skipping the root trusted-PATH probe"
 fi
@@ -106,9 +106,9 @@ SH
 chmod +x "$stub_bin/pkexec"
 
 # The sudo stub plays both parts: it answers the passwordless probe from
-# STUB_GRANTED, the providers etc/sudoers.d/omarchy-dns covers on this machine,
+# STUB_GRANTED, the providers etc/sudoers.d/agent0s-dns covers on this machine,
 # and logs the elevation otherwise. STUB_GRANTED empty stands for an install
-# whose omarchy-settings predates the file.
+# whose agent0s-settings predates the file.
 cat >"$stub_bin/sudo" <<'SH'
 #!/bin/bash
 if [[ $1 == -n && $2 == -l ]]; then
@@ -134,28 +134,28 @@ elevation_for() {
 
 for provider in Cloudflare Google DHCP; do
   elevation=$(elevation_for "$provider")
-  [[ $elevation == "sudo /usr/bin/omarchy-dns $provider" ]] ||
-    fail "omarchy-dns takes the passwordless sudo grant for $provider without a terminal" "got: $elevation"
+  [[ $elevation == "sudo /usr/bin/agent0s-dns $provider" ]] ||
+    fail "agent0s-dns takes the passwordless sudo grant for $provider without a terminal" "got: $elevation"
 done
 
-pass "omarchy-dns elevates the stock providers through sudo, not polkit"
+pass "agent0s-dns elevates the stock providers through sudo, not polkit"
 
 # A dev-linked checkout elevates the packaged path like everyone else, rather
 # than handing sudo a path no rule can name and losing the grant.
-dev_linked=$(OMARCHY_PATH="$test_tmp/checkout" elevation_for Cloudflare)
-[[ $dev_linked == "sudo /usr/bin/omarchy-dns Cloudflare" ]] ||
-  fail "omarchy-dns elevates the system install wherever OMARCHY_PATH points" "got: $dev_linked"
+dev_linked=$(AGENT0S_PATH="$test_tmp/checkout" elevation_for Cloudflare)
+[[ $dev_linked == "sudo /usr/bin/agent0s-dns Cloudflare" ]] ||
+  fail "agent0s-dns elevates the system install wherever AGENT0S_PATH points" "got: $dev_linked"
 
 custom=$(elevation_for Custom)
-[[ $custom == "pkexec /usr/bin/omarchy-dns Custom" ]] ||
-  fail "omarchy-dns leaves Custom on the polkit path, since no sudoers rule covers it" "got: $custom"
+[[ $custom == "pkexec /usr/bin/agent0s-dns Custom" ]] ||
+  fail "agent0s-dns leaves Custom on the polkit path, since no sudoers rule covers it" "got: $custom"
 
 # The grant is what makes sudo passwordless, so its absence -- an install still
-# on an older omarchy-settings, or a user outside %wheel the rule cannot match
+# on an older agent0s-settings, or a user outside %wheel the rule cannot match
 # -- has to route to polkit. Betting on sudo here leaves the panel's one-click
 # toggle execing into a password prompt it has no terminal to show.
 ungranted=$(STUB_GRANTED="" elevation_for Cloudflare)
-[[ $ungranted == "pkexec /usr/bin/omarchy-dns Cloudflare" ]] ||
-  fail "omarchy-dns falls back to polkit where the sudoers grant is not installed" "got: $ungranted"
+[[ $ungranted == "pkexec /usr/bin/agent0s-dns Cloudflare" ]] ||
+  fail "agent0s-dns falls back to polkit where the sudoers grant is not installed" "got: $ungranted"
 
-pass "omarchy-dns falls back to polkit wherever the grant does not reach"
+pass "agent0s-dns falls back to polkit wherever the grant does not reach"

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# agent0s:summary=Set the current background image or video
+# agent0s:args=<path-to-media>
+# agent0s:examples=agent0s theme bg set ~/Pictures/background.png
+
+if [[ -z $1 ]]; then
+  echo "Usage: agent0s-theme-bg-set <path-to-media>" >&2
+  exit 1
+fi
+
+BACKGROUND="$(realpath "$1")"
+CURRENT_BACKGROUND_LINK="$HOME/.local/state/agent0s/current/background"
+
+if [[ ! -f $BACKGROUND ]]; then
+  echo "File does not exist: $BACKGROUND" >&2
+  exit 1
+fi
+
+# Create symlink to the new background media
+ln -nsf "$BACKGROUND" "$CURRENT_BACKGROUND_LINK"
+
+# Update the live shell background immediately when it is running. The
+# background plugin also polls this symlink, but IPC avoids the visible delay.
+agent0s-shell -q background set "$BACKGROUND"

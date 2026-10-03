@@ -1,6 +1,6 @@
 -- Send with explicit mods to the focused surface by omitting the window target,
 -- so universal clipboard shortcuts reach both normal windows and focused
--- layer-shell surfaces such as Omarchy panels. A virtual keyboard (wtype) won't
+-- layer-shell surfaces such as Agent0S panels. A virtual keyboard (wtype) won't
 -- do: the physically held SUPER merges into the injected chord at the seat.
 -- The down/up split works around Hyprland send_shortcut sometimes leaving
 -- synthetic key state stuck/repeating.
@@ -45,4 +45,4 @@ end
 o.bind("SUPER + C", "Universal copy", universal_clipboard_shortcut("CTRL", "C", "CTRL", "Insert"))
 o.bind("SUPER + V", "Universal paste", universal_clipboard_shortcut("CTRL", "V", "SHIFT", "Insert"))
 o.bind("SUPER + X", "Universal cut", send_shortcut_once("CTRL", "X"))
-o.bind("SUPER + CTRL + V", "Clipboard manager", "omarchy-shell shell toggle omarchy.clipboard")
+o.bind("SUPER + CTRL + V", "Clipboard manager", "agent0s-shell shell toggle agent0s.clipboard")

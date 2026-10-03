@@ -1,4 +1,4 @@
-# Omarchy snapshots root only for pre-update recovery — kept to 5, no timeline
+# Agent0S snapshots root only for pre-update recovery — kept to 5, no timeline
 SUBVOLUME="/"
 FSTYPE="btrfs"
 

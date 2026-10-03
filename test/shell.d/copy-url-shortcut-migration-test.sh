@@ -96,7 +96,7 @@ run_migration || fail "migration repairs while a different profile root is open"
 jq -e --arg pinned "$pinned_id" '.extensions.commands["linux:Alt+Shift+L"].extension == $pinned' "$preferences" >/dev/null ||
   fail "migration repairs the shortcut while a different profile root is open"
 pass "migration ignores a browser on a different profile root"
-rm -f "$home/.config/google-chrome/SingletonLock" "$preferences.omarchy-copy-url-repair.bak"
+rm -f "$home/.config/google-chrome/SingletonLock" "$preferences.agent0s-copy-url-repair.bak"
 
 # Closing the affected profile and confirming the prompt lets the repair
 # proceed.
@@ -120,7 +120,7 @@ GUM_CALLED="$test_dir/gum-called" CLOSE_BROWSER="$stub_bin/close-browser" \
 jq -e --arg pinned "$pinned_id" '.extensions.commands["linux:Alt+Shift+L"].extension == $pinned' "$preferences" >/dev/null ||
   fail "migration repairs after the browser prompt is confirmed"
 pass "migration asks to close the browser and repairs on confirmation"
-rm -f "$preferences.omarchy-copy-url-repair.bak"
+rm -f "$preferences.agent0s-copy-url-repair.bak"
 
 # With the affected profile closed the ghost registration moves to the pinned id.
 printf '#!/bin/bash\nexit 1\n' >"$stub_bin/gum"
@@ -133,17 +133,17 @@ jq -e --arg ghost "$ghost_id" --arg pinned "$pinned_id" '
   (.extensions.settings | has($ghost) | not) and
   .extensions.settings[$pinned].commands["copy-url"].was_assigned == true
 ' "$preferences" >/dev/null || fail "migration rebinds the Copy URL shortcut to the pinned extension id"
-[[ -f $preferences.omarchy-copy-url-repair.bak ]] ||
+[[ -f $preferences.agent0s-copy-url-repair.bak ]] ||
   fail "migration backs up preferences before the repair"
 pass "migration rebinds the Copy URL shortcut to the pinned extension id"
 
 # A repaired profile has no ghost registration left, so nothing is pending —
 # even while that same profile is open.
-rm "$preferences.omarchy-copy-url-repair.bak"
+rm "$preferences.agent0s-copy-url-repair.bak"
 repaired_hash=$(sha256sum "$preferences" | cut -d' ' -f1)
 open_browser
 run_migration || fail "migration reruns cleanly after the repair"
-[[ $(sha256sum "$preferences" | cut -d' ' -f1) == "$repaired_hash" && ! -e $preferences.omarchy-copy-url-repair.bak ]] ||
+[[ $(sha256sum "$preferences" | cut -d' ' -f1) == "$repaired_hash" && ! -e $preferences.agent0s-copy-url-repair.bak ]] ||
   fail "migration is idempotent after the repair"
 pass "migration is idempotent after the repair"
 close_browser
@@ -170,7 +170,7 @@ pass "migration never double-binds the pinned extension"
 # stub hands the repair call through and opens the profile right after it.
 write_stale_preferences
 close_browser
-rm -f "$preferences.omarchy-copy-url-repair.bak"
+rm -f "$preferences.agent0s-copy-url-repair.bak"
 cat >"$stub_bin/python3" <<'STUB'
 #!/bin/bash
 # Called as `python3 -c <script> <preferences> <pinned_id> <check|repair>`, and
@@ -187,7 +187,7 @@ fi
 jq -e --arg pinned "$pinned_id" '.extensions.commands["linux:Alt+Shift+L"].extension == $pinned' "$preferences" >/dev/null ||
   fail "migration still repairs preferences before deferring on a late browser"
 pass "migration stays pending when a browser starts mid-repair"
-rm -f "$stub_bin/python3" "$preferences.omarchy-copy-url-repair.bak"
+rm -f "$stub_bin/python3" "$preferences.agent0s-copy-url-repair.bak"
 close_browser
 
 # A browser that started and exited mid-repair restores stale Preferences
@@ -211,7 +211,7 @@ rm -f "$stub_bin/python3"
 close_browser
 write_stale_preferences
 run_migration || fail "migration recovers after a reverted repair"
-rm -f "$preferences.omarchy-copy-url-repair.bak"
+rm -f "$preferences.agent0s-copy-url-repair.bak"
 
 # A repair attempted while the affected profile was open leaves its backup
 # behind. A rerun that sees a clean disk while that profile still runs must
@@ -219,14 +219,14 @@ rm -f "$preferences.omarchy-copy-url-repair.bak"
 # browser-free rerun verifies the repair and completes.
 write_stale_preferences
 run_migration || fail "repair run before the verification scenario"
-[[ -f $preferences.omarchy-copy-url-repair.bak ]] || fail "verification scenario has a repair backup"
+[[ -f $preferences.agent0s-copy-url-repair.bak ]] || fail "verification scenario has a repair backup"
 open_browser
 run_migration && fail "migration must not complete an unverified repair while a browser runs"
 pass "migration keeps an unverified repair pending while a browser runs"
 close_browser
 run_migration || fail "migration completes once the repair is verified with browsers closed"
 pass "migration verifies an attempted repair on a browser-free rerun"
-rm -f "$preferences.omarchy-copy-url-repair.bak"
+rm -f "$preferences.agent0s-copy-url-repair.bak"
 
 # An installed third-party extension with a command that happens to be named
 # copy-url keeps its own registration.

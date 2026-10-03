@@ -71,19 +71,19 @@ fs.writeFileSync(`${stage}/network/Panel.qml`, source)
 JS
 printf '#!/bin/bash\nexit 0\n' > "$stage/bin/noop"
 chmod +x "$stage/bin/noop"
-for command in omarchy-dns omarchy-network-band; do
+for command in agent0s-dns agent0s-network-band; do
   ln -s noop "$stage/bin/$command"
 done
 # Preview uses only synthetic details, never the host's SSID or addresses.
 # Normal assertions keep the details empty to exercise missing-route handling.
-printf '#!/bin/bash\nif [[ -n ${NETWORK_TEST_PREVIEW:-} ]]; then\n  printf "type\\twifi\\niface\\ttest-wifi\\nssid\\tGuest Wi-Fi\\nip\\t192.0.2.10\\ngateway\\t192.0.2.1\\n"\nfi\n' > "$stage/bin/omarchy-network-status"
-chmod +x "$stage/bin/omarchy-network-status"
-printf '#!/bin/bash\nprintf "%%s\\n" "$@" >> "$NETWORK_TEST_BROWSER_LOG"\n' > "$stage/bin/omarchy-launch-browser"
-chmod +x "$stage/bin/omarchy-launch-browser"
+printf '#!/bin/bash\nif [[ -n ${NETWORK_TEST_PREVIEW:-} ]]; then\n  printf "type\\twifi\\niface\\ttest-wifi\\nssid\\tGuest Wi-Fi\\nip\\t192.0.2.10\\ngateway\\t192.0.2.1\\n"\nfi\n' > "$stage/bin/agent0s-network-status"
+chmod +x "$stage/bin/agent0s-network-status"
+printf '#!/bin/bash\nprintf "%%s\\n" "$@" >> "$NETWORK_TEST_BROWSER_LOG"\n' > "$stage/bin/agent0s-launch-browser"
+chmod +x "$stage/bin/agent0s-launch-browser"
 
 # All networking and external actions are mocked; the real connection and
 # browser are never touched, and the fixture writes only to its scratch HOME.
-output=$(HOME="$stage/home" OMARCHY_PATH="$ROOT" PATH="$stage/bin:$PATH" \
+output=$(HOME="$stage/home" AGENT0S_PATH="$ROOT" PATH="$stage/bin:$PATH" \
   NETWORK_TEST_BROWSER_LOG="$stage/browser.log" \
   timeout 30 quickshell -p "$stage" --no-color 2>&1) || fail "network portal fixture exits cleanly" "$output"
 [[ $output == *"RESULT pass"* ]] || fail "network portal runtime assertions pass" "$output"

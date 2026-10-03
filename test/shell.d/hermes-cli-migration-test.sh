@@ -11,15 +11,15 @@ trap 'rm -rf "$test_tmp"' EXIT
 mock_bin="$test_tmp/bin"
 test_home="$test_tmp/home"
 hermes="$test_home/.local/bin/hermes"
-marker="# Written by omarchy-install-hermes-cli."
-mkdir -p "$mock_bin" "$test_home/.local/bin" "$test_home/.local/state/omarchy"
+marker="# Written by agent0s-install-hermes-cli."
+mkdir -p "$mock_bin" "$test_home/.local/bin" "$test_home/.local/state/agent0s"
 
-cat >"$mock_bin/omarchy-pkg-present" <<'SH'
+cat >"$mock_bin/agent0s-pkg-present" <<'SH'
 #!/bin/bash
-[[ ${OMARCHY_TEST_DESKTOP_INSTALLED:-0} == 1 ]]
+[[ ${AGENT0S_TEST_DESKTOP_INSTALLED:-0} == 1 ]]
 SH
 
-cat >"$mock_bin/omarchy-cmd-missing" <<'SH'
+cat >"$mock_bin/agent0s-cmd-missing" <<'SH'
 #!/bin/bash
 ! command -v "$1" >/dev/null 2>&1
 SH
@@ -27,7 +27,7 @@ SH
 mise_log="$test_tmp/mise-log"
 cat >"$mock_bin/mise" <<'SH'
 #!/bin/bash
-printf '%s\0' "$@" >>"$OMARCHY_TEST_MISE_LOG"
+printf '%s\0' "$@" >>"$AGENT0S_TEST_MISE_LOG"
 [[ $1 != "where" ]]
 SH
 
@@ -36,15 +36,15 @@ chmod +x "$mock_bin"/*
 # The real installer is on PATH so the migration writes today's stub, not a
 # copy of it.
 run_migration() {
-  OMARCHY_TEST_DESKTOP_INSTALLED="${1:-0}" \
-    OMARCHY_TEST_MISE_LOG="$mise_log" \
+  AGENT0S_TEST_DESKTOP_INSTALLED="${1:-0}" \
+    AGENT0S_TEST_MISE_LOG="$mise_log" \
     HOME="$test_home" \
     PATH="$mock_bin:$ROOT/bin:$PATH" \
     bash -euo pipefail "$migration" >/dev/null 2>&1
 }
 
 run_migration || fail "the migration installs the wrapper on a plain install"
-[[ -x $hermes ]] && grep -qxF "$marker" "$hermes" || fail "the migration writes the Omarchy wrapper"
+[[ -x $hermes ]] && grep -qxF "$marker" "$hermes" || fail "the migration writes the Agent0S wrapper"
 pass "the migration installs the Hermes wrapper"
 
 before=$(cat "$hermes")
@@ -53,17 +53,17 @@ run_migration || fail "rerunning the migration succeeds"
 pass "the migration is idempotent"
 
 chmod -x "$hermes"
-run_migration || fail "the migration repairs a non-executable Omarchy wrapper"
+run_migration || fail "the migration repairs a non-executable Agent0S wrapper"
 [[ -x $hermes ]] && grep -qxF "$marker" "$hermes" ||
-  fail "the migration restores a non-executable Omarchy wrapper"
-pass "the migration repairs a non-executable Omarchy wrapper"
+  fail "the migration restores a non-executable Agent0S wrapper"
+pass "the migration repairs a non-executable Agent0S wrapper"
 
 rm -f "$hermes"
-touch "$test_home/.local/state/omarchy/preinstalls-removed"
+touch "$test_home/.local/state/agent0s/preinstalls-removed"
 run_migration || fail "the migration succeeds for users who removed the preinstalls"
 [[ ! -e $hermes ]] || fail "the migration respects the preinstalls opt-out"
 pass "the migration skips users who removed the preinstalls"
-rm -f "$test_home/.local/state/omarchy/preinstalls-removed"
+rm -f "$test_home/.local/state/agent0s/preinstalls-removed"
 
 run_migration 1 || fail "the migration succeeds when Hermes Desktop owns Hermes"
 [[ ! -e $hermes ]] || fail "the migration writes nothing when Hermes Desktop owns Hermes"
@@ -76,11 +76,11 @@ printf '%s\n' "#!/bin/bash" "$marker" >"$hermes"
 chmod +x "$hermes"
 : >"$mise_log"
 run_migration 1 || fail "the migration succeeds when Hermes Desktop owns Hermes and the old wrapper is present"
-[[ ! -e $hermes ]] || fail "the migration removes the Omarchy wrapper when Hermes Desktop owns Hermes"
+[[ ! -e $hermes ]] || fail "the migration removes the Agent0S wrapper when Hermes Desktop owns Hermes"
 mise_calls=$(tr '\0' ' ' <"$mise_log")
 [[ $mise_calls == *"rm -g "* ]] || fail "the migration removes the global mise Hermes for Hermes Desktop"
 [[ $mise_calls == *"uninstall --all "* ]] || fail "the migration uninstalls the mise Hermes for Hermes Desktop"
-pass "the migration clears the old Omarchy Hermes for Hermes Desktop"
+pass "the migration clears the old Agent0S Hermes for Hermes Desktop"
 
 # ...while anyone else's hermes stays exactly where it is, and is not run.
 foreign_ran="$test_tmp/foreign-ran"
@@ -126,7 +126,7 @@ run_migration || fail "the migration succeeds over a directory at the hermes pat
 pass "the migration preserves a directory at the hermes path"
 
 rmdir "$hermes"
-printf '%s\n' "#!/bin/bash" "# Replaces the stub omarchy-install-hermes-cli used to write." >"$hermes"
+printf '%s\n' "#!/bin/bash" "# Replaces the stub agent0s-install-hermes-cli used to write." >"$hermes"
 chmod +x "$hermes"
 run_migration || fail "the migration succeeds over a wrapper that mentions the installer"
 grep -qxF "$marker" "$hermes" && fail "the migration does not rewrite a wrapper that merely mentions the installer"

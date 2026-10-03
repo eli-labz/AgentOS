@@ -58,8 +58,8 @@ local function command_from(value, description)
     return value
   end
 
-  if value.omarchy then
-    return "omarchy-launch-" .. value.omarchy
+  if value.agent0s then
+    return "agent0s-launch-" .. value.agent0s
   elseif value.focus and value.launch then
     return o.launch_sole(value.focus, value.launch)
   elseif value.launch then
@@ -72,9 +72,9 @@ local function command_from(value, description)
     end
   elseif value.tui then
     if value.focus then
-      return "omarchy-launch-or-focus-tui " .. shell_quote(value.tui)
+      return "agent0s-launch-or-focus-tui " .. shell_quote(value.tui)
     else
-      return "omarchy-launch-tui " .. shell_quote(value.tui)
+      return "agent0s-launch-tui " .. shell_quote(value.tui)
     end
   end
 
@@ -82,11 +82,11 @@ local function command_from(value, description)
 end
 
 function o.preinstalled_bindings_enabled()
-  if _G.omarchy_preinstalled_bindings ~= nil then
-    return _G.omarchy_preinstalled_bindings == true
+  if _G.agent0s_preinstalled_bindings ~= nil then
+    return _G.agent0s_preinstalled_bindings == true
   end
 
-  return not file_exists((os.getenv("HOME") or "") .. "/.local/state/omarchy/preinstalls-removed")
+  return not file_exists((os.getenv("HOME") or "") .. "/.local/state/agent0s/preinstalls-removed")
 end
 
 function o.bind(keys, description, dispatcher, options)
@@ -125,23 +125,23 @@ function o.launch_on_start(command)
 end
 
 function o.launch_webapp(url)
-  return "omarchy-launch-webapp " .. shell_quote(url)
+  return "agent0s-launch-webapp " .. shell_quote(url)
 end
 
 function o.launch_webapp_sole(name, url)
-  return "omarchy-launch-or-focus-webapp " .. shell_quote(name) .. " " .. shell_quote(url)
+  return "agent0s-launch-or-focus-webapp " .. shell_quote(name) .. " " .. shell_quote(url)
 end
 
 function o.launch_sole(match, command)
-  return "omarchy-launch-or-focus " .. shell_quote(match) .. " " .. shell_quote(o.launch(command))
+  return "agent0s-launch-or-focus " .. shell_quote(match) .. " " .. shell_quote(o.launch(command))
 end
 
 function o.bind_toggle(keys, description, toggle, options)
-  o.bind(keys, description, "omarchy-toggle-" .. toggle, options)
+  o.bind(keys, description, "agent0s-toggle-" .. toggle, options)
 end
 
 function o.notify(message)
-  return "omarchy-notification-send -u low " .. shell_quote(message)
+  return "agent0s-notification-send -u low " .. shell_quote(message)
 end
 
 function o.window(match, rules)

@@ -17,7 +17,7 @@
 # past the kernel's own allowlist on every touchpad merely named "synaptics" in
 # /proc/bus/input/devices -- a wider change than this one, and not one to make
 # blind.
-if grep -qi synaptics "${OMARCHY_SYNAPTIC_INPUT_DEVICES:-/proc/bus/input/devices}" \
+if grep -qi synaptics "${AGENT0S_SYNAPTIC_INPUT_DEVICES:-/proc/bus/input/devices}" \
    && ! lsmod | grep -q '^psmouse' \
    && modprobe -qn psmouse; then
   modprobe psmouse synaptics_intertouch=1 ||

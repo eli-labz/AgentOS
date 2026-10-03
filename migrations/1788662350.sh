@@ -2,11 +2,11 @@ echo "Repair user-owned system-sleep hooks and hybrid GPU service configuration"
 
 system_sleep_dir=/usr/lib/systemd/system-sleep
 supergfxd_drop_in=/etc/systemd/system/supergfxd.service.d/delay-start.conf
-quarantine_root=/var/lib/omarchy/migrations/1788662350-system-sleep
-reload_needed_marker=/var/lib/omarchy/migrations/1788662350-systemd-reload-needed
-keyboard_source="$OMARCHY_PATH/default/systemd/system-sleep/keyboard-backlight"
-force_igpu_source="$OMARCHY_PATH/default/systemd/system-sleep/force-igpu"
-supergfxd_source="$OMARCHY_PATH/default/systemd/system/supergfxd.service.d/delay-start.conf"
+quarantine_root=/var/lib/agent0s/migrations/1788662350-system-sleep
+reload_needed_marker=/var/lib/agent0s/migrations/1788662350-systemd-reload-needed
+keyboard_source="$AGENT0S_PATH/default/systemd/system-sleep/keyboard-backlight"
+force_igpu_source="$AGENT0S_PATH/default/systemd/system-sleep/force-igpu"
+supergfxd_source="$AGENT0S_PATH/default/systemd/system/supergfxd.service.d/delay-start.conf"
 legacy_keyboard_sha256=f313a81e47401f0d38b8602e5997f52c5286d5e97f74027564ddd515b3d16511
 legacy_force_igpu_sha256=d604e7c4903829563e45fc52188fc5602c3f1bc66e247f0a2cc0a974ed6e57db
 
@@ -179,7 +179,7 @@ safe_stage_path() {
   local destination="$2"
   local prefix suffix
 
-  prefix="${destination%/*}/.${destination##*/}.omarchy."
+  prefix="${destination%/*}/.${destination##*/}.agent0s."
   [[ $stage == "$prefix"* ]] || return 1
   suffix=${stage#"$prefix"}
   [[ $suffix =~ ^[[:alnum:]]{6}$ ]]
@@ -191,7 +191,7 @@ install_root_file() {
   local mode="$3"
   local stage
 
-  stage=$(as_root /usr/bin/mktemp -- "${destination%/*}/.${destination##*/}.omarchy.XXXXXX") || return 1
+  stage=$(as_root /usr/bin/mktemp -- "${destination%/*}/.${destination##*/}.agent0s.XXXXXX") || return 1
   safe_stage_path "$stage" "$destination" || return 1
 
   if as_root /usr/bin/install -m "$mode" -o root -g root -T "$source" "$stage" &&

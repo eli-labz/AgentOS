@@ -1,5 +1,5 @@
-cat >/etc/omarchy/agent.conf <<EOF
+cat >/etc/agent0s/agent.conf <<EOF
 enabled=true
   EOF
-helper=$HOME/.local/share/omarchy/bin/omarchy-agent
+helper=$HOME/.local/share/agent0s/bin/agent0s-agent
 EOF

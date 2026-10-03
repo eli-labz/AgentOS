@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# agent0s:summary=Launch a TUI or focus an existing terminal window for it
+# agent0s:args=[--app-id=<app-id>] <command> [args...]
+
+if [[ ${1:-} == --app-id=* ]]; then
+  APP_ID="${1#--app-id=}"
+else
+  APP_ID="org.agent0s.$(basename "$1")"
+fi
+
+LAUNCH_COMMAND="agent0s-launch-tui $@"
+
+exec agent0s-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"

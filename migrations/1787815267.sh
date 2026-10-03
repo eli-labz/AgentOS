@@ -1,12 +1,12 @@
 echo "Separate printer discovery from root and print-filter access"
 
-machine_marker="${OMARCHY_CUPS_MIGRATION_MARKER:-/var/lib/omarchy/migrations/1787815267}"
+machine_marker="${AGENT0S_CUPS_MIGRATION_MARKER:-/var/lib/agent0s/migrations/1787815267}"
 
 [[ ! -e $machine_marker ]] || exit 0
 
 # Existing releases allowed a desktop user or shared group named cups-browsed,
 # which systemd-sysusers would silently reuse for passwordless CUPS access.
-if omarchy-pkg-present cups; then
+if agent0s-pkg-present cups; then
   cups_browsed_account=$(getent passwd cups-browsed || true)
   cups_browsed_group=$(getent group cups-browsed || true)
 
@@ -28,12 +28,12 @@ fi
 
 # CUPS-PDF accepts a job-controlled post-processing command in a backend that
 # CUPS launches as root. Native application print-to-file support replaces it.
-omarchy-pkg-drop cups-pdf
+agent0s-pkg-drop cups-pdf
 
 # system-config-printer uses this helper to request printer administration
 # through Polkit now that the desktop user's wheel group is no longer @SYSTEM.
-if omarchy-pkg-present cups; then
-  omarchy-pkg-add cups-pk-helper
+if agent0s-pkg-present cups; then
+  agent0s-pkg-add cups-pk-helper
 fi
 
 # Stop the root-running daemon before changing the authorization it relies on.
@@ -41,7 +41,7 @@ if systemctl is-active --quiet cups-browsed.service 2>/dev/null; then
   sudo systemctl stop cups-browsed.service
 fi
 
-if omarchy-pkg-present cups; then
+if agent0s-pkg-present cups; then
   sudo systemctl daemon-reload
   sudo systemctl try-reload-or-restart cups.service
 fi

@@ -12,17 +12,17 @@ call_log="$test_tmp/calls"
 runtime_dir="$test_tmp/runtime"
 mkdir -p "$mock_bin" "$runtime_dir"
 
-cat >"$mock_bin/omarchy-hyprland-monitor-focused-apple" <<'SH'
+cat >"$mock_bin/agent0s-hyprland-monitor-focused-apple" <<'SH'
 #!/bin/bash
 exit 1
 SH
 
-cat >"$mock_bin/omarchy-hyprland-monitor-focused" <<'SH'
+cat >"$mock_bin/agent0s-hyprland-monitor-focused" <<'SH'
 #!/bin/bash
 printf '%s\n' "${FOCUSED_MONITOR:-eDP-1}"
 SH
 
-cat >"$mock_bin/omarchy-hw-display" <<'SH'
+cat >"$mock_bin/agent0s-hw-display" <<'SH'
 #!/bin/bash
 printf 'mock_backlight\n'
 SH
@@ -55,7 +55,7 @@ chmod +x "$mock_bin"/*
 
 run_brightness() {
   CALL_LOG="$call_log" XDG_RUNTIME_DIR="$runtime_dir" PATH="$mock_bin:$ROOT/bin:$PATH" \
-    "$ROOT/bin/omarchy-brightness-display" "$@"
+    "$ROOT/bin/agent0s-brightness-display" "$@"
 }
 
 brightness=$(run_brightness --monitor DP-1)
@@ -101,7 +101,7 @@ fi
   fail "unsupported external monitor detection is temporarily cached"
 pass "unsupported external monitor has no brightness backend"
 
-rm -f "$runtime_dir/omarchy-brightness-display-ddc/DP-1.bus"
+rm -f "$runtime_dir/agent0s-brightness-display-ddc/DP-1.bus"
 detect_count=$(grep -c ' detect --brief' "$call_log")
 if DDC_READ_FAIL=1 run_brightness --monitor DP-1 >/dev/null 2>&1; then
   fail "transient DDC read failure is reported"
@@ -114,7 +114,7 @@ brightness=$(run_brightness --monitor DP-1)
   fail "transient DDC read failure does not create a negative cache entry"
 pass "transient DDC read failure is retried on the next invocation"
 
-printf '7 80 0\n' >"$runtime_dir/omarchy-brightness-display-ddc/DP-1.bus"
+printf '7 80 0\n' >"$runtime_dir/agent0s-brightness-display-ddc/DP-1.bus"
 get_count=$(grep -c ' getvcp 10 ' "$call_log")
 DDC_MAXIMUM=100 run_brightness --no-osd --monitor DP-1 50%
 (( $(grep -c ' getvcp 10 ' "$call_log") == get_count + 1 )) || \
@@ -123,7 +123,7 @@ grep -F 'ddcutil --bus 7 --skip-ddc-checks --noverify setvcp 10 50' "$call_log" 
   fail "expired external brightness range uses the refreshed maximum"
 pass "expired external brightness range is refreshed"
 
-rm -f "$runtime_dir/omarchy-brightness-display-ddc/DP-1.bus"
+rm -f "$runtime_dir/agent0s-brightness-display-ddc/DP-1.bus"
 DDC_CURRENT=4 DDC_MAXIMUM=100 run_brightness --no-osd --monitor DP-1 +5%
 grep -F 'ddcutil --bus 7 --skip-ddc-checks --noverify setvcp 10 5' "$call_log" >/dev/null || \
   fail "external low brightness writes the one-percent target"
@@ -138,9 +138,9 @@ printf '%s\n' '[
 SH
 chmod +x "$mock_bin/hyprctl"
 
-PATH="$mock_bin:$PATH" "$ROOT/bin/omarchy-hyprland-monitor-focused-apple" DP-2 || \
+PATH="$mock_bin:$PATH" "$ROOT/bin/agent0s-hyprland-monitor-focused-apple" DP-2 || \
   fail "named Apple display is detected independently of focus"
-if PATH="$mock_bin:$PATH" "$ROOT/bin/omarchy-hyprland-monitor-focused-apple"; then
+if PATH="$mock_bin:$PATH" "$ROOT/bin/agent0s-hyprland-monitor-focused-apple"; then
   fail "focused non-Apple display is not detected as Apple"
 fi
 pass "named Apple display is detected independently of focus"

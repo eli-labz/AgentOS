@@ -15,7 +15,7 @@ assert(
 )
 
 assert(
-  /id: strandedLockCheckProc[\s\S]*omarchy-hyprland-session-locked/.test(serviceQml),
+  /id: strandedLockCheckProc[\s\S]*agent0s-hyprland-session-locked/.test(serviceQml),
   'the startup check goes through the shared session lock helper'
 )
 
@@ -30,7 +30,7 @@ assert(
   'only a compositor that reports a lock counts as a stranded lock'
 )
 
-// omarchy-restart-shell re-locks a fresh shell, possibly mid-question.
+// agent0s-restart-shell re-locks a fresh shell, possibly mid-question.
 assert(
   /root\.strandedLock = exitCode === 0 && !root\.locked && !root\.lockRequested/.test(serviceQml),
   'a lock this shell took while the check was in flight is not stranded'

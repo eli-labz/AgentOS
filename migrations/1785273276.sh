@@ -11,8 +11,8 @@ echo "Rename the T2 Mac BCE module (apple-bce → t2bce) and repair the boot ima
 # t2bce_vhci must take over on whichever future upgrade delivers the rename.
 # t2bce_core/t2bce_dma come in via module dependencies.
 
-conf="${OMARCHY_T2_MKINITCPIO_CONF:-/etc/mkinitcpio.conf.d/apple-t2.conf}"
-modules_conf="${OMARCHY_T2_MODULES_CONF:-/etc/modules-load.d/t2.conf}"
+conf="${AGENT0S_T2_MKINITCPIO_CONF:-/etc/mkinitcpio.conf.d/apple-t2.conf}"
+modules_conf="${AGENT0S_T2_MODULES_CONF:-/etc/modules-load.d/t2.conf}"
 
 if [[ -f $conf ]] && grep -q 'apple-bce ' "$conf"; then
   sudo sed -i 's/apple-bce /apple-bce? t2bce_vhci? /' "$conf"

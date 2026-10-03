@@ -6,4 +6,4 @@ echo "Add the keyboard layout widget to the bar"
 # never sees it. A bar that already carries the widget keeps it where the user
 # put it.
 
-omarchy-bar put omarchy.keyboard-layout --after omarchy.clock
+agent0s-bar put agent0s.keyboard-layout --after agent0s.clock

@@ -5,10 +5,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/base-test.sh"
 require_command lua
 
 resolved_input() {
-  OMARCHY_PATH="$ROOT" OMARCHY_VCONSOLE="${1-}" lua <<'LUA'
-package.path = os.getenv("OMARCHY_PATH") .. "/?.lua;" .. package.path
+  AGENT0S_PATH="$ROOT" AGENT0S_VCONSOLE="${1-}" lua <<'LUA'
+package.path = os.getenv("AGENT0S_PATH") .. "/?.lua;" .. package.path
 
-local vconsole = os.getenv("OMARCHY_VCONSOLE")
+local vconsole = os.getenv("AGENT0S_VCONSOLE")
 local real_open = io.open
 
 io.open = function(path, mode)
@@ -73,13 +73,13 @@ XKBVARIANT=phonetic
 assert_input "non-latin layout in front gains us even when us trails" "[us,il,us] [,] [$toggle_options]" 'XKBLAYOUT=il,us
 '
 
-hooks_conf="$ROOT/etc/mkinitcpio.conf.d/omarchy_hooks.conf"
+hooks_conf="$ROOT/etc/mkinitcpio.conf.d/agent0s_hooks.conf"
 input_lua="$ROOT/default/hypr/input.lua"
 
 hooks_layouts=$(awk -F')' '/\) ;;$/ { gsub(/[[:space:]|]+/, "\n", $1); print $1 }' "$hooks_conf" | grep '^[a-z]\+$' | sort)
 lua_layouts=$(sed -n '/^local non_latin_layouts =/,+1p' "$input_lua" | grep -o '"[^"]*"' | tr -d '"' | tr ' ' '\n' | grep '^[a-z]\+$' | sort)
 
-[[ -n $hooks_layouts ]] || fail "non-latin layout list is readable from omarchy_hooks.conf"
+[[ -n $hooks_layouts ]] || fail "non-latin layout list is readable from agent0s_hooks.conf"
 [[ $hooks_layouts == "$lua_layouts" ]] ||
   fail "non-latin layout lists stay in sync" "$(diff <(echo "$hooks_layouts") <(echo "$lua_layouts"))"
 pass "non-latin layout lists stay in sync with the initramfs hook"

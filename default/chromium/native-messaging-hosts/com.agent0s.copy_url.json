@@ -1,0 +1,9 @@
+{
+  "name": "com.agent0s.copy_url",
+  "description": "Agent0S Copy URL clipboard host",
+  "path": "__HOST_PATH__",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://bgpiichlckmfanooecilcjemknkcpngb/"
+  ]
+}

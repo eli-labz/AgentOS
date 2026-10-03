@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.tailscale",
+  "id": "agent0s.tailscale",
   "name": "Tailscale",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Agent0S",
   "license": "MIT",
-  "description": "Tailscale status, connection switching, machine browsing, and quick copy actions in the Omarchy bar.",
+  "description": "Tailscale status, connection switching, machine browsing, and quick copy actions in the Agent0S bar.",
   "kinds": [
     "bar-widget"
   ],

@@ -76,7 +76,7 @@ SH
 chmod +x "$TMPDIR/bin/wl-copy" "$TMPDIR/bin/wtype" "$TMPDIR/bin/sleep"
 
 WL_COPY_OUT="$TMPDIR/copy" WL_COPY_EMOJI_OUT="$TMPDIR/emoji" WTYPE_OUT="$TMPDIR/wtype" PATH="$TMPDIR/bin:$PATH" \
-  "$ROOT/bin/omarchy-menu-emoji-insert" "😀"
+  "$ROOT/bin/agent0s-menu-emoji-insert" "😀"
 
 [[ $(<"$TMPDIR/emoji") == "😀" ]] || fail "emoji insert helper copies emoji transiently"
 pass "emoji insert helper copies emoji transiently"

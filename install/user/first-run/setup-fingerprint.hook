@@ -4,9 +4,9 @@ set -e
 
 # Only invite when there's a reader to use and it isn't set up yet (the lock
 # PAM file is the last thing the setup writes on success).
-if omarchy-hw-fingerprint && [[ ! -f /etc/pam.d/omarchy-lock-fingerprint ]] &&
-  omarchy-done ensure fingerprint-setup-invitation; then
-  omarchy-notification-send -u critical -g 󰈷 "Setup Fingerprint Reader" \
+if agent0s-hw-fingerprint && [[ ! -f /etc/pam.d/agent0s-lock-fingerprint ]] &&
+  agent0s-done ensure fingerprint-setup-invitation; then
+  agent0s-notification-send -u critical -g 󰈷 "Setup Fingerprint Reader" \
     "Enable sudo and unlocking with your fingerprint." \
-    --exec omarchy-launch-floating-terminal-with-presentation omarchy-setup-security-fingerprint
+    --exec agent0s-launch-floating-terminal-with-presentation agent0s-setup-security-fingerprint
 fi

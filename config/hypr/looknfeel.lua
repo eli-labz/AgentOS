@@ -1,4 +1,4 @@
--- Change the default Omarchy look'n'feel.
+-- Change the default Agent0S look'n'feel.
 
 -- https://wiki.hypr.land/Configuring/Basics/Variables/#general
 -- hl.config({

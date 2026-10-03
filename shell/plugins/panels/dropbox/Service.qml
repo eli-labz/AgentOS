@@ -8,7 +8,7 @@ Item {
   id: root
 
   property var settings: ({})
-  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
+  property string agent0sPath: Quickshell.env("AGENT0S_PATH")
 
   property bool installed: false
   property bool running: false
@@ -33,7 +33,7 @@ Item {
 
   readonly property int refreshIntervalSec: intSetting("refreshIntervalSec", 60, 10, 3600)
   readonly property bool busy: statusProcess.running || loginProcess.running || controlProcess.running
-  readonly property string helperPath: (omarchyPath || "") + "/shell/plugins/panels/dropbox/status.py"
+  readonly property string helperPath: (agent0sPath || "") + "/shell/plugins/panels/dropbox/status.py"
 
   property string _statusOutput: ""
   property string _statusError: ""

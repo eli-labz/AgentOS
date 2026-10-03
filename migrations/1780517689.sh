@@ -1,6 +1,6 @@
 echo "Add yt-dlp download extension (Alt+Shift+D) to Chromium-based browsers"
 
-YTDLP_EXT="$OMARCHY_PATH/default/chromium/extensions/yt-dlp"
+YTDLP_EXT="$AGENT0S_PATH/default/chromium/extensions/yt-dlp"
 
 add_ytdlp_extension() {
   local file=$1
@@ -19,7 +19,7 @@ for conf in chromium chrome google-chrome brave brave-beta brave-nightly brave-o
   add_ytdlp_extension "$HOME/.config/$conf-flags.conf"
 done
 
-omarchy-pkg-add yt-dlp
+agent0s-pkg-add yt-dlp
 
 # Register the native messaging host that runs yt-dlp for the extension.
-omarchy-install-chromium-ytdlp || true
+agent0s-install-chromium-ytdlp || true

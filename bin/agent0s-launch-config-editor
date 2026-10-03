@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# agent0s:summary=Open a config file in the user's editor and surface a toast
+# agent0s:args=<path>
+# agent0s:examples=agent0s launch config-editor ~/.config/hypr/hyprland.lua
+
+path="${1-}"
+
+if [[ -z $path ]]; then
+  echo "Usage: agent0s-launch-config-editor <path>" >&2
+  exit 1
+fi
+
+agent0s-notification-send -u low "Editing config file" "$path"
+exec agent0s-launch-editor "$path"

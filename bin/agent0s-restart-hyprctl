@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Reload hyprland configuration (used by the Agent0S theme switching).
+
+hyprctl reload >/dev/null

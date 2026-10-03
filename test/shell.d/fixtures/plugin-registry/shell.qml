@@ -5,7 +5,7 @@ import "services"
 ShellRoot {
   id: root
 
-  readonly property string resultPath: Quickshell.env("OMARCHY_QML_TEST_RESULT")
+  readonly property string resultPath: Quickshell.env("AGENT0S_QML_TEST_RESULT")
   property var failures: []
   property int changeCount: 0
   property var config: ({
@@ -79,41 +79,41 @@ ShellRoot {
 
   function runChecks() {
     var scan = ""
-    scan += block("firstparty", "/first/widgets/clock", manifest("omarchy.first-widget", ["bar-widget"], { barWidget: "Widget.qml" }))
-    scan += block("firstparty", "/first/bar", manifest("omarchy.bar", ["bar"], { bar: "Bar.qml" }))
-    scan += block("firstparty", "/first/panels/grouped", manifest("omarchy.grouped-panel", ["panel"], { panel: "Panel.qml" }))
-    scan += block("firstparty", "/first/hybrid", manifest("omarchy.hybrid", ["menu", "bar-widget"], { menu: "Menu.qml", barWidget: "Widget.qml" }))
-    var futureAuth = manifest("omarchy.future-auth", ["service"], { service: "Service.qml" })
-    futureAuth.omarchy = { capabilities: ["authentication"] }
+    scan += block("firstparty", "/first/widgets/clock", manifest("agent0s.first-widget", ["bar-widget"], { barWidget: "Widget.qml" }))
+    scan += block("firstparty", "/first/bar", manifest("agent0s.bar", ["bar"], { bar: "Bar.qml" }))
+    scan += block("firstparty", "/first/panels/grouped", manifest("agent0s.grouped-panel", ["panel"], { panel: "Panel.qml" }))
+    scan += block("firstparty", "/first/hybrid", manifest("agent0s.hybrid", ["menu", "bar-widget"], { menu: "Menu.qml", barWidget: "Widget.qml" }))
+    var futureAuth = manifest("agent0s.future-auth", ["service"], { service: "Service.qml" })
+    futureAuth.agent0s = { capabilities: ["authentication"] }
     scan += block("firstparty", "/first/future-auth", futureAuth)
     scan += block("thirdparty", "/third/panel", manifest("third.panel", ["panel"], { panel: "Panel.qml" }))
     scan += block("thirdparty", "/third/widget", manifest("third.widget", ["bar-widget"], { barWidget: "Widget.qml" }, { defaultSection: "left" }))
     scan += block("thirdparty", "/third/center-widget", manifest("third.center-widget", ["bar-widget"], { barWidget: "Widget.qml" }))
     scan += block("thirdparty", "/third/right-widget", manifest("third.right-widget", ["bar-widget"], { barWidget: "Widget.qml" }, { defaultSection: "right" }))
     var localWidget = manifest("local.first-widget", ["bar-widget"], { barWidget: "Widget.qml" })
-    localWidget.omarchy = { clonedFrom: "omarchy.first-widget" }
+    localWidget.agent0s = { clonedFrom: "agent0s.first-widget" }
     scan += block("thirdparty", "/third/local-widget", localWidget)
     var localWeather = manifest("local.weather", ["bar-widget"], { barWidget: "Widget.qml" })
-    localWeather.omarchy = { clonedFrom: "omarchy.weather" }
+    localWeather.agent0s = { clonedFrom: "agent0s.weather" }
     scan += block("thirdparty", "/third/local-weather", localWeather)
     var localHybrid = manifest("local.hybrid", ["menu", "bar-widget"], { menu: "Menu.qml", barWidget: "Widget.qml" })
-    localHybrid.omarchy = { clonedFrom: "omarchy.hybrid" }
+    localHybrid.agent0s = { clonedFrom: "agent0s.hybrid" }
     scan += block("thirdparty", "/third/local-hybrid", localHybrid)
     var localPanel = manifest("local.grouped-panel", ["panel"], { panel: "Panel.qml" })
-    localPanel.omarchy = { clonedFrom: "omarchy.grouped-panel" }
+    localPanel.agent0s = { clonedFrom: "agent0s.grouped-panel" }
     scan += block("thirdparty", "/third/local-panel", localPanel)
     var localBar = manifest("local.bar", ["bar"], { bar: "Bar.qml" })
-    localBar.omarchy = { clonedFrom: "omarchy.bar" }
+    localBar.agent0s = { clonedFrom: "agent0s.bar" }
     scan += block("thirdparty", "/third/local-bar", localBar)
     scan += block("thirdparty", "/third/bar", manifest("third.bar", ["bar"], { bar: "Bar.qml" }))
     var localFutureAuth = manifest("local.future-auth", ["service"], { service: "Service.qml" })
-    localFutureAuth.omarchy = { clonedFrom: "omarchy.future-auth" }
+    localFutureAuth.agent0s = { clonedFrom: "agent0s.future-auth" }
     scan += block("thirdparty", "/third/local-future-auth", localFutureAuth)
     var spoofedAuth = manifest("third.spoofed-auth", ["service"], { service: "Service.qml" })
-    spoofedAuth.omarchy = { capabilities: ["authentication"] }
+    spoofedAuth.agent0s = { capabilities: ["authentication"] }
     scan += block("thirdparty", "/third/spoofed-auth", spoofedAuth)
-    scan += block("thirdparty", "/third/shadow", manifest("omarchy.first-widget", ["panel"], { panel: "Panel.qml" }))
-    scan += block("thirdparty", "/third/reserved", manifest("omarchy.reserved", ["panel"], { panel: "Panel.qml" }))
+    scan += block("thirdparty", "/third/shadow", manifest("agent0s.first-widget", ["panel"], { panel: "Panel.qml" }))
+    scan += block("thirdparty", "/third/reserved", manifest("agent0s.reserved", ["panel"], { panel: "Panel.qml" }))
     scan += block("thirdparty", "/third/unsafe", manifest("third.unsafe", ["panel"], { panel: "../Panel.qml" }))
     scan += block("thirdparty", "/third/missing", { schemaVersion: 1, id: "third.missing", name: "missing", version: "1.0.0", kinds: ["panel"] })
     scan += block("thirdparty", "/third/bad-section", manifest("third.bad-section", ["bar-widget"], { barWidget: "Widget.qml" }, { defaultSection: "bottom" }))
@@ -129,11 +129,11 @@ ShellRoot {
       "local.grouped-panel",
       "local.hybrid",
       "local.weather",
-      "omarchy.bar",
-      "omarchy.first-widget",
-      "omarchy.future-auth",
-      "omarchy.grouped-panel",
-      "omarchy.hybrid",
+      "agent0s.bar",
+      "agent0s.first-widget",
+      "agent0s.future-auth",
+      "agent0s.grouped-panel",
+      "agent0s.hybrid",
       "third.bar",
       "third.center-widget",
       "third.panel",
@@ -142,34 +142,34 @@ ShellRoot {
       "third.widget"
     ], "registry merges valid first-party and third-party manifests")
 
-    root.assertTrue(registry.installedPlugins["omarchy.first-widget"].__isFirstParty === true, "first-party manifests are stamped")
+    root.assertTrue(registry.installedPlugins["agent0s.first-widget"].__isFirstParty === true, "first-party manifests are stamped")
     root.assertTrue(registry.installedPlugins["third.panel"].__isFirstParty === false, "third-party manifests are stamped")
-    root.assertDeepEqual(registry.installedPlugins["omarchy.future-auth"].__hostCapabilities, ["authentication"], "trusted manifests stamp authentication capability")
+    root.assertDeepEqual(registry.installedPlugins["agent0s.future-auth"].__hostCapabilities, ["authentication"], "trusted manifests stamp authentication capability")
     root.assertDeepEqual(registry.installedPlugins["local.future-auth"].__hostCapabilities, ["authentication"], "clones inherit trusted host capabilities")
     root.assertDeepEqual(registry.installedPlugins["third.spoofed-auth"].__hostCapabilities, [], "third-party manifests cannot self-grant host capabilities")
-    root.assertEqual(registry.installedPlugins["omarchy.grouped-panel"].__sourceDir, "/first/panels/grouped", "grouped plugin source paths are preserved")
+    root.assertEqual(registry.installedPlugins["agent0s.grouped-panel"].__sourceDir, "/first/panels/grouped", "grouped plugin source paths are preserved")
     root.assertEqual(registry.entryPointUrl(registry.installedPlugins["third.panel"], "panel"), "file:///third/panel/Panel.qml", "entryPointUrl resolves plugin-relative paths")
     root.assertEqual(registry.entryPointUrl(registry.installedPlugins["third.widget"], "barWidget"), "file:///third/widget/Widget.qml", "entryPointUrl resolves bar widget paths")
 
-    root.assertTrue(!has("omarchy.reserved"), "third-party omarchy namespace ids are rejected")
+    root.assertTrue(!has("agent0s.reserved"), "third-party agent0s namespace ids are rejected")
     root.assertTrue(!has("third.unsafe"), "unsafe entry points are rejected")
     root.assertTrue(!has("third.missing"), "incomplete manifests are rejected")
     root.assertTrue(!has("third.bad-section"), "invalid default bar widget sections are rejected")
     root.assertTrue(!has("third.schema"), "unsupported schema versions are rejected")
 
-    root.assertTrue(registry.isEnabled("omarchy.first-widget"), "first-party plugins are implicitly enabled")
-    root.assertTrue(registry.isEnabled("omarchy.bar"), "built-in bar option is active by default")
+    root.assertTrue(registry.isEnabled("agent0s.first-widget"), "first-party plugins are implicitly enabled")
+    root.assertTrue(registry.isEnabled("agent0s.bar"), "built-in bar option is active by default")
     root.assertTrue(!registry.isEnabled("third.bar"), "third-party bar options start inactive")
     root.assertTrue(!registry.isEnabled("third.panel"), "third-party plugins start disabled")
-    root.assertEqual(registry.resolveEnabledId("omarchy.first-widget"), "omarchy.first-widget", "inactive clones do not replace their source id")
+    root.assertEqual(registry.resolveEnabledId("agent0s.first-widget"), "agent0s.first-widget", "inactive clones do not replace their source id")
 
     registry.setEnabled("third.bar", true)
     root.assertEqual(root.config.bar.id, "third.bar", "enabling third-party bar options writes bar id")
     root.assertTrue(registry.isEnabled("third.bar"), "selected third-party bar options are enabled")
-    root.assertTrue(!registry.isEnabled("omarchy.bar"), "selecting third-party bar options deactivates built-in bar")
+    root.assertTrue(!registry.isEnabled("agent0s.bar"), "selecting third-party bar options deactivates built-in bar")
     registry.setEnabled("third.bar", false)
     root.assertTrue(root.config.bar.id === undefined, "disabling active bar options resets to built-in")
-    root.assertTrue(registry.isEnabled("omarchy.bar"), "built-in bar option returns after reset")
+    root.assertTrue(registry.isEnabled("agent0s.bar"), "built-in bar option returns after reset")
 
     registry.setEnabled("third.panel", true)
     root.assertDeepEqual(root.config.plugins, [{ id: "third.panel" }], "enabling third-party panels writes plugins array")
@@ -187,9 +187,9 @@ ShellRoot {
       version: 1,
       bar: {
         layout: {
-          left: [{ id: "omarchy.workspaces" }, { id: "omarchy.menu" }],
-          center: [{ id: "omarchy.weather" }, { id: "omarchy.clock" }],
-          right: [{ id: "omarchy.tray" }]
+          left: [{ id: "agent0s.workspaces" }, { id: "agent0s.menu" }],
+          center: [{ id: "agent0s.weather" }, { id: "agent0s.clock" }],
+          right: [{ id: "agent0s.tray" }]
         }
       },
       plugins: []
@@ -197,19 +197,19 @@ ShellRoot {
     registry.setEnabled("third.widget", true)
     root.assertDeepEqual(
       root.config.bar.layout.left,
-      [{ id: "omarchy.workspaces" }, { id: "third.widget" }, { id: "omarchy.menu" }],
+      [{ id: "agent0s.workspaces" }, { id: "third.widget" }, { id: "agent0s.menu" }],
       "enabling a widget inserts it after its section anchor"
     )
     registry.setEnabled("third.center-widget", true)
     root.assertDeepEqual(
       root.config.bar.layout.center,
-      [{ id: "omarchy.weather" }, { id: "third.center-widget" }, { id: "omarchy.clock" }],
+      [{ id: "agent0s.weather" }, { id: "third.center-widget" }, { id: "agent0s.clock" }],
       "widgets without a default section use the center anchor"
     )
     registry.setEnabled("third.right-widget", true)
     root.assertDeepEqual(
       root.config.bar.layout.right,
-      [{ id: "omarchy.tray" }, { id: "third.right-widget" }],
+      [{ id: "agent0s.tray" }, { id: "third.right-widget" }],
       "right widgets use the right anchor"
     )
 
@@ -234,61 +234,61 @@ ShellRoot {
     // A bar the placement's neighbour is not on still gets the widget.
     root.config = {
       version: 1,
-      bar: { layout: { left: [], center: [{ id: "omarchy.weather" }], right: [] } },
+      bar: { layout: { left: [], center: [{ id: "agent0s.weather" }], right: [] } },
       plugins: []
     }
     root.assertTrue(
-      !registry.setEnabled("third.center-widget", true, { after: "omarchy.first-widget" }),
+      !registry.setEnabled("third.center-widget", true, { after: "agent0s.first-widget" }),
       "enabling against a widget the bar does not carry is refused"
     )
     root.assertEqual(
       registry.lastEnableError,
-      "could not find target widget omarchy.first-widget",
+      "could not find target widget agent0s.first-widget",
       "a refused enable names the target it could not find"
     )
-    root.assertDeepEqual(root.config.bar.layout.center, [{ id: "omarchy.weather" }], "a refused enable places nothing")
+    root.assertDeepEqual(root.config.bar.layout.center, [{ id: "agent0s.weather" }], "a refused enable places nothing")
     root.assertEqual(
-      registry.putBarWidget("third.center-widget", { after: "omarchy.first-widget" }),
+      registry.putBarWidget("third.center-widget", { after: "agent0s.first-widget" }),
       "",
       "put accepts a placement target the bar does not carry"
     )
     root.assertDeepEqual(
       root.config.bar.layout.center,
-      [{ id: "omarchy.weather" }, { id: "third.center-widget" }],
+      [{ id: "agent0s.weather" }, { id: "third.center-widget" }],
       "put falls back to the section anchor when its target is missing"
     )
 
     // The anchor sits after the clone, so a fallback would land elsewhere.
     root.config = {
       version: 1,
-      bar: { layout: { left: [], center: [{ id: "local.first-widget" }, { id: "omarchy.weather" }], right: [] } },
+      bar: { layout: { left: [], center: [{ id: "local.first-widget" }, { id: "agent0s.weather" }], right: [] } },
       plugins: []
     }
     root.assertEqual(
-      registry.putBarWidget("third.center-widget", { after: "omarchy.first-widget" }),
+      registry.putBarWidget("third.center-widget", { after: "agent0s.first-widget" }),
       "",
       "put places against a target that has been cloned"
     )
     root.assertDeepEqual(
       root.config.bar.layout.center,
-      [{ id: "local.first-widget" }, { id: "third.center-widget" }, { id: "omarchy.weather" }],
+      [{ id: "local.first-widget" }, { id: "third.center-widget" }, { id: "agent0s.weather" }],
       "a clone stands in for the widget it was cloned from as a placement target"
     )
 
     // The anchor a fallback lands against is as clonable as the target.
     root.config = {
       version: 1,
-      bar: { layout: { left: [], center: [{ id: "local.weather" }, { id: "omarchy.clock" }], right: [] } },
+      bar: { layout: { left: [], center: [{ id: "local.weather" }, { id: "agent0s.clock" }], right: [] } },
       plugins: []
     }
     root.assertEqual(
-      registry.putBarWidget("third.center-widget", { after: "omarchy.first-widget" }),
+      registry.putBarWidget("third.center-widget", { after: "agent0s.first-widget" }),
       "",
       "put falls back past a cloned anchor"
     )
     root.assertDeepEqual(
       root.config.bar.layout.center,
-      [{ id: "local.weather" }, { id: "third.center-widget" }, { id: "omarchy.clock" }],
+      [{ id: "local.weather" }, { id: "third.center-widget" }, { id: "agent0s.clock" }],
       "a cloned anchor still anchors the section it was cloned into"
     )
 
@@ -311,7 +311,7 @@ ShellRoot {
       bar: { layout: { left: [], center: [{ id: "local.first-widget", size: 5 }], right: [] } },
       plugins: []
     }
-    root.assertEqual(registry.putBarWidget("omarchy.first-widget", {}), "", "put accepts a widget whose clone is on the bar")
+    root.assertEqual(registry.putBarWidget("agent0s.first-widget", {}), "", "put accepts a widget whose clone is on the bar")
     root.assertDeepEqual(
       root.config.bar.layout.center,
       [{ id: "local.first-widget", size: 5 }],
@@ -328,7 +328,7 @@ ShellRoot {
 
     root.config = {
       version: 1,
-      bar: { layout: { left: [], center: [{ id: "omarchy.first-widget", size: 4 }], right: [] } },
+      bar: { layout: { left: [], center: [{ id: "agent0s.first-widget", size: 4 }], right: [] } },
       plugins: []
     }
     registry.setEnabled("local.first-widget", true)
@@ -337,47 +337,47 @@ ShellRoot {
       [{ id: "local.first-widget", size: 4 }],
       "enabling a widget clone replaces its source in place"
     )
-    root.assertEqual(registry.resolveEnabledId("omarchy.first-widget"), "local.first-widget", "enabled clones receive calls made to their source id")
-    registry.setEnabled("omarchy.first-widget", true)
+    root.assertEqual(registry.resolveEnabledId("agent0s.first-widget"), "local.first-widget", "enabled clones receive calls made to their source id")
+    registry.setEnabled("agent0s.first-widget", true)
     root.assertDeepEqual(
       root.config.bar.layout.center,
-      [{ id: "omarchy.first-widget", size: 4 }],
+      [{ id: "agent0s.first-widget", size: 4 }],
       "enabling a clone source switches back without duplicates"
     )
     registry.setEnabled("local.first-widget", true)
     registry.setEnabled("local.first-widget", false)
     root.assertDeepEqual(
       root.config.bar.layout.center,
-      [{ id: "omarchy.first-widget", size: 4 }],
+      [{ id: "agent0s.first-widget", size: 4 }],
       "disabling a widget clone restores its source in place"
     )
 
     root.config = {
       version: 1,
-      bar: { layout: { left: [], center: ["omarchy.first-widget"], right: [] } },
+      bar: { layout: { left: [], center: ["agent0s.first-widget"], right: [] } },
       plugins: []
     }
     registry.setEnabled("local.first-widget", true)
     root.assertDeepEqual(root.config.bar.layout.center, [{ id: "local.first-widget" }], "clone replacement normalizes string entries")
     registry.setEnabled("local.first-widget", false)
-    root.assertDeepEqual(root.config.bar.layout.center, [{ id: "omarchy.first-widget" }], "clone restoration normalizes string entries")
+    root.assertDeepEqual(root.config.bar.layout.center, [{ id: "agent0s.first-widget" }], "clone restoration normalizes string entries")
 
     root.config = {
       version: 1,
-      bar: { layout: { left: [{ id: "omarchy.hybrid" }], center: [], right: [] } },
+      bar: { layout: { left: [{ id: "agent0s.hybrid" }], center: [], right: [] } },
       plugins: []
     }
     registry.setEnabled("local.hybrid", true)
     root.assertDeepEqual(root.config.bar.layout.left, [{ id: "local.hybrid" }], "enabling a multi-kind clone replaces its widget")
-    root.assertDeepEqual(root.config.disabledPlugins, ["omarchy.hybrid"], "enabling a multi-kind clone disables the source")
+    root.assertDeepEqual(root.config.disabledPlugins, ["agent0s.hybrid"], "enabling a multi-kind clone disables the source")
     registry.setEnabled("local.hybrid", false)
-    root.assertDeepEqual(root.config.bar.layout.left, [{ id: "omarchy.hybrid" }], "disabling a multi-kind clone restores its widget")
+    root.assertDeepEqual(root.config.bar.layout.left, [{ id: "agent0s.hybrid" }], "disabling a multi-kind clone restores its widget")
     root.assertTrue(root.config.disabledPlugins === undefined, "disabling a multi-kind clone enables the source")
 
     root.config = { version: 1, bar: { layout: { left: [], center: [], right: [] } }, plugins: [] }
     registry.setEnabled("local.grouped-panel", true)
     root.assertDeepEqual(root.config.plugins, [{ id: "local.grouped-panel" }], "enabling an ordinary clone adds it")
-    root.assertDeepEqual(root.config.disabledPlugins, ["omarchy.grouped-panel"], "enabling an ordinary clone disables the source")
+    root.assertDeepEqual(root.config.disabledPlugins, ["agent0s.grouped-panel"], "enabling an ordinary clone disables the source")
     registry.setEnabled("local.grouped-panel", false)
     root.assertDeepEqual(root.config.plugins, [], "disabling an ordinary clone removes it")
     root.assertTrue(root.config.disabledPlugins === undefined, "disabling an ordinary clone restores the source")
@@ -386,13 +386,13 @@ ShellRoot {
       version: 1,
       bar: { layout: { left: [], center: [], right: [] } },
       plugins: [],
-      disabledPlugins: ["omarchy.grouped-panel"]
+      disabledPlugins: ["agent0s.grouped-panel"]
     }
     registry.setEnabled("local.grouped-panel", true)
-    root.assertDeepEqual(root.config.disabledPlugins, ["omarchy.grouped-panel"], "cloning an already-disabled source keeps it disabled")
+    root.assertDeepEqual(root.config.disabledPlugins, ["agent0s.grouped-panel"], "cloning an already-disabled source keeps it disabled")
     root.assertTrue(root.config.cloneSourceRestores === undefined, "an already-disabled source is not marked for restoration")
     registry.setEnabled("local.grouped-panel", false)
-    root.assertDeepEqual(root.config.disabledPlugins, ["omarchy.grouped-panel"], "disabling the clone preserves the source's prior disabled state")
+    root.assertDeepEqual(root.config.disabledPlugins, ["agent0s.grouped-panel"], "disabling the clone preserves the source's prior disabled state")
 
     registry.setEnabled("local.bar", true)
     root.assertEqual(root.config.bar.id, "local.bar", "enabling a cloned bar selects it")
@@ -415,41 +415,41 @@ ShellRoot {
     // A built-in loads by default, so switching one off is recorded the other
     // way round and has to survive round-tripping back on.
     root.config = { version: 1, bar: { layout: { left: [], center: [], right: [] } }, plugins: [] }
-    registry.setEnabled("omarchy.grouped-panel", false)
-    root.assertDeepEqual(root.config.disabledPlugins, ["omarchy.grouped-panel"], "disabling a first-party plugin records it")
-    root.assertTrue(!registry.isEnabled("omarchy.grouped-panel"), "a recorded first-party plugin is disabled")
+    registry.setEnabled("agent0s.grouped-panel", false)
+    root.assertDeepEqual(root.config.disabledPlugins, ["agent0s.grouped-panel"], "disabling a first-party plugin records it")
+    root.assertTrue(!registry.isEnabled("agent0s.grouped-panel"), "a recorded first-party plugin is disabled")
     root.assertDeepEqual(root.config.plugins, [], "disabling a first-party plugin leaves the plugins array alone")
-    registry.setEnabled("omarchy.grouped-panel", true)
+    registry.setEnabled("agent0s.grouped-panel", true)
     root.assertTrue(root.config.disabledPlugins === undefined, "re-enabling drops the disabled record entirely")
-    root.assertTrue(registry.isEnabled("omarchy.grouped-panel"), "a first-party plugin returns to enabled")
+    root.assertTrue(registry.isEnabled("agent0s.grouped-panel"), "a first-party plugin returns to enabled")
     root.assertDeepEqual(root.config.plugins, [], "re-enabling a first-party plugin adds no redundant entry")
 
     // A widget's place in the bar is its on/off switch. Loadability must not
-    // follow it down, or a plugin that is both widget and menu (omarchy.menu)
+    // follow it down, or a plugin that is both widget and menu (agent0s.menu)
     // would be locked out of the shell by taking its button off the bar.
     root.config = {
       version: 1,
-      bar: { layout: { left: [], center: [], right: [{ id: "omarchy.first-widget" }] } },
+      bar: { layout: { left: [], center: [], right: [{ id: "agent0s.first-widget" }] } },
       plugins: []
     }
-    root.assertTrue(registry.inBar("omarchy.first-widget"), "inBar sees a widget in the layout")
-    registry.setEnabled("omarchy.first-widget", false)
+    root.assertTrue(registry.inBar("agent0s.first-widget"), "inBar sees a widget in the layout")
+    registry.setEnabled("agent0s.first-widget", false)
     root.assertDeepEqual(root.config.bar.layout.right, [], "disabling a first-party widget removes its layout entry")
     root.assertTrue(root.config.disabledPlugins === undefined, "disabling a first-party widget records nothing else")
-    root.assertTrue(!registry.inBar("omarchy.first-widget"), "inBar follows the widget out of the layout")
-    root.assertTrue(registry.isEnabled("omarchy.first-widget"), "a first-party widget stays loadable off the bar")
-    registry.setEnabled("omarchy.first-widget", true)
-    root.assertDeepEqual(root.config.bar.layout.center, [{ id: "omarchy.first-widget" }], "a widget without a default section falls back to center")
+    root.assertTrue(!registry.inBar("agent0s.first-widget"), "inBar follows the widget out of the layout")
+    root.assertTrue(registry.isEnabled("agent0s.first-widget"), "a first-party widget stays loadable off the bar")
+    registry.setEnabled("agent0s.first-widget", true)
+    root.assertDeepEqual(root.config.bar.layout.center, [{ id: "agent0s.first-widget" }], "a widget without a default section falls back to center")
 
     root.config = {
       version: 1,
-      bar: { layout: { left: [{ id: "omarchy.hybrid" }], center: [], right: [] } },
+      bar: { layout: { left: [{ id: "agent0s.hybrid" }], center: [], right: [] } },
       plugins: []
     }
-    registry.setEnabled("omarchy.hybrid", false)
+    registry.setEnabled("agent0s.hybrid", false)
     root.assertDeepEqual(root.config.bar.layout.left, [], "disabling a multi-kind built-in removes its widget")
     root.assertTrue(root.config.disabledPlugins === undefined, "disabling a multi-kind widget records nothing else")
-    root.assertTrue(registry.isEnabled("omarchy.hybrid"), "a multi-kind built-in remains loadable without its widget")
+    root.assertTrue(registry.isEnabled("agent0s.hybrid"), "a multi-kind built-in remains loadable without its widget")
 
     var cloneBase = registry.pluginsDir + "/dhh.clock"
     root.assertEqual(registry.localPluginIdForPath(cloneBase + "/BarWidget.qml"), "dhh.clock", "personal clone changes are watched")
@@ -464,7 +464,7 @@ ShellRoot {
   PluginRegistry {
     id: registry
     firstPartyDir: ""
-    pluginsDir: Quickshell.env("HOME") + "/.config/omarchy/plugins"
+    pluginsDir: Quickshell.env("HOME") + "/.config/agent0s/plugins"
     shellConfigProvider: function() { return root.config }
     shellConfigMutator: function(mutator) {
       var next = JSON.parse(JSON.stringify(root.config || {}))

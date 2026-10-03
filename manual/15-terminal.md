@@ -1,8 +1,8 @@
 # Terminal
 
-[Foot](https://codeberg.org/dnkl/foot) is the default terminal for Omarchy. It's fast, lightweight, and compatible with even old computers. It does not, however, support native tabs or splits.
+[Foot](https://codeberg.org/dnkl/foot) is the default terminal for Agent0S. It's fast, lightweight, and compatible with even old computers. It does not, however, support native tabs or splits.
 
-If you use Tmux, you may not mind, but if not, we fully support _Alacritty_, _Ghostty_, and _Kitty_ as options as well. Pick your preference under _Install > Terminal_ in the Omarchy menu.
+If you use Tmux, you may not mind, but if not, we fully support _Alacritty_, _Ghostty_, and _Kitty_ as options as well. Pick your preference under _Install > Terminal_ in the Agent0S menu.
 
 You start a new terminal using `Super + Return`. (This binding will automatically point to whichever Terminal you've installed via _Install > Terminal_, and you can switch between installed terminals under _Setup > Defaults > Terminal_.)
 
@@ -12,11 +12,11 @@ Tmux provides a consistent, programmable interface for panes, windows (aka tabs)
 
 You start a new Tmux session in a fresh terminal using `Super + Alt + Return`, and because Tmux is a persistent process, you can resume your session even if you close that terminal. Just hit `Ctrl + Space` (called the prefix key) then `s` to see all your active sessions.
 
-Omarchy ships with an ergonomically-optimized Tmux configuration, which has a lot of keybindings to learn, so keep [the cheatsheet handy](07-hotkeys.md#tmux).
+Agent0S ships with an ergonomically-optimized Tmux configuration, which has a lot of keybindings to learn, so keep [the cheatsheet handy](07-hotkeys.md#tmux).
 
 ## Tmux layout functions
 
-Because Tmux is programmable, we can use functions to create layouts. Omarchy ships with four different functions for common developer layouts.
+Because Tmux is programmable, we can use functions to create layouts. Agent0S ships with four different functions for common developer layouts.
 
 `tdl [agent]` starts a three-way split IDE-like interface with the `$EDITOR` on the left, your chosen AI agent on the right (like `c` for opencode or `cx` for Claude or `codex` for OpenAI), and then a terminal at the bottom.
 

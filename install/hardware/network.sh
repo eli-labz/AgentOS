@@ -1,7 +1,7 @@
 # NetworkManager enablement is centralized in enable-services.sh.
 systemctl disable iwd.service 2>/dev/null || true
 
-# Fresh Omarchy uses NetworkManager. Archinstall's legacy "copy ISO network"
+# Fresh Agent0S uses NetworkManager. Archinstall's legacy "copy ISO network"
 # mode enabled systemd-networkd and dropped DHCP .network files that compete
 # with NetworkManager, so retire that state whenever hardware setup runs.
 for unit in \
@@ -30,7 +30,7 @@ stock_networkd_file() {
   grep -Eq '^[[:space:]]*Name=(en\*|eth\*|wl\*|ww\*)[[:space:]]*$' "$file" || return 1
 }
 
-backup_dir="/etc/systemd/network/omarchy-networkd-retired-$(date +%Y%m%d%H%M%S)"
+backup_dir="/etc/systemd/network/agent0s-networkd-retired-$(date +%Y%m%d%H%M%S)"
 for file in /etc/systemd/network/20-ethernet.network /etc/systemd/network/20-wlan.network /etc/systemd/network/20-wwan.network; do
   if stock_networkd_file "$file"; then
     install -d -m 0755 "$backup_dir"

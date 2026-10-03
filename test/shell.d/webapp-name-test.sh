@@ -8,19 +8,19 @@ tmp_dir=$(mktemp -d)
 trap 'rm -rf "$tmp_dir"' EXIT
 mkdir -p "$tmp_dir/bin" "$tmp_dir/home"
 
-for stub in gtk-update-icon-cache update-desktop-database omarchy-notification-send; do
+for stub in gtk-update-icon-cache update-desktop-database agent0s-notification-send; do
   printf '#!/bin/bash\n:\n' >"$tmp_dir/bin/$stub"
   chmod +x "$tmp_dir/bin/$stub"
 done
 
 run_install() {
   HOME="$tmp_dir/home" PATH="$tmp_dir/bin:$PATH" \
-    "$ROOT/bin/omarchy-webapp-install" "$@"
+    "$ROOT/bin/agent0s-webapp-install" "$@"
 }
 
 run_remove() {
-  HOME="$tmp_dir/home" PATH="$tmp_dir/bin:$PATH" OMARCHY_REMOVE_NOTIFY=false \
-    "$ROOT/bin/omarchy-webapp-remove" "$@"
+  HOME="$tmp_dir/home" PATH="$tmp_dir/bin:$PATH" AGENT0S_REMOVE_NOTIFY=false \
+    "$ROOT/bin/agent0s-webapp-remove" "$@"
 }
 
 apps_dir="$tmp_dir/home/.local/share/applications"
@@ -82,7 +82,7 @@ chmod +x "$tmp_dir/ibin/gum" "$tmp_dir/ibin/curl"
 
 if HOME="$tmp_dir/home" PATH="$tmp_dir/ibin:$PATH" \
   GUM_STUB_COUNT="$tmp_dir/gum-count" \
-  "$ROOT/bin/omarchy-webapp-install" >/dev/null 2>&1; then
+  "$ROOT/bin/agent0s-webapp-install" >/dev/null 2>&1; then
   fail "interactive webapp install rejects a name containing a slash"
 fi
 if compgen -G "$icons_dir/*.png" >/dev/null; then
@@ -106,7 +106,7 @@ mkdir -p "$apps_dir/http:/127.0.0.1:4000"
 cat >"$apps_dir/http:/127.0.0.1:4000/.desktop" <<'DESKTOP'
 [Desktop Entry]
 Name=http://127.0.0.1:4000
-Exec=omarchy-launch-webapp https://127.0.0.1:4000
+Exec=agent0s-launch-webapp https://127.0.0.1:4000
 Type=Application
 DESKTOP
 
@@ -118,9 +118,9 @@ run_remove "127.0.0.1:4000" >/dev/null
 pass "webapp remove reaches a nested legacy launcher"
 
 # Removing by name on a machine with no applications directory yet must stay
-# quiet: omarchy-remove-gaming-xbox-cloud calls it without hiding stderr.
-noise=$(HOME="$tmp_dir/empty" PATH="$tmp_dir/bin:$PATH" OMARCHY_REMOVE_NOTIFY=false \
-  "$ROOT/bin/omarchy-webapp-remove" "Xbox Cloud Gaming" 2>&1 >/dev/null)
+# quiet: agent0s-remove-gaming-xbox-cloud calls it without hiding stderr.
+noise=$(HOME="$tmp_dir/empty" PATH="$tmp_dir/bin:$PATH" AGENT0S_REMOVE_NOTIFY=false \
+  "$ROOT/bin/agent0s-webapp-remove" "Xbox Cloud Gaming" 2>&1 >/dev/null)
 [[ -n $noise ]] &&
   fail "webapp remove stays quiet with no applications directory" "$noise"
 pass "webapp remove stays quiet when there is no applications directory"

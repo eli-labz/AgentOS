@@ -19,7 +19,7 @@ cat >"$projects/session.jsonl" <<EOF
 EOF
 
 result=$(HOME="$TEST_HOME" XDG_CACHE_HOME="$TEST_HOME/.cache" XDG_DATA_HOME="$TEST_HOME/.local/share" \
-  "$ROOT/bin/omarchy-agent-usage-claude" --force)
+  "$ROOT/bin/agent0s-agent-usage-claude" --force)
 
 [[ $(jq -r '.todayTotalTokens' <<<"$result") == "58793" ]] ||
   fail "Claude collector counts each API message once" "$result"
@@ -47,7 +47,7 @@ cat >"$HISTORY_HOME/.claude/history.jsonl" <<EOF
 EOF
 
 result=$(HOME="$HISTORY_HOME" XDG_CACHE_HOME="$HISTORY_HOME/.cache" XDG_DATA_HOME="$HISTORY_HOME/.local/share" \
-  "$ROOT/bin/omarchy-agent-usage-claude" --force)
+  "$ROOT/bin/agent0s-agent-usage-claude" --force)
 
 [[ $(jq -r '(.todayPrompts|tostring) + "/" + (.todaySessions|tostring)' <<<"$result") == "2/2" ]] ||
   fail "Claude collector falls back to history.jsonl without a stats-cache" "$result"
@@ -93,7 +93,7 @@ conn.close()
 PY
 
 result=$(HOME="$OPENCODE_HOME" XDG_CACHE_HOME="$OPENCODE_HOME/.cache" XDG_DATA_HOME="$OPENCODE_HOME/.local/share" \
-  "$ROOT/bin/omarchy-agent-usage-claude" --force)
+  "$ROOT/bin/agent0s-agent-usage-claude" --force)
 
 [[ $(jq -r '(.ready|tostring) + "/" + (.todayTotalTokens|tostring)' <<<"$result") == "true/192" ]] ||
   fail "Claude collector counts Anthropic usage, reasoning included, from opencode sessions" "$result"
@@ -119,7 +119,7 @@ cat >"$PI_HOME/.omp/agent/sessions/project/omp.jsonl" <<EOF
 EOF
 
 result=$(HOME="$PI_HOME" XDG_CACHE_HOME="$PI_HOME/.cache" XDG_DATA_HOME="$PI_HOME/.local/share" \
-  "$ROOT/bin/omarchy-agent-usage-claude" --force)
+  "$ROOT/bin/agent0s-agent-usage-claude" --force)
 
 [[ $(jq -r '.todayTotalTokens' <<<"$result") == "49" ]] ||
   fail "Claude collector counts usage from pi and omp sessions" "$result"
@@ -130,7 +130,7 @@ pass "Claude collector counts pi and omp subscription usage"
 # Collectors overlap in practice: the update command backgrounds one per agent
 # while the panel refreshes on its own. Two writers aiming at one cache file
 # must both land, not trip over a shared temp path.
-race_output=$(python3 - "$ROOT/bin/omarchy-agent-usage-claude" "$TEST_HOME/race.json" <<'PY'
+race_output=$(python3 - "$ROOT/bin/agent0s-agent-usage-claude" "$TEST_HOME/race.json" <<'PY'
 import importlib.util
 import json
 import sys

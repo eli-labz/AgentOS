@@ -27,11 +27,11 @@ fi
 require_command jq
 
 shell_ipc() {
-  OMARCHY_PATH="$test_root" "$ROOT/bin/omarchy-shell" "$@"
+  AGENT0S_PATH="$test_root" "$ROOT/bin/agent0s-shell" "$@"
 }
 
 shell_ipc_quiet() {
-  OMARCHY_PATH="$test_root" "$ROOT/bin/omarchy-shell" -q "$@"
+  AGENT0S_PATH="$test_root" "$ROOT/bin/agent0s-shell" -q "$@"
 }
 
 fail_with_log() {
@@ -41,7 +41,7 @@ fail_with_log() {
 }
 
 TMPDIR=$(mktemp -d)
-test_root="$TMPDIR/omarchy"
+test_root="$TMPDIR/agent0s"
 test_home="$TMPDIR/home"
 stub_bin="$TMPDIR/bin"
 log="$TMPDIR/quickshell.log"
@@ -50,9 +50,9 @@ cp -a "$ROOT/shell" "$test_root/shell"
 ln -s "$ROOT/config" "$test_root/config"
 ln -s "$ROOT/bin" "$test_root/bin"
 
-# Every plugin under ~/.config/omarchy/plugins hot-reloads, whoever wrote it.
+# Every plugin under ~/.config/agent0s/plugins hot-reloads, whoever wrote it.
 hot_reload_id="acme.hot-reload"
-hot_reload_dir="$test_home/.config/omarchy/plugins/$hot_reload_id"
+hot_reload_dir="$test_home/.config/agent0s/plugins/$hot_reload_id"
 mkdir -p "$hot_reload_dir"
 cat >"$hot_reload_dir/manifest.json" <<JSON
 {
@@ -62,7 +62,7 @@ cat >"$hot_reload_dir/manifest.json" <<JSON
   "version": "1.0.0",
   "kinds": ["overlay"],
   "entryPoints": {"overlay": "Overlay.qml"},
-  "omarchy": {"clonedFrom": "omarchy.emojis"}
+  "agent0s": {"clonedFrom": "agent0s.emojis"}
 }
 JSON
 cat >"$hot_reload_dir/Overlay.qml" <<'QML'
@@ -77,7 +77,7 @@ QML
 # A keepLoaded service must keep its instance (and in-memory state) across a
 # plugin rescan. The marker below can only survive if the object does.
 keep_service_id="acme.keep-service"
-keep_service_dir="$test_home/.config/omarchy/plugins/$keep_service_id"
+keep_service_dir="$test_home/.config/agent0s/plugins/$keep_service_id"
 mkdir -p "$keep_service_dir"
 cat >"$keep_service_dir/manifest.json" <<JSON
 {
@@ -116,7 +116,7 @@ QML
 # live service, and its barConfig must be a detached snapshot on both initial
 # injection and later host-config updates.
 victim_service_id="acme.victim-service"
-victim_service_dir="$test_home/.config/omarchy/plugins/$victim_service_id"
+victim_service_dir="$test_home/.config/agent0s/plugins/$victim_service_id"
 mkdir -p "$victim_service_dir"
 cat >"$victim_service_dir/manifest.json" <<JSON
 {
@@ -140,7 +140,7 @@ QML
 # its own widget receives the raw companion service under the trusted bar, while
 # a replacement bar receives only the narrow media proxy resolved to the clone.
 media_clone_id="acme.media-clone"
-media_clone_dir="$test_home/.config/omarchy/plugins/$media_clone_id"
+media_clone_dir="$test_home/.config/agent0s/plugins/$media_clone_id"
 mkdir -p "$media_clone_dir"
 cat >"$media_clone_dir/manifest.json" <<JSON
 {
@@ -151,7 +151,7 @@ cat >"$media_clone_dir/manifest.json" <<JSON
   "kinds": ["service", "bar-widget"],
   "entryPoints": {"service": "Service.qml", "barWidget": "BarWidget.qml"},
   "barWidget": {"defaultSection": "center"},
-  "omarchy": {"clonedFrom": "omarchy.media"}
+  "agent0s": {"clonedFrom": "agent0s.media"}
 }
 JSON
 cat >"$media_clone_dir/Service.qml" <<'QML'
@@ -174,7 +174,7 @@ Item {
     target: "acme-media-clone-service"
     function ping(): string { return marker }
     function summonOsd(): string {
-      return root.shell && root.shell.summon("omarchy.osd", "{}") ? "true" : "false"
+      return root.shell && root.shell.summon("agent0s.osd", "{}") ? "true" : "false"
     }
   }
 }
@@ -191,7 +191,7 @@ Item {
     target: "acme-media-clone-widget"
     function probeOwnService(): string {
       var service = root.bar && root.bar.shell
-        ? root.bar.shell.firstPartyServiceFor("omarchy.media") : null
+        ? root.bar.shell.firstPartyServiceFor("agent0s.media") : null
       return JSON.stringify({
         reachable: !!service,
         marker: service ? String(service.marker || "") : ""
@@ -202,7 +202,7 @@ Item {
 QML
 
 review_bar_id="acme.review-bar"
-review_bar_dir="$test_home/.config/omarchy/plugins/$review_bar_id"
+review_bar_dir="$test_home/.config/agent0s/plugins/$review_bar_id"
 mkdir -p "$review_bar_dir"
 cat >"$review_bar_dir/manifest.json" <<JSON
 {
@@ -249,7 +249,7 @@ Item {
 
     function probeMediaProxy(): string {
       var service = root.shell
-        ? root.shell.firstPartyServiceFor("omarchy.media") : null
+        ? root.shell.firstPartyServiceFor("agent0s.media") : null
       return JSON.stringify({ reachable: !!service, enabled: service ? service.enabled === true : false })
     }
 
@@ -259,8 +259,8 @@ Item {
         ? root.shell.pluginShellForBarEntry("probe-media", "acme.media-clone") : null
       return JSON.stringify({
         entryFacade: !!entryFacade,
-        osdSummoned: entryFacade ? entryFacade.summon("omarchy.osd", "{}") : false,
-        foreignSummoned: entryFacade ? entryFacade.summon("omarchy.lock", "{}") : false
+        osdSummoned: entryFacade ? entryFacade.summon("agent0s.osd", "{}") : false,
+        foreignSummoned: entryFacade ? entryFacade.summon("agent0s.lock", "{}") : false
       })
     }
 
@@ -306,12 +306,12 @@ Item {
 }
 QML
 
-cat >"$stub_bin/omarchy-update-available" <<'SH'
+cat >"$stub_bin/agent0s-update-available" <<'SH'
 #!/bin/bash
-echo "Omarchy update available (test)"
+echo "Agent0S update available (test)"
 exit 0
 SH
-chmod +x "$stub_bin/omarchy-update-available"
+chmod +x "$stub_bin/agent0s-update-available"
 
 cat >"$stub_bin/curl" <<'SH'
 #!/bin/bash
@@ -330,7 +330,7 @@ esac
 SH
 chmod +x "$stub_bin/curl"
 
-OMARCHY_PATH="$test_root" \
+AGENT0S_PATH="$test_root" \
 HOME="$test_home" \
 XDG_CONFIG_HOME="$test_home/.config" \
 XDG_CACHE_HOME="$test_home/.cache" \
@@ -363,7 +363,7 @@ done
 
 jq -e '
   map(.id) as $ids |
-  all(["omarchy.menu", "omarchy.notifications", "omarchy.clock", "omarchy.osd"][]; $ids | index(.)) and
+  all(["agent0s.menu", "agent0s.notifications", "agent0s.clock", "agent0s.osd"][]; $ids | index(.)) and
   all(.[]; (.kinds | type == "array") and (.enabled | type == "boolean") and (.canDisable | type == "boolean") and (.firstParty | type == "boolean") and (.clonedFrom | type == "string")) and
   ([.[].name] == ([.[].name] | sort))
 ' <<<"$plugins" >/dev/null || {
@@ -391,9 +391,9 @@ pass "installed plugin changes reload without an explicit rescan"
 
 [[ $(shell_ipc shell setPluginEnabled "$hot_reload_id" true) == "ok" ]] ||
   fail_with_log "installed plugin could not be enabled"
-[[ $(shell_ipc shell summon omarchy.emojis "{}") == "ok" ]] ||
+[[ $(shell_ipc shell summon agent0s.emojis "{}") == "ok" ]] ||
   fail_with_log "calls to a cloned source id do not reach its enabled clone"
-shell_ipc_quiet shell hide omarchy.emojis >/dev/null
+shell_ipc_quiet shell hide agent0s.emojis >/dev/null
 shell_ipc_quiet shell setPluginEnabled "$hot_reload_id" false >/dev/null
 pass "shell IPC routes built-in ids to enabled clones"
 
@@ -409,8 +409,8 @@ jq -e '
 }
 pass "shell IPC returns effective shell config"
 
-[[ $(shell_ipc shell summon omarchy.menu '{"menu":"apps"}') == "ok" ]] || fail_with_log "shell IPC summons menu apps overlay"
-shell_ipc_quiet shell hide omarchy.menu >/dev/null
+[[ $(shell_ipc shell summon agent0s.menu '{"menu":"apps"}') == "ok" ]] || fail_with_log "shell IPC summons menu apps overlay"
+shell_ipc_quiet shell hide agent0s.menu >/dev/null
 [[ $(shell_ipc shell summon missing.plugin "{}") == "unknown" ]] || fail_with_log "shell IPC rejects unknown plugin"
 pass "shell IPC summon and hide contract works"
 
@@ -481,19 +481,19 @@ done
   fail_with_log "kept service is dropped when its plugin stops declaring a service"
 pass "kept service is dropped when its plugin stops declaring a service"
 
-shell_ipc_quiet omarchy.system-update refresh >/dev/null 2>&1 || true
+shell_ipc_quiet agent0s.system-update refresh >/dev/null 2>&1 || true
 sleep 0.8
 
-default_ids=$(jq -c '(.bar.layout.left + .bar.layout.center + .bar.layout.right) | map(.id // .)' "$ROOT/config/omarchy/shell.json")
+default_ids=$(jq -c '(.bar.layout.left + .bar.layout.center + .bar.layout.right) | map(.id // .)' "$ROOT/config/agent0s/shell.json")
 visible_default_ids='[
-  "omarchy.menu",
-  "omarchy.workspaces",
-  "omarchy.clock",
-  "omarchy.weather",
-  "omarchy.system-update",
-  "omarchy.network",
-  "omarchy.audio",
-  "omarchy.monitor"
+  "agent0s.menu",
+  "agent0s.workspaces",
+  "agent0s.clock",
+  "agent0s.weather",
+  "agent0s.system-update",
+  "agent0s.network",
+  "agent0s.audio",
+  "agent0s.monitor"
 ]'
 
 geometry=""
@@ -527,11 +527,11 @@ pass "default bar layout renders expected module slots"
 
 jq -e '
   map(select(.section == "center")) | map(.id) as $center |
-  ($center | index("omarchy.weather")) != null and
-  ($center | index("omarchy.system-update")) != null and
-  ($center | index("omarchy.indicators")) != null and
-  (($center | index("omarchy.weather")) < ($center | index("omarchy.system-update"))) and
-  (($center | index("omarchy.system-update")) < ($center | index("omarchy.indicators")))
+  ($center | index("agent0s.weather")) != null and
+  ($center | index("agent0s.system-update")) != null and
+  ($center | index("agent0s.indicators")) != null and
+  (($center | index("agent0s.weather")) < ($center | index("agent0s.system-update"))) and
+  (($center | index("agent0s.system-update")) < ($center | index("agent0s.indicators")))
 ' <<<"$geometry" >/dev/null || {
   printf 'Geometry:\n' >&2
   jq . <<<"$geometry" >&2
@@ -540,7 +540,7 @@ jq -e '
 
 pass "runtime geometry keeps update before indicators"
 
-for panel_id in omarchy.audio omarchy.bluetooth omarchy.monitor omarchy.network omarchy.power; do
+for panel_id in agent0s.audio agent0s.bluetooth agent0s.monitor agent0s.network agent0s.power; do
   shell_ipc "$panel_id" open >/dev/null || fail_with_log "direct panel IPC opens $panel_id"
   shell_ipc "$panel_id" close >/dev/null || fail_with_log "direct panel IPC closes $panel_id"
 done
@@ -564,13 +564,13 @@ if (( worst > screens - 1 )); then
 fi
 pass "each widget registers its IPC handler once per screen"
 
-HOME="$test_home" OMARCHY_PATH="$test_root" PATH="$ROOT/bin:$PATH" "$ROOT/bin/omarchy-plugin-disable" omarchy.audio
+HOME="$test_home" AGENT0S_PATH="$test_root" PATH="$ROOT/bin:$PATH" "$ROOT/bin/agent0s-plugin-disable" agent0s.audio
 
 for _ in {1..80}; do
   shell_config=$(shell_ipc shell listShellConfig 2>/dev/null || true)
   geometry=$(shell_ipc shell debugBarGeometry 2>/dev/null || true)
-  if jq -e 'all(.bar.layout.right[]; (.id // .) != "omarchy.audio")' <<<"$shell_config" >/dev/null 2>&1 && \
-     jq -e 'all(.[]; .id != "omarchy.audio")' <<<"$geometry" >/dev/null 2>&1; then
+  if jq -e 'all(.bar.layout.right[]; (.id // .) != "agent0s.audio")' <<<"$shell_config" >/dev/null 2>&1 && \
+     jq -e 'all(.[]; .id != "agent0s.audio")' <<<"$geometry" >/dev/null 2>&1; then
     break
   fi
   if ! kill -0 "$QS_PID" 2>/dev/null; then
@@ -579,12 +579,12 @@ for _ in {1..80}; do
   sleep 0.1
 done
 
-jq -e 'all(.bar.layout.right[]; (.id // .) != "omarchy.audio")' <<<"$shell_config" >/dev/null || {
+jq -e 'all(.bar.layout.right[]; (.id // .) != "agent0s.audio")' <<<"$shell_config" >/dev/null || {
   printf 'Shell config after reload:\n%s\n' "$shell_config" | jq . >&2
   fail_with_log "plugin disable reloads shell config"
 }
 
-jq -e 'all(.[]; .id != "omarchy.audio")' <<<"$geometry" >/dev/null || {
+jq -e 'all(.[]; .id != "agent0s.audio")' <<<"$geometry" >/dev/null || {
   printf 'Geometry after reload:\n' >&2
   jq . <<<"$geometry" >&2
   fail_with_log "runtime bar layout updates after shell config reload"
@@ -596,35 +596,35 @@ pass "bar remove reloads shell config and updates bar layout"
 # to place one that is missing and leave one that is already there alone,
 # however often it runs.
 bar_put() {
-  HOME="$test_home" OMARCHY_PATH="$test_root" PATH="$ROOT/bin:$PATH" "$ROOT/bin/omarchy-bar" put "$@"
+  HOME="$test_home" AGENT0S_PATH="$test_root" PATH="$ROOT/bin:$PATH" "$ROOT/bin/agent0s-bar" put "$@"
 }
 
 center_ids() {
   jq -c '[.bar.layout.center[] | .id // .]' <<<"$(shell_ipc shell listShellConfig)"
 }
 
-bar_put omarchy.keyboard-layout --after omarchy.clock >/dev/null
+bar_put agent0s.keyboard-layout --after agent0s.clock >/dev/null
 for _ in {1..80}; do
-  [[ $(center_ids) == *omarchy.keyboard-layout* ]] && break
+  [[ $(center_ids) == *agent0s.keyboard-layout* ]] && break
   kill -0 "$QS_PID" 2>/dev/null || fail_with_log "test shell exited while putting a bar widget"
   sleep 0.1
 done
 
 jq -e '
   [.bar.layout.center[] | .id // .] as $ids
-  | ($ids | index("omarchy.clock")) as $clock
-  | ($ids | index("omarchy.keyboard-layout")) as $widget
+  | ($ids | index("agent0s.clock")) as $clock
+  | ($ids | index("agent0s.keyboard-layout")) as $widget
   | $clock != null and $widget == $clock + 1
 ' <<<"$(shell_ipc shell listShellConfig)" >/dev/null ||
   fail_with_log "bar put places a widget after the one it names ($(center_ids))"
 pass "bar put places a widget after the one it names"
 
 placed=$(center_ids)
-bar_put omarchy.keyboard-layout --section right >/dev/null
+bar_put agent0s.keyboard-layout --section right >/dev/null
 sleep 0.5
 [[ $(center_ids) == "$placed" ]] ||
   fail_with_log "bar put left a widget already on the bar alone (was $placed, now $(center_ids))"
-jq -e 'all(.bar.layout.right[]; (.id // .) != "omarchy.keyboard-layout")' \
+jq -e 'all(.bar.layout.right[]; (.id // .) != "agent0s.keyboard-layout")' \
   <<<"$(shell_ipc shell listShellConfig)" >/dev/null ||
   fail_with_log "bar put added a second copy of a widget already on the bar"
 pass "bar put leaves a widget already on the bar alone"
@@ -696,18 +696,18 @@ bar_config_after=$(shell_ipc shell listShellConfig | jq -c '.bar')
 [[ $bar_config_after == "$bar_config_before" ]] ||
   fail_with_log "replacement bar mutated the initially injected host configuration"
 
-[[ $(shell_ipc shell setBarWidget omarchy.clock format '"HH:mm:ss"' '{}') == "ok" ]] ||
+[[ $(shell_ipc shell setBarWidget agent0s.clock format '"HH:mm:ss"' '{}') == "ok" ]] ||
   fail_with_log "host bar configuration could not be updated for snapshot testing"
 updated_snapshot=""
 for _ in {1..80}; do
   updated_snapshot=$(shell_ipc acme-review-bar snapshot 2>/dev/null || true)
-  if jq -e 'any(.layout.center[]; (.id // .) == "omarchy.clock" and .format == "HH:mm:ss")' \
+  if jq -e 'any(.layout.center[]; (.id // .) == "agent0s.clock" and .format == "HH:mm:ss")' \
     <<<"$updated_snapshot" >/dev/null 2>&1; then
     break
   fi
   sleep 0.1
 done
-jq -e 'any(.layout.center[]; (.id // .) == "omarchy.clock" and .format == "HH:mm:ss")' \
+jq -e 'any(.layout.center[]; (.id // .) == "agent0s.clock" and .format == "HH:mm:ss")' \
   <<<"$updated_snapshot" >/dev/null ||
   fail_with_log "replacement bar did not receive the refreshed configuration snapshot"
 bar_config_before=$(shell_ipc shell listShellConfig | jq -c '.bar')

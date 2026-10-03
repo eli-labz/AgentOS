@@ -1,0 +1,19 @@
+[Unit]
+Description=Lock Agent0S before suspend
+# The monitor calls into the running Agent0S shell. Wait until UWSM has imported
+# AGENT0S_PATH and WAYLAND_DISPLAY, but keep the default target ordering so the
+# monitor starts before graphical-session.target is reached.
+After=dbus.socket wayland-session-waitenv.service
+Requires=dbus.socket
+PartOf=graphical-session.target
+ConditionEnvironment=AGENT0S_PATH
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/agent0s-system-sleep-monitor
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

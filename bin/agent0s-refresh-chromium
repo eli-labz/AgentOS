@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# agent0s:summary=Refresh the ~/.config/chromium-flags.conf file from the Agent0S defaults.
+
+CONFIG_FILE="$HOME/.config/chromium-flags.conf"
+INSTALL_GOOGLE_ACCOUNTS=false
+
+# Check if google accounts were installed
+if [[ -f $CONFIG_FILE ]] && \
+  grep -q -- "--oauth2-client-id" "$CONFIG_FILE" && \
+  grep -q -- "--oauth2-client-secret" "$CONFIG_FILE"; then
+  INSTALL_GOOGLE_ACCOUNTS=true
+fi
+
+# Refresh the Chromium configuration
+agent0s-refresh-config chromium-flags.conf
+
+# Install/refresh the native messaging hosts used by the bundled extensions
+agent0s-install-chromium-copy-url
+agent0s-install-chromium-ytdlp
+
+# Re-install Google accounts if previously configured
+if [[ $INSTALL_GOOGLE_ACCOUNTS == "true" ]]; then
+  agent0s-install-chromium-google-account
+fi

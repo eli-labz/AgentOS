@@ -5,6 +5,6 @@
 # appears, so the package is a hard requirement wherever a tuning applies. It is
 # only pulled in on machines that have one.
 
-if omarchy-audio-tuning match >/dev/null; then
-  omarchy-pkg-add lsp-plugins-lv2
+if agent0s-audio-tuning match >/dev/null; then
+  agent0s-pkg-add lsp-plugins-lv2
 fi

@@ -39,7 +39,7 @@ printf '%s\n' 'TIMELINE_CREATE="no"' 'NUMBER_CLEANUP="yes"' >"$snapper_config"
 
 TEST_LOG="$test_tmp/calls.log" \
 PATH="$fake_bin:$PATH" \
-OMARCHY_SNAPPER_CONFIG_PATH="$snapper_config" \
+AGENT0S_SNAPPER_CONFIG_PATH="$snapper_config" \
   bash -euo pipefail "$leak_migration" >/dev/null
 
 deletes=$(grep -c '^snapper -c root delete ' "$test_tmp/calls.log" || true)
@@ -54,7 +54,7 @@ last_batch=$(grep '^snapper -c root delete ' "$test_tmp/calls.log" | tail -n 1)
 ! grep -E '^snapper -c root delete .*\b(100|101)\b' "$test_tmp/calls.log" || fail "leak migration only deletes timeline snapshots"
 pass "leak migration removes leaked timeline snapshots in batches and keeps the rest"
 
-# omarchy-migrate runs under set -e, so a batch that dies on a DBus timeout
+# agent0s-migrate runs under set -e, so a batch that dies on a DBus timeout
 # would otherwise abort the run and skip every migration queued behind it.
 : >"$test_tmp/calls.log"
 printf '%s\n' 'TIMELINE_CREATE="no"' 'NUMBER_CLEANUP="yes"' >"$snapper_config"
@@ -75,14 +75,14 @@ STUB
 
 output=$(TEST_LOG="$test_tmp/calls.log" \
   PATH="$fake_bin:$PATH" \
-  OMARCHY_SNAPPER_CONFIG_PATH="$snapper_config" \
+  AGENT0S_SNAPPER_CONFIG_PATH="$snapper_config" \
   bash -euo pipefail "$leak_migration" 2>/dev/null) ||
   fail "leak migration survives a failed delete batch"
 
 deletes=$(grep -c '^snapper -c root delete ' "$test_tmp/calls.log" || true)
 [[ $deletes -eq 3 ]] || fail "leak migration keeps draining after a failed batch" "expected 3 delete calls, got $deletes"
 
-# omarchy-migrate writes the completion marker even when the drain gave up, so
+# agent0s-migrate writes the completion marker even when the drain gave up, so
 # what is left has to be said out loud rather than left for a rerun.
 grep -qF '45 snapshots could not be deleted' <<<"$output" || fail "leak migration reports the snapshots it could not delete" "$output"
 pass "leak migration tolerates a batch that fails partway"
@@ -92,7 +92,7 @@ printf '%s\n' 'TIMELINE_CREATE="yes"' >"$snapper_config"
 
 TEST_LOG="$test_tmp/calls.log" \
 PATH="$fake_bin:$PATH" \
-OMARCHY_SNAPPER_CONFIG_PATH="$snapper_config" \
+AGENT0S_SNAPPER_CONFIG_PATH="$snapper_config" \
   bash -euo pipefail "$leak_migration" >/dev/null
 
 [[ ! -s $test_tmp/calls.log ]] || fail "leak migration leaves deliberate timeline setups alone"
@@ -102,7 +102,7 @@ pass "leak migration skips systems where timeline snapshots are intentional"
 
 TEST_LOG="$test_tmp/calls.log" \
 PATH="$fake_bin:$PATH" \
-OMARCHY_SNAPPER_CONFIG_PATH="$test_tmp/missing" \
+AGENT0S_SNAPPER_CONFIG_PATH="$test_tmp/missing" \
   bash -euo pipefail "$leak_migration" >/dev/null
 
 [[ ! -s $test_tmp/calls.log ]] || fail "leak migration skips systems without a Snapper root config"
@@ -116,7 +116,7 @@ chmod 000 "$snapper_config"
 
 TEST_LOG="$test_tmp/calls.log" \
 PATH="$fake_bin:$PATH" \
-OMARCHY_SNAPPER_CONFIG_PATH="$snapper_config" \
+AGENT0S_SNAPPER_CONFIG_PATH="$snapper_config" \
   bash -euo pipefail "$leak_migration" >/dev/null 2>&1
 
 chmod 600 "$snapper_config"

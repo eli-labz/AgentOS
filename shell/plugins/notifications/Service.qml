@@ -1,4 +1,4 @@
-// Notification service for the omarchy shell.
+// Notification service for the agent0s shell.
 
 import QtQuick
 import QtQuick.Layouts
@@ -14,15 +14,15 @@ import "NotificationLogic.js" as NotificationLogic
 Item {
   id: service
 
-  // Injected by omarchy-shell (the first-party service loader).
+  // Injected by agent0s-shell (the first-party service loader).
   property var shell: null
 
-  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
+  property string agent0sPath: Quickshell.env("AGENT0S_PATH")
   readonly property string home: Quickshell.env("HOME")
   // History + DND live under XDG_STATE_HOME: they're persistent user state
   // (the notifications received, the last-set DND preference), not
   // regeneratable cache that a `rm -rf ~/.cache` should wipe.
-  readonly property string stateDir: home + "/.local/state/omarchy/"
+  readonly property string stateDir: home + "/.local/state/agent0s/"
   readonly property string settingsPath: stateDir + "notifications.json"
   // One file per on-screen popup, so live toasts survive shell restarts.
   // A file exists exactly as long as its popup is showing: written when the
@@ -40,7 +40,7 @@ Item {
   // Corner radius is shared with the menu and shell panels.
   // It mirrors Hyprland's current decoration:rounding value.
   readonly property int cornerRadius: Style.cornerRadius
-  // Toasts are fixed to the top-right corner. They only clear the omarchy bar
+  // Toasts are fixed to the top-right corner. They only clear the agent0s bar
   // when the bar occupies the top or right edge, so left/bottom bars do not
   // pull notification popups away from the expected top-right location.
   // Falls back to the bar's default size (26 horizontal / 28 vertical) when
@@ -64,7 +64,7 @@ Item {
   // a debounced save timer.
   PersistentProperties {
     id: persisted
-    reloadableId: "omarchy-notifications"
+    reloadableId: "agent0s-notifications"
     property bool doNotDisturb: false
     onDoNotDisturbChanged: {
       // Suppress the write that load-time hydration would otherwise trigger.
@@ -120,11 +120,11 @@ Item {
 
   // DND bypass: only let through notifications we trust to be intentional
   // and rare.
-  //   - omarchy-action: a user-action confirmation toast ("Theme changed",
+  //   - agent0s-action: a user-action confirmation toast ("Theme changed",
   //     "Screenshot saved"). The user JUST did something — their feedback
   //     should show.
   //   - urgency=critical AND app_name=notify-send: bare-CLI emergency alerts.
-  //     Trusted because it's almost always omarchy or system shell scripts —
+  //     Trusted because it's almost always agent0s or system shell scripts —
   //     chat apps set app_name to their brand (Discord/Slack/Vesktop), which
   //     falls outside this rule.
   function shouldBypassDnd(notification) {
@@ -140,7 +140,7 @@ Item {
   //   - app_name is "notify-send" (the CLI default — means the sender
   //     didn't bother declaring an identity, so it's almost certainly
   //     ephemeral test/feedback noise)
-  //   - app_name is "omarchy-action" (Omarchy's own user-action toasts —
+  //   - app_name is "agent0s-action" (Agent0S's own user-action toasts —
   //     the user just triggered them)
   // Their toasts still land in history like any other once they've been on
   // screen; the distinction only decides whether a DND-silenced one is worth
@@ -352,7 +352,7 @@ Item {
     while (popupModel.count > 0) dismissPopup(0)
   }
 
-  // Run the popup's click action, then dismiss. Omarchy's own toasts carry the
+  // Run the popup's click action, then dismiss. Agent0S's own toasts carry the
   // action as an argv vector in the `execArgv` role (see execArgvFromHints),
   // which the persistence files preserve, so restored toasts stay clickable.
   // Third-party clients register a libnotify action under the canonical
@@ -401,7 +401,7 @@ Item {
   function focusApp(entry) {
     if (!entry || !entry.app) return
     focusAppProc.command = [
-      service.omarchyPath + "/bin/omarchy-hyprland-focus-app",
+      service.agent0sPath + "/bin/agent0s-hyprland-focus-app",
       String(entry.app)
     ]
     focusAppProc.running = true
@@ -418,7 +418,7 @@ Item {
   // ---------------------------------------------------- popup persistence
   //
   // Mirror every on-screen popup to its own file under popupStateDir so
-  // toasts survive shell restarts (notably the restart `omarchy-update`
+  // toasts survive shell restarts (notably the restart `agent0s-update`
   // performs). Writes, moves and deletes go through one serialized queue: a
   // burst of replaces_id updates must not race a single reused Process, and
   // ordering guarantees a delete issued after a write wins.
@@ -684,7 +684,7 @@ Item {
       popupModel.insert(0, {
         id: -1,
         originalId: -1,
-        app: "omarchy-action",
+        app: "agent0s-action",
         appIcon: "",
         summary: "No recent notifications",
         body: "",
@@ -958,7 +958,7 @@ Item {
       screen: modelData
       visible: popupModel.count > 0
 
-      WlrLayershell.namespace: "omarchy-notifications"
+      WlrLayershell.namespace: "agent0s-notifications"
       WlrLayershell.layer: WlrLayer.Overlay
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       exclusionMode: ExclusionMode.Ignore

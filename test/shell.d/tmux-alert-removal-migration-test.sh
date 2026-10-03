@@ -21,10 +21,10 @@ case "$1" in
   has-session) exit "${TMUX_SERVER_MISSING:-0}" ;;
   show-hooks)
     cat <<'HOOKS'
-after-select-window[0] run-shell -b "omarchy-tmux-alert track #{window_id} #{window_activity}"
+after-select-window[0] run-shell -b "agent0s-tmux-alert track #{window_id} #{window_activity}"
 alert-activity
-alert-bell[0] run-shell -b "omarchy-shell -q omarchy.indicators refresh"
-client-focus-in[100] run-shell -b "omarchy-tmux-alert track #{window_id} #{window_activity}"
+alert-bell[0] run-shell -b "agent0s-shell -q agent0s.indicators refresh"
+client-focus-in[100] run-shell -b "agent0s-tmux-alert track #{window_id} #{window_activity}"
 client-focus-out[42] display-message "user hook"
 session-created
 HOOKS
@@ -33,20 +33,20 @@ HOOKS
 esac
 STUB
 
-cat >"$test_dir/bin/omarchy-restart-tmux" <<'STUB'
+cat >"$test_dir/bin/agent0s-restart-tmux" <<'STUB'
 #!/bin/bash
 
 echo restart >>"$TMUX_RESTARTS"
 STUB
 
-cat >"$test_dir/bin/omarchy-restart-shell" <<'STUB'
+cat >"$test_dir/bin/agent0s-restart-shell" <<'STUB'
 #!/bin/bash
 
 echo restart >>"$SHELL_RESTARTS"
 exit "${SHELL_RESTART_STATUS:-0}"
 STUB
 
-cat >"$test_dir/bin/omarchy-state" <<'STUB'
+cat >"$test_dir/bin/agent0s-state" <<'STUB'
 #!/bin/bash
 
 printf '%s\n' "$*" >>"$STATE_CALLS"
@@ -61,7 +61,7 @@ export STATE_CALLS="$test_dir/state-calls"
 
 home="$test_dir/home"
 tmux_config="$home/.config/tmux/tmux.conf"
-shell_config="$home/.config/omarchy/shell.json"
+shell_config="$home/.config/agent0s/shell.json"
 
 run_migration() {
   : >"$TMUX_CALLS"
@@ -74,7 +74,7 @@ run_migration() {
 
 reset_home() {
   rm -rf "$home"
-  mkdir -p "$home/.config/tmux" "$home/.config/omarchy"
+  mkdir -p "$home/.config/tmux" "$home/.config/agent0s"
 }
 
 # ---------------------------------------------------------------- tmux config
@@ -85,13 +85,13 @@ reset_home
 awk '
   /^# Status bar$/ {
     print "# Alerts"
-    print "set-hook -g alert-bell '\''run-shell -b \"omarchy-shell -q omarchy.indicators refresh\"'\''"
-    print "set-hook -g alert-activity '\''run-shell -b \"omarchy-shell -q omarchy.indicators refresh\"'\''"
-    print "set-hook -g alert-silence '\''run-shell -b \"omarchy-shell -q omarchy.indicators refresh\"'\''"
-    print "set-hook -g after-select-window '\''run-shell -b \"omarchy-tmux-alert track #{window_id} #{window_activity}\"'\''"
-    print "set-hook -g client-session-changed '\''run-shell -b \"omarchy-tmux-alert track #{window_id} #{window_activity}\"'\''"
-    print "set-hook -g client-focus-out[100] '\''run-shell -b \"omarchy-tmux-alert track #{window_id} #{window_activity}\"'\''"
-    print "set-hook -g client-focus-in[100] '\''run-shell -b \"omarchy-tmux-alert track #{window_id} #{window_activity}\"'\''"
+    print "set-hook -g alert-bell '\''run-shell -b \"agent0s-shell -q agent0s.indicators refresh\"'\''"
+    print "set-hook -g alert-activity '\''run-shell -b \"agent0s-shell -q agent0s.indicators refresh\"'\''"
+    print "set-hook -g alert-silence '\''run-shell -b \"agent0s-shell -q agent0s.indicators refresh\"'\''"
+    print "set-hook -g after-select-window '\''run-shell -b \"agent0s-tmux-alert track #{window_id} #{window_activity}\"'\''"
+    print "set-hook -g client-session-changed '\''run-shell -b \"agent0s-tmux-alert track #{window_id} #{window_activity}\"'\''"
+    print "set-hook -g client-focus-out[100] '\''run-shell -b \"agent0s-tmux-alert track #{window_id} #{window_activity}\"'\''"
+    print "set-hook -g client-focus-in[100] '\''run-shell -b \"agent0s-tmux-alert track #{window_id} #{window_activity}\"'\''"
     print ""
   }
   { print }
@@ -124,11 +124,11 @@ set-hook -g alert-bell 'display-message "mine"'
 set-hook -g client-focus-out[42] 'display-message "custom focus hook"'
 
 # Alerts
-set-hook -g alert-bell 'run-shell -b "omarchy-shell -q omarchy.indicators refresh"'
-set-hook -g alert-activity 'run-shell -b "omarchy-shell -q omarchy.indicators refresh"'
-set-hook -g after-select-window 'run-shell -b "omarchy-shell -q omarchy.indicators refresh"'
-  set-hook -g client-session-changed 'run-shell -b "omarchy-tmux-alert track #{window_id} #{window_activity}"'
-set-hook -g client-focus-out[100] 'run-shell -b "omarchy-tmux-alert track #{window_id} #{window_activity}"'
+set-hook -g alert-bell 'run-shell -b "agent0s-shell -q agent0s.indicators refresh"'
+set-hook -g alert-activity 'run-shell -b "agent0s-shell -q agent0s.indicators refresh"'
+set-hook -g after-select-window 'run-shell -b "agent0s-shell -q agent0s.indicators refresh"'
+  set-hook -g client-session-changed 'run-shell -b "agent0s-tmux-alert track #{window_id} #{window_activity}"'
+set-hook -g client-focus-out[100] 'run-shell -b "agent0s-tmux-alert track #{window_id} #{window_activity}"'
 EOF
 
 run_migration
@@ -139,7 +139,7 @@ expected=$(printf '%s\n' 'set -g mouse on' '' '' '# Custom' "set-hook -g alert-b
 pass "alert removal drops an appended block and keeps the user's lines"
 
 # An older config kept the refresh spelling of these two hooks; an indented one
-# is still the hook Omarchy wrote.
+# is still the hook Agent0S wrote.
 grep -q 'after-select-window\|client-session-changed' "$tmux_config" &&
   fail "alert removal drops the older and indented hook spellings"
 pass "alert removal drops the older and indented hook spellings"
@@ -160,7 +160,7 @@ cat >"$home/dotfiles/tmux.conf" <<'EOF'
 set -g mouse on
 
 # Alerts
-set-hook -g alert-bell 'run-shell -b "omarchy-shell -q omarchy.indicators refresh"'
+set-hook -g alert-bell 'run-shell -b "agent0s-shell -q agent0s.indicators refresh"'
 EOF
 ln -sf "$home/dotfiles/tmux.conf" "$tmux_config"
 
@@ -182,8 +182,8 @@ grep -Fxq 'set-hook -gu client-focus-in[100]' "$TMUX_CALLS" || fail "alert remov
 grep -q 'set-hook -gu client-focus-out\[42\]' "$TMUX_CALLS" && fail "alert removal keeps a user's hook at another index"
 pass "alert removal unsets the live hooks it installed"
 
-grep -Fxq 'set-option -wqu -t @0 @omarchy_unfocused_activity' "$TMUX_CALLS" || fail "alert removal clears tracked window options"
-grep -Fxq 'set-option -wqu -t @3 @omarchy_unfocused_activity' "$TMUX_CALLS" || fail "alert removal clears every tracked window"
+grep -Fxq 'set-option -wqu -t @0 @agent0s_unfocused_activity' "$TMUX_CALLS" || fail "alert removal clears tracked window options"
+grep -Fxq 'set-option -wqu -t @3 @agent0s_unfocused_activity' "$TMUX_CALLS" || fail "alert removal clears every tracked window"
 pass "alert removal clears the window options it stamped"
 
 TMUX_SERVER_MISSING=1 run_migration
@@ -198,15 +198,15 @@ cat >"$shell_config" <<'EOF'
   "bar": {
     "layout": {
       "left": [
-        { "id": "omarchy.indicators", "items": ["TmuxAlert", "Dnd", { "id": "TmuxAlert" }, { "id": "NightLight" }] }
+        { "id": "agent0s.indicators", "items": ["TmuxAlert", "Dnd", { "id": "TmuxAlert" }, { "id": "NightLight" }] }
       ],
       "center": [
-        { "id": "omarchy.indicators", "items": ["TmuxAlert"] },
-        { "id": "omarchy.clock" }
+        { "id": "agent0s.indicators", "items": ["TmuxAlert"] },
+        { "id": "agent0s.clock" }
       ],
       "right": [
-        { "id": "omarchy.indicators", "indicators": ["TmuxAlert", "Dnd"] },
-        { "id": "omarchy.indicators", "items": [] }
+        { "id": "agent0s.indicators", "indicators": ["TmuxAlert", "Dnd"] },
+        { "id": "agent0s.indicators", "items": [] }
       ]
     }
   }
@@ -222,7 +222,7 @@ pass "alert removal strips TmuxAlert from shell.json"
   fail "alert removal keeps the other picked indicators" "$(jq -c '.bar.layout.left[0].items' "$shell_config")"
 pass "alert removal keeps the other picked indicators"
 
-[[ $(jq -c '[.bar.layout.center[].id]' "$shell_config") == '["omarchy.clock"]' ]] ||
+[[ $(jq -c '[.bar.layout.center[].id]' "$shell_config") == '["agent0s.clock"]' ]] ||
   fail "alert removal drops a widget left with nothing to show" "$(jq -c '.bar.layout.center' "$shell_config")"
 pass "alert removal drops a widget left with nothing to show"
 
@@ -230,7 +230,7 @@ pass "alert removal drops a widget left with nothing to show"
   fail "alert removal handles the older indicators key" "$(jq -c '.bar.layout.right[0]' "$shell_config")"
 pass "alert removal handles the older indicators key"
 
-[[ $(jq -c '.bar.layout.right[1]' "$shell_config") == '{"id":"omarchy.indicators","items":[]}' ]] ||
+[[ $(jq -c '.bar.layout.right[1]' "$shell_config") == '{"id":"agent0s.indicators","items":[]}' ]] ||
   fail "alert removal leaves an already-empty list alone" "$(jq -c '.bar.layout.right[1]' "$shell_config")"
 pass "alert removal leaves an already-empty list alone"
 

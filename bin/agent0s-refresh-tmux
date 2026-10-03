@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# agent0s:summary=Overwrite the user tmux config with the Agent0S default and reload tmux.
+
+agent0s-refresh-config tmux/tmux.conf
+agent0s-restart-tmux

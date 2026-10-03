@@ -6,7 +6,7 @@ You can see all the main keyboard bindings with `Super + K` (Tmux bindings with 
 
 | Hotkey                  | Function              |
 | ----------------------- | --------------------- |
-| `Super + Space`           | Omarchy menu (apps and everything else)    |
+| `Super + Space`           | Agent0S menu (apps and everything else)    |
 | `Super + Alt + Space` | Apps menu |
 | `Super + Escape` | System menu (suspend, restart, etc)  |
 | `Super + Ctrl + L` | Lock computer |
@@ -135,7 +135,7 @@ Change/add bindings in `~/.config/hypr/bindings.lua`.
 | `Super + V`           | Paste    |
 | `Super + Ctrl + V`           | Clipboard manager    |
 
-Usually on Linux, you need `Ctrl + Shift + C/V` to copy'n'paste in the terminal and `Ctrl + C/V` to do it everywhere else. These Omarchy unified clipboard hotkeys work everywhere.
+Usually on Linux, you need `Ctrl + Shift + C/V` to copy'n'paste in the terminal and `Ctrl + C/V` to do it everywhere else. These Agent0S unified clipboard hotkeys work everywhere.
 
 ## Capture
 
@@ -155,7 +155,7 @@ Usually on Linux, you need `Ctrl + Shift + C/V` to copy'n'paste in the terminal 
 
 With screenrecordings, the hotkey first asks which audio you want, then starts recording. Hit it again to stop. See [screenshots and recording](12-screenshots-recording.md) for the details.
 
-All capture options are also accessible under _Trigger > Capture_ in the Omarchy menu (`Super + Space`).
+All capture options are also accessible under _Trigger > Capture_ in the Agent0S menu (`Super + Space`).
 
 ## Notifications
 
@@ -176,9 +176,9 @@ All capture options are also accessible under _Trigger > Capture_ in the Omarchy
 | `Super + Backspace` | Toggle transparency on a window |
 | `Super + Ctrl + Backspace` | Toggle single-window square aspect |
 
-Extra background images live in `~/.config/omarchy/backgrounds/<theme name>`. Also available via _Install > Style > Background_ in the Omarchy menu.
+Extra background images live in `~/.config/agent0s/backgrounds/<theme name>`. Also available via _Install > Style > Background_ in the Agent0S menu.
 
-All style options are also accessible under _Style_ in the Omarchy menu (`Super + Space`).
+All style options are also accessible under _Style_ in the Agent0S menu (`Super + Space`).
 
 ## Toggles
 
@@ -280,7 +280,7 @@ These functions must be run inside a Tmux session.
 
 ## Ghostty Terminal
 
-Ghostty terminal is installed using _Install > Terminal_ via the Omarchy menu.
+Ghostty terminal is installed using _Install > Terminal_ via the Agent0S menu.
 
 | Hotkey                  | Function              |
 | ----------------------- | --------------------- |
@@ -371,4 +371,4 @@ You can use `Super + Ctrl + E` to show a complete emoji picker that'll put the s
 | `CapsLock Space N` | Your name (as entered on setup)  |
 | `CapsLock Space E` | Your email (as entered on setup)  |
 
-You can add more of your own by editing `~/.XCompose`, then running `omarchy-restart-xcompose` in the terminal to get the changes picked up.
+You can add more of your own by editing `~/.XCompose`, then running `agent0s-restart-xcompose` in the terminal to get the changes picked up.

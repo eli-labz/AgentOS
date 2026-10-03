@@ -9,12 +9,12 @@ Item {
   id: root
 
   property var shell: null
-  property string omarchyPath: ""
+  property string agent0sPath: ""
 
   readonly property string home: Quickshell.env("HOME")
   readonly property string stateHome: home + "/.local/state"
   readonly property string userName: Quickshell.env("USER") || Quickshell.env("LOGNAME")
-  readonly property string currentBackgroundLink: stateHome + "/omarchy/current/background"
+  readonly property string currentBackgroundLink: stateHome + "/agent0s/current/background"
 
   property bool lockRequested: false
   property bool pendingSessionLock: false
@@ -44,7 +44,7 @@ Item {
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
   readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
-  readonly property var batteryService: shell && shell.services ? shell.firstPartyServiceFor("omarchy.battery") : null
+  readonly property var batteryService: shell && shell.services ? shell.firstPartyServiceFor("agent0s.battery") : null
   readonly property bool powerSaverActive: batteryService ? batteryService.powerSaverOnBattery : false
 
   function realScreenCount() {
@@ -120,7 +120,7 @@ Item {
   function logEvent(event) {
     lastEvent = event
     lastEventAt = new Date().toISOString()
-    console.log("omarchy lock " + lastEventAt + " " + event)
+    console.log("agent0s lock " + lastEventAt + " " + event)
   }
 
   function resetAuthenticationState() {
@@ -331,7 +331,7 @@ Item {
     visible: root.previewVisible
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
-    WlrLayershell.namespace: "omarchy-lock-preview"
+    WlrLayershell.namespace: "agent0s-lock-preview"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
     exclusionMode: ExclusionMode.Ignore
@@ -359,7 +359,7 @@ Item {
 
   PamContext {
     id: passwordPam
-    config: "omarchy-lock-password"
+    config: "agent0s-lock-password"
     user: root.userName
 
     onResponseRequiredChanged: root.respondToPasswordPrompt()
@@ -381,7 +381,7 @@ Item {
 
   PamContext {
     id: fingerprintPam
-    config: "omarchy-lock-fingerprint"
+    config: "agent0s-lock-fingerprint"
     user: root.userName
 
     onCompleted: function(result) {
@@ -418,7 +418,7 @@ Item {
 
   Process {
     id: fingerprintCheckProc
-    command: ["bash", "-c", "if [[ -f /etc/pam.d/omarchy-lock-fingerprint ]] && command -v fprintd-list >/dev/null 2>&1 && fprintd-list \"$USER\" 2>/dev/null | grep -qi finger; then echo yes; else echo no; fi"]
+    command: ["bash", "-c", "if [[ -f /etc/pam.d/agent0s-lock-fingerprint ]] && command -v fprintd-list >/dev/null 2>&1 && fprintd-list \"$USER\" 2>/dev/null | grep -qi finger; then echo yes; else echo no; fi"]
     stdout: StdioCollector { id: fingerprintCheckStdout; waitForEnd: true }
     onExited: {
       root.fingerprintConfigured = String(fingerprintCheckStdout.text || "").trim() === "yes"
@@ -429,7 +429,7 @@ Item {
 
   Process {
     id: strandedLockCheckProc
-    command: ["bash", "-c", "omarchy-hyprland-session-locked"]
+    command: ["bash", "-c", "agent0s-hyprland-session-locked"]
     onExited: function(exitCode) {
       // No output to read the lock off yet.
       if (exitCode === 2) return
@@ -444,12 +444,12 @@ Item {
 
   Process {
     id: wakeProcess
-    command: ["bash", "-c", "omarchy-system-wake"]
+    command: ["bash", "-c", "agent0s-system-wake"]
   }
 
   Process {
     id: blankProcess
-    command: ["bash", "-c", "omarchy-brightness-keyboard off; omarchy-brightness-display off"]
+    command: ["bash", "-c", "agent0s-brightness-keyboard off; agent0s-brightness-display off"]
   }
 
   // Quickshell exposes no DPMS signal, so the panel state is polled while a
@@ -552,7 +552,7 @@ Item {
   }
 
   FileView {
-    path: "/etc/pam.d/omarchy-lock-password"
+    path: "/etc/pam.d/agent0s-lock-password"
     watchChanges: true
     printErrors: false
     onLoaded: root.passwordPamConfigured = true

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# agent0s:summary=Launch the default coding agent with a prompt
+# agent0s:args=[--inline] <prompt...>
+# agent0s:examples=agent0s agent prompt "Review this project"
+
+# Prompts live here rather than on `agent0s agent`, where a bare prompt would
+# shadow the subcommands under that group.
+
+set -euo pipefail
+
+inline=()
+if [[ ${1:-} == "--inline" ]]; then
+  inline=(--inline)
+  shift
+fi
+
+if (($# == 0)); then
+  echo "Usage: agent0s agent prompt [--inline] <prompt...>" >&2
+  exit 1
+fi
+
+exec agent0s-agent "${inline[@]}" --prompt "$*"

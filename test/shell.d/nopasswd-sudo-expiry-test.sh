@@ -4,8 +4,8 @@ set -euo pipefail
 
 source "$(dirname "$0")/base-test.sh"
 
-script="$ROOT/bin/omarchy-sudo-passwordless"
-tmpfiles_file="$ROOT/etc/tmpfiles.d/omarchy-nopasswd-sudo.conf"
+script="$ROOT/bin/agent0s-sudo-passwordless"
+tmpfiles_file="$ROOT/etc/tmpfiles.d/agent0s-nopasswd-sudo.conf"
 test_tmp=$(mktemp -d)
 trap 'rm -rf "$test_tmp"' EXIT
 
@@ -69,7 +69,7 @@ enable_output=$(run_command 15)
 [[ -f $grant ]] || fail "successful timer setup leaves the passwordless sudo grant enabled"
 [[ $(cat "$grant") == "alice ALL=(ALL) NOPASSWD: ALL" ]] ||
   fail "the enabled grant belongs to the current user" "$(cat "$grant")"
-grep -q '^sudo systemd-run --on-active=15m .* rm -f -- /etc/sudoers.d/99-omarchy-nopasswd-alice$' "$calls" ||
+grep -q '^sudo systemd-run --on-active=15m .* rm -f -- /etc/sudoers.d/99-agent0s-nopasswd-alice$' "$calls" ||
   fail "enabling arms the expiry timer" "$(cat "$calls")"
 [[ $enable_output == *"automatically disable in 15 minutes"* ]] ||
   fail "success is reported after the timer is armed" "$enable_output"
@@ -106,18 +106,18 @@ sudoers_dir="$fake_root/etc/sudoers.d"
 mkdir -p "$sudoers_dir"
 grant_names=(alice buildbot-2 user.123 'service$')
 for grant_name in "${grant_names[@]}"; do
-  touch "$sudoers_dir/99-omarchy-nopasswd-$grant_name"
+  touch "$sudoers_dir/99-agent0s-nopasswd-$grant_name"
 done
-touch "$sudoers_dir/omarchy-dns"
+touch "$sudoers_dir/agent0s-dns"
 
 systemd-tmpfiles --root="$fake_root" --remove --inline "${tmpfiles_rules[@]}"
-[[ -f $sudoers_dir/99-omarchy-nopasswd-alice ]] ||
+[[ -f $sudoers_dir/99-agent0s-nopasswd-alice ]] ||
   fail "boot-only cleanup leaves a live grant alone outside boot"
 
 systemd-tmpfiles --root="$fake_root" --remove --boot --inline "${tmpfiles_rules[@]}"
 for grant_name in "${grant_names[@]}"; do
-  stale_grant="$sudoers_dir/99-omarchy-nopasswd-$grant_name"
+  stale_grant="$sudoers_dir/99-agent0s-nopasswd-$grant_name"
   [[ ! -e $stale_grant ]] || fail "boot cleanup removes every generated grant" "$stale_grant"
 done
-[[ -f $sudoers_dir/omarchy-dns ]] || fail "boot cleanup preserves unrelated sudoers rules"
+[[ -f $sudoers_dir/agent0s-dns ]] || fail "boot cleanup preserves unrelated sudoers rules"
 pass "systemd-tmpfiles removes generated grants only during boot"

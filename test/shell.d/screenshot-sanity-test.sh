@@ -36,11 +36,11 @@ require_command jq
 require_command python3
 
 shell_ipc() {
-  OMARCHY_PATH="$test_root" "$ROOT/bin/omarchy-shell" "$@"
+  AGENT0S_PATH="$test_root" "$ROOT/bin/agent0s-shell" "$@"
 }
 
 shell_ipc_quiet() {
-  OMARCHY_PATH="$test_root" "$ROOT/bin/omarchy-shell" -q "$@"
+  AGENT0S_PATH="$test_root" "$ROOT/bin/agent0s-shell" -q "$@"
 }
 
 fail_with_log() {
@@ -51,7 +51,7 @@ fail_with_log() {
 }
 
 TMPDIR=$(mktemp -d)
-test_root="$TMPDIR/omarchy"
+test_root="$TMPDIR/agent0s"
 test_home="$TMPDIR/home"
 stub_bin="$TMPDIR/bin"
 screenshot_dir="$TMPDIR/screenshots"
@@ -62,12 +62,12 @@ cp -a "$ROOT/shell" "$test_root/shell"
 ln -s "$ROOT/config" "$test_root/config"
 ln -s "$ROOT/bin" "$test_root/bin"
 
-cat >"$stub_bin/omarchy-update-available" <<'SH'
+cat >"$stub_bin/agent0s-update-available" <<'SH'
 #!/bin/bash
-echo "Omarchy update available (test)"
+echo "Agent0S update available (test)"
 exit 0
 SH
-chmod +x "$stub_bin/omarchy-update-available"
+chmod +x "$stub_bin/agent0s-update-available"
 
 cat >"$stub_bin/curl" <<'SH'
 #!/bin/bash
@@ -86,7 +86,7 @@ esac
 SH
 chmod +x "$stub_bin/curl"
 
-OMARCHY_PATH="$test_root" \
+AGENT0S_PATH="$test_root" \
 HOME="$test_home" \
 XDG_CONFIG_HOME="$test_home/.config" \
 XDG_CACHE_HOME="$test_home/.cache" \
@@ -105,13 +105,13 @@ for _ in {1..80}; do
   sleep 0.1
 done
 
-shell_ipc_quiet omarchy.system-update refresh >/dev/null 2>&1 || true
+shell_ipc_quiet agent0s.system-update refresh >/dev/null 2>&1 || true
 sleep 0.8
 
 geometry=$(shell_ipc shell debugBarGeometry)
 jq -e '
-  any(.[]; .id == "omarchy.menu" and .visible == true and .width > 0 and .height > 0) and
-  any(.[]; .id == "omarchy.clock" and .visible == true and .width > 0 and .height > 0)
+  any(.[]; .id == "agent0s.menu" and .visible == true and .width > 0 and .height > 0) and
+  any(.[]; .id == "agent0s.clock" and .visible == true and .width > 0 and .height > 0)
 ' <<<"$geometry" >/dev/null || {
   printf 'Geometry:\n' >&2
   jq . <<<"$geometry" >&2
@@ -119,11 +119,11 @@ jq -e '
 }
 
 screenshot=$(
-  OMARCHY_PATH="$test_root" \
-  OMARCHY_SCREENSHOT_DIR="$screenshot_dir" \
+  AGENT0S_PATH="$test_root" \
+  AGENT0S_SCREENSHOT_DIR="$screenshot_dir" \
   HOME="$test_home" \
   PATH="$stub_bin:$ROOT/bin:$PATH" \
-    "$ROOT/bin/omarchy" capture screenshot fullscreen save 2>"$screenshot_err" | tail -n 1
+    "$ROOT/bin/agent0s" capture screenshot fullscreen save 2>"$screenshot_err" | tail -n 1
 )
 
 [[ -n $screenshot && -f $screenshot ]] || fail_with_log "fullscreen screenshot was captured"

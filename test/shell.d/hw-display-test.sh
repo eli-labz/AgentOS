@@ -18,7 +18,7 @@ write_backlights() {
 }
 
 hw_display() {
-  OMARCHY_BACKLIGHT_PATH="$tmp_dir/backlight" "$ROOT/bin/omarchy-hw-display"
+  AGENT0S_BACKLIGHT_PATH="$tmp_dir/backlight" "$ROOT/bin/agent0s-hw-display"
 }
 
 write_backlights intel_backlight

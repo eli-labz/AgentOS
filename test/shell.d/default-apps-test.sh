@@ -17,53 +17,53 @@ setup_log="$test_tmp/setup-log"
 browser_file="$test_tmp/browser"
 mkdir -p "$mock_bin" "$test_home/.config" "$installed_dir"
 
-cat >"$mock_bin/omarchy-cmd-missing" <<'SH'
+cat >"$mock_bin/agent0s-cmd-missing" <<'SH'
 #!/bin/bash
-[[ ! -e $OMARCHY_TEST_INSTALLED_DIR/$1 ]]
+[[ ! -e $AGENT0S_TEST_INSTALLED_DIR/$1 ]]
 SH
 
-cat >"$mock_bin/omarchy-launch-floating-terminal-with-presentation" <<'SH'
+cat >"$mock_bin/agent0s-launch-floating-terminal-with-presentation" <<'SH'
 #!/bin/bash
-printf '%s\0' "$@" >"$OMARCHY_TEST_TERMINAL_LOG"
+printf '%s\0' "$@" >"$AGENT0S_TEST_TERMINAL_LOG"
 SH
 
-cat >"$mock_bin/omarchy-notification-send" <<'SH'
+cat >"$mock_bin/agent0s-notification-send" <<'SH'
 #!/bin/bash
-printf '%s\0' "$@" >>"$OMARCHY_TEST_NOTIFICATION_LOG"
+printf '%s\0' "$@" >>"$AGENT0S_TEST_NOTIFICATION_LOG"
 SH
 
-cat >"$mock_bin/omarchy-test-setup-call" <<'SH'
+cat >"$mock_bin/agent0s-test-setup-call" <<'SH'
 #!/bin/bash
-printf '%s:%s\n' "${0##*/}" "$*" >>"$OMARCHY_TEST_SETUP_LOG"
-[[ ${OMARCHY_TEST_SETUP_FAIL:-} != "${0##*/}" ]]
+printf '%s:%s\n' "${0##*/}" "$*" >>"$AGENT0S_TEST_SETUP_LOG"
+[[ ${AGENT0S_TEST_SETUP_FAIL:-} != "${0##*/}" ]]
 SH
 
 cat >"$mock_bin/sudo" <<'SH'
 #!/bin/bash
-printf 'sudo:%s\n' "$*" >>"$OMARCHY_TEST_SETUP_LOG"
-[[ ${OMARCHY_TEST_SETUP_FAIL:-} != "sudo" ]]
+printf 'sudo:%s\n' "$*" >>"$AGENT0S_TEST_SETUP_LOG"
+[[ ${AGENT0S_TEST_SETUP_FAIL:-} != "sudo" ]]
 SH
 
 cat >"$mock_bin/xdg-settings" <<'SH'
 #!/bin/bash
 case $1 in
-get) [[ -f $OMARCHY_TEST_BROWSER_FILE ]] && cat "$OMARCHY_TEST_BROWSER_FILE" ;;
-set) printf '%s\n' "$3" >"$OMARCHY_TEST_BROWSER_FILE" ;;
+get) [[ -f $AGENT0S_TEST_BROWSER_FILE ]] && cat "$AGENT0S_TEST_BROWSER_FILE" ;;
+set) printf '%s\n' "$3" >"$AGENT0S_TEST_BROWSER_FILE" ;;
 esac
 SH
 
-cat >"$mock_bin/omarchy-test-installer" <<'SH'
+cat >"$mock_bin/agent0s-test-installer" <<'SH'
 #!/bin/bash
 installer=${0##*/}
 
-if [[ $installer == "omarchy-install-browser" && ${OMARCHY_TEST_REAL_BROWSER_INSTALL:-false} == "true" ]]; then
-  exec "$ROOT/bin/omarchy-install-browser" "$@"
+if [[ $installer == "agent0s-install-browser" && ${AGENT0S_TEST_REAL_BROWSER_INSTALL:-false} == "true" ]]; then
+  exec "$ROOT/bin/agent0s-install-browser" "$@"
 fi
 
 case $installer in
-omarchy-pkg-add|omarchy-pkg-aur-add)
+agent0s-pkg-add|agent0s-pkg-aur-add)
   package=$1
-  printf 'pkg:%s\n' "$package" >>"$OMARCHY_TEST_INSTALL_LOG"
+  printf 'pkg:%s\n' "$package" >>"$AGENT0S_TEST_INSTALL_LOG"
   case $package in
   chromium) command=chromium ;;
   firefox) command=firefox ;;
@@ -74,9 +74,9 @@ omarchy-pkg-add|omarchy-pkg-aur-add)
   neovim) command=nvim ;;
   esac
   ;;
-omarchy-install-browser)
+agent0s-install-browser)
   selection=$1
-  printf 'browser:%s\n' "$selection" >>"$OMARCHY_TEST_INSTALL_LOG"
+  printf 'browser:%s\n' "$selection" >>"$AGENT0S_TEST_INSTALL_LOG"
   case $selection in
   chromium) command=chromium ;;
   chrome) command=google-chrome-stable ;;
@@ -87,13 +87,13 @@ omarchy-install-browser)
   zen) command=zen-browser ;;
   esac
   ;;
-omarchy-install-terminal)
+agent0s-install-terminal)
   command=$1
-  printf 'terminal:%s\n' "$command" >>"$OMARCHY_TEST_INSTALL_LOG"
+  printf 'terminal:%s\n' "$command" >>"$AGENT0S_TEST_INSTALL_LOG"
   ;;
-omarchy-install-editor-*)
-  editor=${installer#omarchy-install-editor-}
-  printf 'editor:%s\n' "$editor" >>"$OMARCHY_TEST_INSTALL_LOG"
+agent0s-install-editor-*)
+  editor=${installer#agent0s-install-editor-}
+  printf 'editor:%s\n' "$editor" >>"$AGENT0S_TEST_INSTALL_LOG"
   case $editor in
   vscode) command=code ;;
   zed) command=zeditor ;;
@@ -103,48 +103,48 @@ omarchy-install-editor-*)
   ;;
 esac
 
-[[ ${OMARCHY_TEST_INSTALL_FAIL:-false} != "true" ]] || exit 1
-touch "$OMARCHY_TEST_INSTALLED_DIR/$command"
+[[ ${AGENT0S_TEST_INSTALL_FAIL:-false} != "true" ]] || exit 1
+touch "$AGENT0S_TEST_INSTALLED_DIR/$command"
 SH
 
 for installer in \
-  omarchy-pkg-add \
-  omarchy-pkg-aur-add \
-  omarchy-install-browser \
-  omarchy-install-terminal \
-  omarchy-install-editor-vscode \
-  omarchy-install-editor-zed \
-  omarchy-install-editor-helix \
-  omarchy-install-editor-emacs; do
-  ln -s omarchy-test-installer "$mock_bin/$installer"
+  agent0s-pkg-add \
+  agent0s-pkg-aur-add \
+  agent0s-install-browser \
+  agent0s-install-terminal \
+  agent0s-install-editor-vscode \
+  agent0s-install-editor-zed \
+  agent0s-install-editor-helix \
+  agent0s-install-editor-emacs; do
+  ln -s agent0s-test-installer "$mock_bin/$installer"
 done
 for setup_command in \
-  omarchy-install-chromium-copy-url \
-  omarchy-install-chromium-ytdlp \
-  omarchy-theme-set-browser; do
-  ln -s omarchy-test-setup-call "$mock_bin/$setup_command"
+  agent0s-install-chromium-copy-url \
+  agent0s-install-chromium-ytdlp \
+  agent0s-theme-set-browser; do
+  ln -s agent0s-test-setup-call "$mock_bin/$setup_command"
 done
 
 chmod +x "$mock_bin"/*
 
 export HOME="$test_home"
 export PATH="$mock_bin:$ROOT/bin:$PATH"
-export OMARCHY_PATH="$ROOT"
-export OMARCHY_TEST_INSTALLED_DIR="$installed_dir"
-export OMARCHY_TEST_INSTALL_LOG="$install_log"
-export OMARCHY_TEST_TERMINAL_LOG="$terminal_log"
-export OMARCHY_TEST_NOTIFICATION_LOG="$notification_log"
-export OMARCHY_TEST_SETUP_LOG="$setup_log"
-export OMARCHY_TEST_BROWSER_FILE="$browser_file"
+export AGENT0S_PATH="$ROOT"
+export AGENT0S_TEST_INSTALLED_DIR="$installed_dir"
+export AGENT0S_TEST_INSTALL_LOG="$install_log"
+export AGENT0S_TEST_TERMINAL_LOG="$terminal_log"
+export AGENT0S_TEST_NOTIFICATION_LOG="$notification_log"
+export AGENT0S_TEST_SETUP_LOG="$setup_log"
+export AGENT0S_TEST_BROWSER_FILE="$browser_file"
 
 assert_missing_opens_installer() {
   local type=$1
   local selection=$2
 
   : >"$terminal_log"
-  "omarchy-default-$type" "$selection"
+  "agent0s-default-$type" "$selection"
   mapfile -d '' -t terminal_args <"$terminal_log"
-  [[ ${terminal_args[*]} == "omarchy-default-$type --install $selection" ]] ||
+  [[ ${terminal_args[*]} == "agent0s-default-$type --install $selection" ]] ||
     fail "missing $selection opens its default installer in a terminal"
 }
 
@@ -194,18 +194,18 @@ for entry in "${browser_cases[@]}"; do
   read -r selection command installer <<<"$entry"
   rm -f "$installed_dir/$command"
   : >"$install_log"
-  omarchy-default-browser --install "$selection"
+  agent0s-default-browser --install "$selection"
   [[ $(<"$install_log") == "$installer" ]] || fail "$selection uses its browser installer"
-  [[ $(omarchy-default-browser) == "$selection" ]] || fail "$selection becomes the default browser after installation"
+  [[ $(agent0s-default-browser) == "$selection" ]] || fail "$selection becomes the default browser after installation"
 done
 pass "browser defaults install every missing browser before selection"
 
 : >"$install_log"
 : >"$setup_log"
 rm -f "$installed_dir/chromium"
-OMARCHY_TEST_REAL_BROWSER_INSTALL=true omarchy-default-browser --install chromium >/dev/null
+AGENT0S_TEST_REAL_BROWSER_INSTALL=true agent0s-default-browser --install chromium >/dev/null
 [[ $(<"$install_log") == "pkg:chromium" ]] || fail "Chromium browser installer installs the package"
-[[ $(omarchy-default-browser) == "chromium" ]] || fail "Chromium becomes the default after its full installer succeeds"
+[[ $(agent0s-default-browser) == "chromium" ]] || fail "Chromium becomes the default after its full installer succeeds"
 cmp -s "$ROOT/config/chromium-flags.conf" "$test_home/.config/chromium-flags.conf" ||
   fail "Chromium browser installer copies the default flags"
 grep -Fxq 'sudo:install -d -m 0755 -o root -g root /etc/chromium' "$setup_log" ||
@@ -216,23 +216,23 @@ grep -Fxq 'sudo:install -d -m 0755 -o root -g root /etc/chromium/policies/manage
   fail "Chromium browser installer creates a root-owned managed policy directory"
 grep -Fxq 'sudo:find /etc/chromium/policies/managed -mindepth 1 -maxdepth 1 ! -user root -exec rm -rf -- {} +' "$setup_log" ||
   fail "Chromium browser installer drops non-root files from its policy directory"
-if grep -E 'groupadd|usermod|omarchy-browser-policy' "$setup_log" >/dev/null; then
+if grep -E 'groupadd|usermod|agent0s-browser-policy' "$setup_log" >/dev/null; then
   fail "Chromium browser installer does not create a browser-policy group" "$(cat "$setup_log")"
 fi
-grep -Fxq 'omarchy-install-chromium-copy-url:' "$setup_log" ||
+grep -Fxq 'agent0s-install-chromium-copy-url:' "$setup_log" ||
   fail "Chromium browser installer registers the Copy URL host"
-grep -Fxq 'omarchy-install-chromium-ytdlp:' "$setup_log" ||
+grep -Fxq 'agent0s-install-chromium-ytdlp:' "$setup_log" ||
   fail "Chromium browser installer registers the yt-dlp host"
-grep -Fxq 'omarchy-theme-set-browser:' "$setup_log" ||
+grep -Fxq 'agent0s-theme-set-browser:' "$setup_log" ||
   fail "Chromium browser installer applies the current theme"
-pass "Chromium browser installer restores the complete Omarchy setup"
+pass "Chromium browser installer restores the complete Agent0S setup"
 
 : >"$install_log"
 : >"$setup_log"
 rm -f "$installed_dir/firefox"
-OMARCHY_TEST_REAL_BROWSER_INSTALL=true omarchy-default-browser --install firefox >/dev/null
+AGENT0S_TEST_REAL_BROWSER_INSTALL=true agent0s-default-browser --install firefox >/dev/null
 [[ $(<"$install_log") == "pkg:firefox" ]] || fail "Firefox browser installer installs the package"
-[[ $(omarchy-default-browser) == "firefox" ]] || fail "Firefox becomes the default after its full installer succeeds"
+[[ $(agent0s-default-browser) == "firefox" ]] || fail "Firefox becomes the default after its full installer succeeds"
 grep -Fxq 'sudo:install -d -m 0755 -o root -g root /usr/lib/firefox/distribution' "$setup_log" ||
   fail "Firefox browser installer creates its distribution directory"
 grep -Fxq 'sudo:find /usr/lib/firefox/distribution -mindepth 1 -maxdepth 1 ! -user root -exec rm -rf -- {} +' "$setup_log" ||
@@ -240,14 +240,14 @@ grep -Fxq 'sudo:find /usr/lib/firefox/distribution -mindepth 1 -maxdepth 1 ! -us
 grep -Fxq "sudo:install -m 644 -o root -g root -T $ROOT/default/firefox/policies.json /usr/lib/firefox/distribution/policies.json" "$setup_log" ||
   fail "Firefox browser installer copies policies.json without following a destination symlink"
 [[ -e $installed_dir/firefox ]] || fail "Firefox browser installer marks firefox installed"
-pass "Firefox browser installer restores the complete Omarchy setup"
+pass "Firefox browser installer restores the complete Agent0S setup"
 
 : >"$install_log"
 : >"$setup_log"
 rm -f "$installed_dir/zen-browser"
-OMARCHY_TEST_REAL_BROWSER_INSTALL=true omarchy-default-browser --install zen >/dev/null
+AGENT0S_TEST_REAL_BROWSER_INSTALL=true agent0s-default-browser --install zen >/dev/null
 [[ $(<"$install_log") == "pkg:zen-browser-bin" ]] || fail "Zen browser installer installs the package"
-[[ $(omarchy-default-browser) == "zen" ]] || fail "Zen becomes the default after its full installer succeeds"
+[[ $(agent0s-default-browser) == "zen" ]] || fail "Zen becomes the default after its full installer succeeds"
 grep -Fxq 'sudo:install -d -m 0755 -o root -g root /opt/zen-browser/distribution' "$setup_log" ||
   fail "Zen browser installer creates its distribution directory"
 grep -Fxq 'sudo:find /opt/zen-browser/distribution -mindepth 1 -maxdepth 1 ! -user root -exec rm -rf -- {} +' "$setup_log" ||
@@ -255,23 +255,23 @@ grep -Fxq 'sudo:find /opt/zen-browser/distribution -mindepth 1 -maxdepth 1 ! -us
 grep -Fxq "sudo:install -m 644 -o root -g root -T $ROOT/default/firefox/policies.json /opt/zen-browser/distribution/policies.json" "$setup_log" ||
   fail "Zen browser installer copies policies.json without following a destination symlink"
 [[ -e $installed_dir/zen-browser ]] || fail "Zen browser installer marks zen-browser installed"
-pass "Zen browser installer restores the complete Omarchy setup"
+pass "Zen browser installer restores the complete Agent0S setup"
 
-omarchy-default-browser zen
+agent0s-default-browser zen
 rm -f "$installed_dir/chromium"
-if OMARCHY_TEST_REAL_BROWSER_INSTALL=true OMARCHY_TEST_INSTALL_FAIL=true \
-  omarchy-default-browser --install chromium >"$test_tmp/browser-package-failure" 2>&1; then
+if AGENT0S_TEST_REAL_BROWSER_INSTALL=true AGENT0S_TEST_INSTALL_FAIL=true \
+  agent0s-default-browser --install chromium >"$test_tmp/browser-package-failure" 2>&1; then
   fail "failed Chromium package installation returns an error"
 fi
-[[ $(omarchy-default-browser) == "zen" ]] || fail "failed Chromium package installation preserves the default browser"
+[[ $(agent0s-default-browser) == "zen" ]] || fail "failed Chromium package installation preserves the default browser"
 [[ ! -e $installed_dir/chromium ]] || fail "failed Chromium package installation does not mark it installed"
 pass "failed Chromium package installation preserves the current default"
 
-if OMARCHY_TEST_REAL_BROWSER_INSTALL=true OMARCHY_TEST_SETUP_FAIL=sudo \
-  omarchy-default-browser --install chromium >"$test_tmp/browser-install-failure" 2>&1; then
+if AGENT0S_TEST_REAL_BROWSER_INSTALL=true AGENT0S_TEST_SETUP_FAIL=sudo \
+  agent0s-default-browser --install chromium >"$test_tmp/browser-install-failure" 2>&1; then
   fail "failed Chromium setup returns an error"
 fi
-[[ $(omarchy-default-browser) == "zen" ]] || fail "failed Chromium setup preserves the default browser"
+[[ $(agent0s-default-browser) == "zen" ]] || fail "failed Chromium setup preserves the default browser"
 grep -Fq 'Installing Chromium' "$test_tmp/browser-install-failure" ||
   fail "failed Chromium setup keeps progress visible in the terminal"
 pass "failed Chromium setup preserves the current default"
@@ -280,7 +280,7 @@ for entry in "${terminal_cases[@]}"; do
   read -r selection desktop_id <<<"$entry"
   rm -f "$installed_dir/$selection"
   : >"$install_log"
-  omarchy-default-terminal --install "$selection"
+  agent0s-default-terminal --install "$selection"
   [[ $(<"$install_log") == "terminal:$selection" ]] || fail "$selection uses the terminal installer"
   [[ $(tail -n 1 "$test_home/.config/xdg-terminals.list") == "$desktop_id" ]] ||
     fail "$selection becomes the default terminal after installation"
@@ -291,24 +291,24 @@ for entry in "${editor_cases[@]}"; do
   read -r selection command installer <<<"$entry"
   rm -f "$installed_dir/$command"
   : >"$install_log"
-  omarchy-default-editor --install "$selection"
+  agent0s-default-editor --install "$selection"
   [[ $(<"$install_log") == "$installer" ]] || fail "$selection uses its editor installer"
-  [[ $(omarchy-default-editor) == "$command" ]] || fail "$selection becomes the default editor after installation"
+  [[ $(agent0s-default-editor) == "$command" ]] || fail "$selection becomes the default editor after installation"
 done
 pass "editor defaults install every missing editor before selection"
 
 : >"$install_log"
 : >"$terminal_log"
-omarchy-default-browser zen
-omarchy-default-terminal kitty
-omarchy-default-editor nvim
+agent0s-default-browser zen
+agent0s-default-terminal kitty
+agent0s-default-editor nvim
 [[ ! -s $install_log && ! -s $terminal_log ]] || fail "installed defaults skip installation"
 pass "installed defaults are selected immediately"
 
-previous_editor=$(omarchy-default-editor)
+previous_editor=$(agent0s-default-editor)
 rm -f "$installed_dir/vim"
-if OMARCHY_TEST_INSTALL_FAIL=true omarchy-default-editor --install vim >"$test_tmp/install-failure" 2>&1; then
+if AGENT0S_TEST_INSTALL_FAIL=true agent0s-default-editor --install vim >"$test_tmp/install-failure" 2>&1; then
   fail "failed default installation returns an error"
 fi
-[[ $(omarchy-default-editor) == "$previous_editor" ]] || fail "failed installation preserves the default"
+[[ $(agent0s-default-editor) == "$previous_editor" ]] || fail "failed installation preserves the default"
 pass "failed installation preserves the current default"

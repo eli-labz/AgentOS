@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# agent0s:summary=Ensure the OpenClaw CLI is installed for the default agent
+# agent0s:args=[--check|--now]
+# agent0s:requires-sudo=true
+
+# OpenClaw is not a mise tool: the openclaw pacman package is the one OpenClaw
+# installation on the machine — the CLI, the gateway, and the Install > AI web
+# app all share it, and the fast ring keeps it current. The default-agent flow
+# talks to that package through the same --check/--now contract mise-backed
+# agents get from mise itself.
+
+set -euo pipefail
+
+case "${1:---now}" in
+--check)
+  agent0s-pkg-present openclaw
+  ;;
+--now)
+  if ! agent0s-pkg-present openclaw; then
+    echo "Installing OpenClaw..."
+    agent0s-pkg-add openclaw
+  fi
+  ;;
+*)
+  echo "Usage: agent0s-install-openclaw-cli [--check|--now]" >&2
+  exit 1
+  ;;
+esac

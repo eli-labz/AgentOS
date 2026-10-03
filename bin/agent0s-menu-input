@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# agent0s:summary=Prompt for text input from a menu
+# agent0s:group=menu
+# agent0s:name=input
+# agent0s:args=prompt [menu args...]
+# agent0s:examples=agent0s menu input Reminder|agent0s-menu-input "Reminder in minutes" --width 400
+
+set -euo pipefail
+
+prompt="${1:-Input}"
+if (( $# > 0 )); then
+  shift
+fi
+
+menu_width=""
+
+while (( $# > 0 )); do
+  case "$1" in
+    --width)
+      shift
+      if (( $# == 0 )); then
+        echo "agent0s-menu-input: --width requires a value" >&2
+        exit 1
+      fi
+      menu_width="$1"
+      ;;
+  esac
+  shift
+done
+
+selection_file=$(mktemp)
+done_file=$(mktemp)
+rm -f "$done_file"
+trap 'rm -f "$selection_file" "$done_file"' EXIT
+
+payload=$(perl -MEncode=decode -MJSON::PP=encode_json -e '
+  my $payload = {
+    mode => "input",
+    prompt => decode("UTF-8", $ARGV[0]),
+    selectionFile => decode("UTF-8", $ARGV[1]),
+    doneFile => decode("UTF-8", $ARGV[2])
+  };
+  $payload->{width} = int($ARGV[3]) if length($ARGV[3] // "");
+  print encode_json($payload)
+' "$prompt" "$selection_file" "$done_file" "$menu_width")
+
+agent0s-shell shell summon agent0s.menu "$payload" >/dev/null
+
+while [[ ! -e $done_file ]]; do
+  sleep 0.05
+done
+
+if [[ -s $selection_file ]]; then
+  cat "$selection_file"
+else
+  exit 1
+fi

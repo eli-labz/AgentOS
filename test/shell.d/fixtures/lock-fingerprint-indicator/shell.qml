@@ -5,8 +5,8 @@ import qs.Commons
 ShellRoot {
   id: root
 
-  readonly property string resultPath: Quickshell.env("OMARCHY_QML_TEST_RESULT")
-  readonly property string rootPath: Quickshell.env("OMARCHY_PATH")
+  readonly property string resultPath: Quickshell.env("AGENT0S_QML_TEST_RESULT")
+  readonly property string rootPath: Quickshell.env("AGENT0S_PATH")
   property var failures: []
 
   function fail(message) {

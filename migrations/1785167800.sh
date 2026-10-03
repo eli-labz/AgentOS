@@ -9,13 +9,13 @@ systemctl --user daemon-reload >/dev/null 2>&1 || true
 
 # Enable without --now, and start by hand further down only when there is a
 # session to start into. `systemctl enable` needs a live user manager, which an
-# `omarchy update` from a TTY does not have, so fall back to writing exactly the
+# `agent0s update` from a TTY does not have, so fall back to writing exactly the
 # symlink it would have written rather than silently leaving this unenabled.
-if ! systemctl --user enable omarchy-fcitx5.service >/dev/null 2>&1; then
+if ! systemctl --user enable agent0s-fcitx5.service >/dev/null 2>&1; then
   wants_dir="$HOME/.config/systemd/user/graphical-session.target.wants"
   mkdir -p "$wants_dir"
-  ln -sfn /usr/lib/systemd/user/omarchy-fcitx5.service \
-    "$wants_dir/omarchy-fcitx5.service"
+  ln -sfn /usr/lib/systemd/user/agent0s-fcitx5.service \
+    "$wants_dir/agent0s-fcitx5.service"
 fi
 
 # Outside a graphical session -- an update over SSH -- there is nothing to hand
@@ -31,8 +31,8 @@ if systemctl --user is-active --quiet graphical-session.target; then
   # Report what systemctl actually said. This kills a fcitx5 that was working a
   # moment ago, so a start failure here has to be loud instead of leaving the
   # session with no input method and a migration marked complete.
-  if ! error=$(systemctl --user start omarchy-fcitx5.service 2>&1); then
-    echo "Could not start omarchy-fcitx5.service: $error"
+  if ! error=$(systemctl --user start agent0s-fcitx5.service 2>&1); then
+    echo "Could not start agent0s-fcitx5.service: $error"
     echo "Compose sequences (CapsLock m s) will not work until the next login."
   fi
 fi

@@ -4,7 +4,7 @@ import qs.Ui
 BarIndicator {
   id: root
 
-  readonly property var nightlightService: bar?.shell?.firstPartyServiceFor("omarchy.nightlight")
+  readonly property var nightlightService: bar?.shell?.firstPartyServiceFor("agent0s.nightlight")
 
   active: nightlightService ? nightlightService.enabled : false
   activeText: "󰔎"

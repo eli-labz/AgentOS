@@ -3,7 +3,7 @@
 # Without this quirk, only one speaker works and bass output is missing.
 # Reference: https://wiki.archlinux.org/title/Lenovo_Yoga_9i_2022_(14AiPI7)
 
-if omarchy-hw-match "Yoga Pro 7 14IAH10"; then
+if agent0s-hw-match "Yoga Pro 7 14IAH10"; then
   sudo mkdir -p /etc/modprobe.d
   sudo tee /etc/modprobe.d/lenovo-yoga-pro7-bass.conf >/dev/null <<'EOF'
 options snd-sof-intel-hda-generic hda_model=alc287-yoga9-bass-spk-pin

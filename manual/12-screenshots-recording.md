@@ -17,9 +17,9 @@ Hit `Print Screen` and the screen freezes so nothing shifts under you while you 
 
 The result goes two places at once: a PNG in your pictures directory, and the clipboard, so you can paste it straight into a chat window with `Super + V`. A notification pops up with a thumbnail. Click it (or hit `Super + Alt + ,` to invoke the last notification) and the shot opens in Tensaku, the annotation editor, where you can draw arrows and boxes on it before you send it.
 
-Files land in `~/Pictures` by default, named `screenshot-2026-08-13_14-22-05.png`. If you'd rather keep them in their own folder, set `OMARCHY_SCREENSHOT_DIR` — see [the FAQ](46-faq.md) for where to put session environment variables. Omarchy creates the directory for you if it isn't there. You can swap the editor too with `OMARCHY_SCREENSHOT_EDITOR`.
+Files land in `~/Pictures` by default, named `screenshot-2026-08-13_14-22-05.png`. If you'd rather keep them in their own folder, set `AGENT0S_SCREENSHOT_DIR` — see [the FAQ](46-faq.md) for where to put session environment variables. Agent0S creates the directory for you if it isn't there. You can swap the editor too with `AGENT0S_SCREENSHOT_EDITOR`.
 
-From the terminal, `omarchy screenshot` takes the same shot, and you can be explicit about it: `omarchy capture screenshot region` for freeform only, `windows` to snap to window and monitor rectangles, or `fullscreen` to skip the picker entirely and grab the focused monitor. A second argument of `copy` puts the shot only on the clipboard, and `save` only on disk.
+From the terminal, `agent0s screenshot` takes the same shot, and you can be explicit about it: `agent0s capture screenshot region` for freeform only, `windows` to snap to window and monitor rectangles, or `fullscreen` to skip the picker entirely and grab the focused monitor. A second argument of `copy` puts the shot only on the clipboard, and `save` only on disk.
 
 ### Driving the picker from the keyboard
 
@@ -38,7 +38,7 @@ The arrows and Tab move the cursor to the window they pick, so the highlight fol
 
 `Alt + Print Screen` opens _Trigger > Capture > Screenrecord_, which asks what you want on the soundtrack: no audio, desktop audio, desktop plus microphone, or desktop plus microphone plus webcam. That last one only shows up if you actually have a camera plugged in. Pick one and you get the same picker as a screenshot: drag a region, or click a window or monitor.
 
-Recording runs on gpu-screen-recorder, which encodes on the GPU at 60fps and falls back to the CPU if it has to. The result is an MP4 in `~/Videos`, named `screenrecording-2026-08-13_14-22-05.mp4`. Set `OMARCHY_SCREENRECORD_DIR` to change that — but note that unlike the screenshot directory, this one has to exist already, or the recording refuses to start.
+Recording runs on gpu-screen-recorder, which encodes on the GPU at 60fps and falls back to the CPU if it has to. The result is an MP4 in `~/Videos`, named `screenrecording-2026-08-13_14-22-05.mp4`. Set `AGENT0S_SCREENRECORD_DIR` to change that — but note that unlike the screenshot directory, this one has to exist already, or the recording refuses to start.
 
 While you're recording, a little indicator shows up in the bar. Click it to stop. You can also stop with `Alt + Print Screen` again, or with the _Stop Screenrecording_ entry under _Trigger > Capture > Screenrecord_, which only appears while something is actually recording.
 
@@ -55,7 +55,7 @@ When you record with a webcam, the camera appears as a pinned, cropped portrait 
 
 There are three sizes — small, medium, and large — and the hotkeys step between them. Medium is the default. They're proportional to the recording, so the camera takes up the same share of the frame whether you're recording a 1080p monitor or a 6K one. And if you recorded a region rather than a whole display, the overlay anchors to that region's corner rather than the monitor's, so it stays inside the shot.
 
-You can also call it directly with `omarchy-capture-webcam-resize small`, or `reset` to go back to medium.
+You can also call it directly with `agent0s-capture-webcam-resize small`, or `reset` to go back to medium.
 
 ## Text, QR codes, and colours
 
@@ -71,7 +71,7 @@ A 4K screen recording or a raw HEIC off your phone is often too big to just send
 
 Pictures go to jpg or png at high, medium, or low, which cap the width at 3160, 2160, and 1080 pixels. Videos go to mp4 or an animated gif at 4k, 1080p, or 720p. The converted file is written next to the original with the resolution in the name — `demo-1080p.mp4` — and the path is copied to the clipboard as a file URI, so you can paste it directly into an app that takes file drops.
 
-It works from the terminal too, if you already know what you want: `omarchy transcode ~/Videos/demo.mov mp4 1080p`. There's also `omarchy transcode ascii`, which turns an image into ASCII art — that one's mostly for [branding](41-branding.md).
+It works from the terminal too, if you already know what you want: `agent0s transcode ~/Videos/demo.mov mp4 1080p`. There's also `agent0s transcode ascii`, which turns an image into ASCII art — that one's mostly for [branding](41-branding.md).
 
 ## Sending it somewhere
 

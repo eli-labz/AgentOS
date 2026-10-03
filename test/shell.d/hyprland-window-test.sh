@@ -24,7 +24,7 @@ chmod +x "$tmpdir/hyprctl"
 
 log="$tmpdir/hyprctl.log"
 PATH="$tmpdir:$PATH" HYPRCTL_LOG="$log" HYPR_FULLSCREEN_CLIENT=0 \
-  "$ROOT/bin/omarchy-hyprland-window-tiled-fullscreen-toggle"
+  "$ROOT/bin/agent0s-hyprland-window-tiled-fullscreen-toggle"
 
 grep -Fq 'hl.dsp.window.fullscreen_state({ internal = 0, client = 2 })' "$log" || \
   fail "tiled fullscreen enables client fullscreen"
@@ -32,7 +32,7 @@ pass "tiled fullscreen enables client fullscreen"
 
 >"$log"
 PATH="$tmpdir:$PATH" HYPRCTL_LOG="$log" HYPR_FULLSCREEN_CLIENT=2 \
-  "$ROOT/bin/omarchy-hyprland-window-tiled-fullscreen-toggle"
+  "$ROOT/bin/agent0s-hyprland-window-tiled-fullscreen-toggle"
 
 grep -Fq 'hl.dsp.window.fullscreen_state({ internal = 0, client = 0 })' "$log" || \
   fail "tiled fullscreen disables client fullscreen"

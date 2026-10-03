@@ -11,4 +11,4 @@
 
 set -euo pipefail
 
-omarchy-audio-tuning on
+agent0s-audio-tuning on

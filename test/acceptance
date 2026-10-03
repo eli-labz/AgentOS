@@ -1,32 +1,32 @@
 #!/bin/bash
 #
-# In-guest acceptance suite. Runs inside a live Omarchy session (typically a
+# In-guest acceptance suite. Runs inside a live Agent0S session (typically a
 # VM installed by omarchy-iso-test, reached over SSH) and verifies that the
 # desktop actually works: session health, application launches, and shell
 # surfaces (launcher, emoji picker, menu).
 #
-# Artifacts (screenshots, logs) land in $OMARCHY_ACCEPTANCE_DIR.
+# Artifacts (screenshots, logs) land in $AGENT0S_ACCEPTANCE_DIR.
 
 set -euo pipefail
 
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 TEST_DIR="$ROOT/test/acceptance.d"
 
-export OMARCHY_ACCEPTANCE_DIR="${OMARCHY_ACCEPTANCE_DIR:-/tmp/omarchy-acceptance}"
-mkdir -p "$OMARCHY_ACCEPTANCE_DIR"
+export AGENT0S_ACCEPTANCE_DIR="${AGENT0S_ACCEPTANCE_DIR:-/tmp/agent0s-acceptance}"
+mkdir -p "$AGENT0S_ACCEPTANCE_DIR"
 
 # Discover the graphical session so the suite works over SSH, where none of
 # the session environment is inherited.
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
 # The suite verifies the installed product the session is running, so default
-# OMARCHY_PATH to the installed tree — never this checkout, which may hold
-# only test/ (omarchy-iso-test's --sync-omarchy). qs matches shell instances
+# AGENT0S_PATH to the installed tree — never this checkout, which may hold
+# only test/ (omarchy-iso-test's --sync-agent0s). qs matches shell instances
 # by config path, so a suite pointed at any other tree reads the session
 # shell as "not running". Callers testing a different tree pass it explicitly.
-export OMARCHY_PATH="${OMARCHY_PATH:-/usr/share/omarchy}"
+export AGENT0S_PATH="${AGENT0S_PATH:-/usr/share/agent0s}"
 
-export PATH="$OMARCHY_PATH/bin:$PATH"
+export PATH="$AGENT0S_PATH/bin:$PATH"
 
 if [[ -z ${DISPLAY:-} ]]; then
   display=$(systemctl --user show-environment | sed -n 's/^DISPLAY=//p' | head -1)
@@ -39,7 +39,7 @@ if [[ -z ${LANG:-} ]]; then
 fi
 
 # First boot may still be settling; wait for Hyprland to come up.
-boot_deadline=$((SECONDS + ${OMARCHY_ACCEPTANCE_BOOT_TIMEOUT:-300}))
+boot_deadline=$((SECONDS + ${AGENT0S_ACCEPTANCE_BOOT_TIMEOUT:-300}))
 
 wait_for_session() {
   local signature
@@ -87,15 +87,15 @@ suite_started=$SECONDS
 for test in "${tests[@]}"; do
   test_started=$SECONDS
   printf '==> %s\n' "${test#$ROOT/}"
-  if ! timeout "${OMARCHY_ACCEPTANCE_TEST_TIMEOUT:-420}" bash "$test"; then
+  if ! timeout "${AGENT0S_ACCEPTANCE_TEST_TIMEOUT:-420}" bash "$test"; then
     status=1
   fi
   printf '    completed in %ss\n' "$((SECONDS - test_started))"
 done
 
 if ((status != 0)); then
-  printf 'not ok - acceptance suite failed in %ss (artifacts in %s)\n' "$((SECONDS - suite_started))" "$OMARCHY_ACCEPTANCE_DIR" >&2
+  printf 'not ok - acceptance suite failed in %ss (artifacts in %s)\n' "$((SECONDS - suite_started))" "$AGENT0S_ACCEPTANCE_DIR" >&2
   exit $status
 fi
 
-printf 'ok - acceptance suite passed in %ss (artifacts in %s)\n' "$((SECONDS - suite_started))" "$OMARCHY_ACCEPTANCE_DIR"
+printf 'ok - acceptance suite passed in %ss (artifacts in %s)\n' "$((SECONDS - suite_started))" "$AGENT0S_ACCEPTANCE_DIR"

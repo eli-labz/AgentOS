@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# agent0s:summary=Cache background switcher thumbnails for the current theme
+
+theme_name=$(cat "$HOME/.local/state/agent0s/current/theme.name" 2>/dev/null)
+
+agent0s-menu-images \
+  --cache-only \
+  "$HOME/.local/state/agent0s/current/theme/backgrounds" \
+  "$HOME/.config/agent0s/backgrounds/$theme_name"

@@ -4,7 +4,7 @@ set -euo pipefail
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
-setup="$ROOT/bin/omarchy-setup-security-fido2"
+setup="$ROOT/bin/agent0s-setup-security-fido2"
 
 test_tmp=$(mktemp -d)
 stub_bin="$test_tmp/bin"
@@ -209,7 +209,7 @@ cat >"$stub_bin/fido2-token" <<'SH'
 echo '/dev/hidraw0: vendor=0x1050, product=0x0407 (Yubico YubiKey)'
 SH
 
-cat >"$stub_bin/omarchy-pkg-add" <<'SH'
+cat >"$stub_bin/agent0s-pkg-add" <<'SH'
 #!/bin/bash
 SH
 
@@ -243,7 +243,7 @@ esac
 SH
 
 chmod +x "$stub_bin/mktemp" "$stub_bin/sudo" "$stub_bin/fido2-token" \
-  "$stub_bin/omarchy-pkg-add" "$stub_bin/pamu2fcfg"
+  "$stub_bin/agent0s-pkg-add" "$stub_bin/pamu2fcfg"
 
 reset_run() {
   : >"$calls"

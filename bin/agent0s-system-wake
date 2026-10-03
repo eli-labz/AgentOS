@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# agent0s:summary=Wake displays and restore brightness after idle
+# agent0s:group=system
+# agent0s:name=wake
+# agent0s:examples=agent0s system wake
+
+agent0s-brightness-display on
+agent0s-brightness-keyboard restore
+agent0s-hyprland-monitor-clamshell >/dev/null 2>&1 || true

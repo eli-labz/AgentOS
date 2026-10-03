@@ -4,18 +4,18 @@ import Quickshell
 ShellRoot {
   id: root
 
-  readonly property string resultPath: Quickshell.env("OMARCHY_QML_TEST_RESULT")
-  readonly property string rootPath: Quickshell.env("OMARCHY_PATH")
+  readonly property string resultPath: Quickshell.env("AGENT0S_QML_TEST_RESULT")
+  readonly property string rootPath: Quickshell.env("AGENT0S_PATH")
   property var failures: []
   property var createdIds: []
   property var createdObjects: []
   property var panelBarIds: [
-    "omarchy.audio",
-    "omarchy.bluetooth",
-    "omarchy.monitor",
-    "omarchy.network",
-    "omarchy.power",
-    "omarchy.weather"
+    "agent0s.audio",
+    "agent0s.bluetooth",
+    "agent0s.monitor",
+    "agent0s.network",
+    "agent0s.power",
+    "agent0s.weather"
   ]
 
   function fail(message) {
@@ -44,7 +44,7 @@ ShellRoot {
 
   function manifests() {
     try {
-      return JSON.parse(Qt.atob(Quickshell.env("OMARCHY_QML_MANIFESTS") || "W10="))
+      return JSON.parse(Qt.atob(Quickshell.env("AGENT0S_QML_MANIFESTS") || "W10="))
     } catch (error) {
       fail("manifest list failed to parse: " + error)
       return []
@@ -54,7 +54,7 @@ ShellRoot {
   function initialProperties(entry) {
     var props = {}
     if (entry.kind === "bar") {
-      props.omarchyPath = rootPath
+      props.agent0sPath = rootPath
       props.barWidgetRegistry = fakeBarWidgetRegistry
       props.barConfig = {
         position: "top",
@@ -73,7 +73,7 @@ ShellRoot {
 
   function injectProperties(item, entry) {
     if (!item) return
-    if ("omarchyPath" in item) item.omarchyPath = rootPath
+    if ("agent0sPath" in item) item.agent0sPath = rootPath
     if ("shell" in item) item.shell = mockShell
     if ("manifest" in item) item.manifest = entry.manifest
     if ("pluginRegistry" in item) item.pluginRegistry = mockPluginRegistry
@@ -156,7 +156,7 @@ ShellRoot {
     id: fakeBar
     property bool vertical: false
     property int barSize: 26
-    property string omarchyPath: root.rootPath
+    property string agent0sPath: root.rootPath
     property string fontFamily: "monospace"
     property color foreground: "white"
     property color background: "black"

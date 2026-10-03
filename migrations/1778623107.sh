@@ -1,3 +1,3 @@
 echo "Install MPRIS support for mpv"
 
-omarchy-pkg-add mpv-mpris
+agent0s-pkg-add mpv-mpris

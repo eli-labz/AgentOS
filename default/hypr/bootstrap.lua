@@ -1,10 +1,10 @@
--- Hyprland bootstrap for Omarchy's Lua module path.
+-- Hyprland bootstrap for Agent0S's Lua module path.
 
 local home = os.getenv("HOME")
 local reload_prefixes = {
   "default.hypr",
   "hypr",
-  "omarchy.current.theme",
+  "agent0s.current.theme",
 }
 
 local function should_reload_module(module)
@@ -29,11 +29,11 @@ for _, module in ipairs(modules_to_reload) do
 end
 
 -- Load generated state from ~/.local/state, user modules from ~/.config, and
--- Omarchy defaults from $OMARCHY_PATH.
+-- Agent0S defaults from $AGENT0S_PATH.
 package.path = home
   .. "/.local/state/?.lua;"
   .. home
   .. "/.config/?.lua;"
-  .. (os.getenv("OMARCHY_PATH") or "/usr/share/omarchy")
+  .. (os.getenv("AGENT0S_PATH") or "/usr/share/agent0s")
   .. "/?.lua;"
   .. package.path

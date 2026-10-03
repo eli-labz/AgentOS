@@ -5,7 +5,7 @@ set -euo pipefail
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
 template="$ROOT/default/snapper/root"
-limine_defaults="$ROOT/etc/limine-entry-tool.d/omarchy-defaults.conf"
+limine_defaults="$ROOT/etc/limine-entry-tool.d/agent0s-defaults.conf"
 limine_notify_autostart="$ROOT/config/autostart/limine-snapper-notify.desktop"
 
 grep -Fx 'NUMBER_CLEANUP="yes"' "$template" >/dev/null
@@ -59,19 +59,19 @@ pass "Limine Snapper warning notifier migration disables existing user autostart
 
 TEST_LOG="$test_tmp/calls.log" \
 PATH="$fake_bin:$PATH" \
-OMARCHY_SNAPPER_CONFIGURE_TEST=1 \
-OMARCHY_PATH="$ROOT" \
-OMARCHY_SNAPPER_CONFIG_PATH="$test_tmp/etc/snapper/configs/root" \
-OMARCHY_SNAPPER_CONF_PATH="$test_tmp/etc/conf.d/snapper" \
+AGENT0S_SNAPPER_CONFIGURE_TEST=1 \
+AGENT0S_PATH="$ROOT" \
+AGENT0S_SNAPPER_CONFIG_PATH="$test_tmp/etc/snapper/configs/root" \
+AGENT0S_SNAPPER_CONF_PATH="$test_tmp/etc/conf.d/snapper" \
   bash -euo pipefail "$ROOT/install/config/snapper.sh" >/dev/null
 
-cmp -s "$template" "$test_tmp/etc/snapper/configs/root" || fail "snapshot configure installs the Omarchy Snapper template"
+cmp -s "$template" "$test_tmp/etc/snapper/configs/root" || fail "snapshot configure installs the Agent0S Snapper template"
 grep -Fx 'SNAPPER_CONFIGS="root"' "$test_tmp/etc/conf.d/snapper" >/dev/null || fail "snapshot configure writes /etc/conf.d/snapper"
 grep -Fx 'systemctl disable --now snapper-timeline.timer' "$test_tmp/calls.log" >/dev/null || fail "snapshot configure disables timeline snapshots"
 grep -Fx 'systemctl enable --now snapper-cleanup.timer limine-snapper-sync.service' "$test_tmp/calls.log" >/dev/null || fail "snapshot configure enables cleanup and Limine snapshot sync"
 pass "snapshot configure normalizes Snapper policy and services"
 
-setup_system="$ROOT/bin/omarchy-apply-system"
+setup_system="$ROOT/bin/agent0s-apply-system"
 grep -F 'config/all.sh' "$setup_system" >/dev/null ||
   fail "system setup runs the config phase"
 grep -F 'config/snapper.sh' "$ROOT/install/config/all.sh" >/dev/null ||
@@ -83,18 +83,18 @@ migration=$(grep -rl 'Normalize Snapper snapshot services' "$ROOT/migrations" | 
 grep -F 'unit_active snapper-cleanup.timer' "$migration" >/dev/null
 grep -F 'unit_active limine-snapper-sync.service' "$migration" >/dev/null
 grep -F 'sudo "$@"' "$migration" >/dev/null
-grep -F 'as_root env OMARCHY_PATH="$OMARCHY_PATH" bash -euo pipefail "$snapper_config_script"' "$migration" >/dev/null
+grep -F 'as_root env AGENT0S_PATH="$AGENT0S_PATH" bash -euo pipefail "$snapper_config_script"' "$migration" >/dev/null
 ! grep -F 'NUMBER_LIMIT="5"' "$migration" >/dev/null || fail "Snapper service migration does not overwrite working custom retention"
 pass "Snapper service migration only repairs broken services idempotently"
 
 # Checkouts differ per machine, so allow an explicit pointer at the sibling repo.
 # Accepts either the omarchy-pkgs checkout or its pkgbuilds/ directory.
-find_omarchy_pks_root() {
+find_agent0s_pks_root() {
   local candidate
   for candidate in \
-    ${OMARCHY_PKGS_PATH:+"$OMARCHY_PKGS_PATH/pkgbuilds" "$OMARCHY_PKGS_PATH"} \
+    ${AGENT0S_PKGS_PATH:+"$AGENT0S_PKGS_PATH/pkgbuilds" "$AGENT0S_PKGS_PATH"} \
     "$ROOT/../omarchy-pkgs/pkgbuilds" \
-    "$ROOT/../omarchy/omarchy-pkgs/pkgbuilds" \
+    "$ROOT/../agent0s/omarchy-pkgs/pkgbuilds" \
     "$ROOT/../../omarchy-pkgs/pkgbuilds" \
     "$ROOT/../omacom/omarchy-pkgs/pkgbuilds" \
     "$ROOT/../../omacom/omarchy-pkgs/pkgbuilds" \
@@ -107,26 +107,26 @@ find_omarchy_pks_root() {
   return 1
 }
 
-pkgs_root=$(find_omarchy_pks_root) || fail "omarchy-pkgs checkout is available for packaging coverage"
-settings_pkgbuild="$pkgs_root/omarchy-settings-dev/PKGBUILD"
-omarchy_pkgbuild="$pkgs_root/omarchy-dev/PKGBUILD"
+pkgs_root=$(find_agent0s_pks_root) || fail "omarchy-pkgs checkout is available for packaging coverage"
+settings_pkgbuild="$pkgs_root/agent0s-settings-dev/PKGBUILD"
+agent0s_pkgbuild="$pkgs_root/agent0s-dev/PKGBUILD"
 
-grep -F 'cp -a default/. "$pkgdir/usr/share/omarchy/default/"' "$settings_pkgbuild" >/dev/null || fail "omarchy-settings package bundles default/"
-grep -F 'install -Dm644 default/snapper/root \' "$settings_pkgbuild" >/dev/null || fail "omarchy-settings package installs Snapper template source"
-grep -F '"$pkgdir/etc/snapper/config-templates/omarchy"' "$settings_pkgbuild" >/dev/null || fail "omarchy-settings package installs Snapper template destination"
-grep -F "'snapper'" "$omarchy_pkgbuild" >/dev/null || fail "omarchy package depends on snapper"
-grep -F "'limine-snapper-sync'" "$omarchy_pkgbuild" >/dev/null || fail "omarchy package depends on limine-snapper-sync"
-grep -F 'cp -a install "$pkgdir/usr/share/omarchy/"' "$omarchy_pkgbuild" >/dev/null || fail "omarchy package bundles install scripts"
-grep -F 'cp -a migrations "$pkgdir/usr/share/omarchy/"' "$omarchy_pkgbuild" >/dev/null || fail "omarchy package bundles migrations"
+grep -F 'cp -a default/. "$pkgdir/usr/share/agent0s/default/"' "$settings_pkgbuild" >/dev/null || fail "agent0s-settings package bundles default/"
+grep -F 'install -Dm644 default/snapper/root \' "$settings_pkgbuild" >/dev/null || fail "agent0s-settings package installs Snapper template source"
+grep -F '"$pkgdir/etc/snapper/config-templates/agent0s"' "$settings_pkgbuild" >/dev/null || fail "agent0s-settings package installs Snapper template destination"
+grep -F "'snapper'" "$agent0s_pkgbuild" >/dev/null || fail "agent0s package depends on snapper"
+grep -F "'limine-snapper-sync'" "$agent0s_pkgbuild" >/dev/null || fail "agent0s package depends on limine-snapper-sync"
+grep -F 'cp -a install "$pkgdir/usr/share/agent0s/"' "$agent0s_pkgbuild" >/dev/null || fail "agent0s package bundles install scripts"
+grep -F 'cp -a migrations "$pkgdir/usr/share/agent0s/"' "$agent0s_pkgbuild" >/dev/null || fail "agent0s package bundles migrations"
 pass "omarchy-pkgs packages Snapper template, setup, and migration coverage"
 
-# Same per-machine checkout problem as omarchy-pkgs; OMARCHY_ISO_PATH points at it.
-find_omarchy_iso_root() {
+# Same per-machine checkout problem as omarchy-pkgs; AGENT0S_ISO_PATH points at it.
+find_agent0s_iso_root() {
   local candidate
   for candidate in \
-    ${OMARCHY_ISO_PATH:+"$OMARCHY_ISO_PATH"} \
+    ${AGENT0S_ISO_PATH:+"$AGENT0S_ISO_PATH"} \
     "$ROOT/../omarchy-iso" \
-    "$ROOT/../omarchy/omarchy-iso" \
+    "$ROOT/../agent0s/omarchy-iso" \
     "$ROOT/../../omarchy-iso" \
     "$ROOT/../omacom/omarchy-iso" \
     "$ROOT/../../omacom/omarchy-iso" \
@@ -139,7 +139,7 @@ find_omarchy_iso_root() {
   return 1
 }
 
-iso_root=$(find_omarchy_iso_root) || fail "omarchy-iso checkout is available for installer coverage"
+iso_root=$(find_agent0s_iso_root) || fail "omarchy-iso checkout is available for installer coverage"
 configurator="$iso_root/configs/airootfs/root/configurator"
 phases="$iso_root/configs/airootfs/usr/share/omarchy-iso/orchestrator/phases_impl.py"
 manifest="$iso_root/manifests/fresh-4-semantic.json"
@@ -149,7 +149,7 @@ manifest="$iso_root/manifests/fresh-4-semantic.json"
 # The phases/manifest assertions cover the newer ISO orchestrator structure.
 # Skip them when the checkout predates that layout.
 if [[ -f $phases && -f $manifest ]]; then
-  ! grep -F '_configure_snapper_root' "$phases" >/dev/null || fail "ISO does not duplicate Omarchy Snapper setup"
+  ! grep -F '_configure_snapper_root' "$phases" >/dev/null || fail "ISO does not duplicate Agent0S Snapper setup"
   grep -F 'run_system_finalizer' "$phases" >/dev/null || fail "ISO runs packaged system setup"
   grep -F '/etc/systemd/system/timers.target.wants/snapper-cleanup.timer' "$manifest" >/dev/null || fail "fresh ISO manifest has snapper-cleanup timer enabled"
   ! grep -F '/etc/systemd/system/timers.target.wants/snapper-timeline.timer' "$manifest" >/dev/null || fail "fresh ISO manifest does not enable snapper timeline timer"

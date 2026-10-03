@@ -23,11 +23,11 @@ touch "$wrapper_root/shell/shell.qml"
 cat >"$wrapper_bin/qs" <<'SH'
 #!/bin/bash
 
-[[ -n ${OMARCHY_TEST_QS_ARGS:-} ]] && printf '%s\n' "$*" >"$OMARCHY_TEST_QS_ARGS"
+[[ -n ${AGENT0S_TEST_QS_ARGS:-} ]] && printf '%s\n' "$*" >"$AGENT0S_TEST_QS_ARGS"
 
-if [[ ${OMARCHY_TEST_QS_HANG:-0} == 1 ]]; then
+if [[ ${AGENT0S_TEST_QS_HANG:-0} == 1 ]]; then
   sleep 5
-elif [[ ${OMARCHY_TEST_QS_STARTING:-0} == 1 ]]; then
+elif [[ ${AGENT0S_TEST_QS_STARTING:-0} == 1 ]]; then
   printf 'Not ready to accept queries yet.\n'
 else
   printf 'ok\n'
@@ -36,33 +36,33 @@ SH
 chmod +x "$wrapper_bin/qs"
 
 wrapper_error=$(PATH="$wrapper_bin:$PATH" \
-  OMARCHY_PATH="$wrapper_root" \
-  OMARCHY_SHELL_IPC_TIMEOUT=0.1s \
-  OMARCHY_TEST_QS_HANG=1 \
-  "$ROOT/bin/omarchy-shell" shell ping 2>&1) && fail "hung shell IPC returns a failure"
-[[ $wrapper_error == "omarchy-shell is not responding" ]] || fail "hung shell IPC reports that the shell is unresponsive" "$wrapper_error"
+  AGENT0S_PATH="$wrapper_root" \
+  AGENT0S_SHELL_IPC_TIMEOUT=0.1s \
+  AGENT0S_TEST_QS_HANG=1 \
+  "$ROOT/bin/agent0s-shell" shell ping 2>&1) && fail "hung shell IPC returns a failure"
+[[ $wrapper_error == "agent0s-shell is not responding" ]] || fail "hung shell IPC reports that the shell is unresponsive" "$wrapper_error"
 pass "shell IPC calls time out when Quickshell is unresponsive"
 
 # A starting shell answers on stdout and exits 0, so a ping reads it as up.
 wrapper_error=$(PATH="$wrapper_bin:$PATH" \
-  OMARCHY_PATH="$wrapper_root" \
-  OMARCHY_TEST_QS_STARTING=1 \
-  "$ROOT/bin/omarchy-shell" shell ping 2>&1) && fail "a starting shell answers IPC calls with a failure"
-[[ $wrapper_error == "omarchy-shell is not ready" ]] || fail "a starting shell reports that it is not ready" "$wrapper_error"
+  AGENT0S_PATH="$wrapper_root" \
+  AGENT0S_TEST_QS_STARTING=1 \
+  "$ROOT/bin/agent0s-shell" shell ping 2>&1) && fail "a starting shell answers IPC calls with a failure"
+[[ $wrapper_error == "agent0s-shell is not ready" ]] || fail "a starting shell reports that it is not ready" "$wrapper_error"
 pass "shell IPC calls fail while Quickshell is still starting"
 
 PATH="$wrapper_bin:$PATH" \
-OMARCHY_PATH="$wrapper_root" \
-OMARCHY_TEST_QS_STARTING=1 \
-  "$ROOT/bin/omarchy-shell" -q shell ping >/dev/null 2>&1 ||
+AGENT0S_PATH="$wrapper_root" \
+AGENT0S_TEST_QS_STARTING=1 \
+  "$ROOT/bin/agent0s-shell" -q shell ping >/dev/null 2>&1 ||
   fail "quiet best-effort IPC calls tolerate a starting shell"
 pass "quiet best-effort IPC calls tolerate a starting shell"
 
 wrapper_args="$test_tmp/wrapper-args"
 PATH="$wrapper_bin:$PATH" \
-OMARCHY_PATH="$wrapper_root" \
-OMARCHY_TEST_QS_ARGS="$wrapper_args" \
-  "$ROOT/bin/omarchy-shell" shell ping >/dev/null
+AGENT0S_PATH="$wrapper_root" \
+AGENT0S_TEST_QS_ARGS="$wrapper_args" \
+  "$ROOT/bin/agent0s-shell" shell ping >/dev/null
 
 grep -F -- 'ipc -n -p' "$wrapper_args" >/dev/null || fail "shell IPC targets the newest live Quickshell instance"
 pass "shell IPC targets the newest live Quickshell instance"
@@ -77,28 +77,28 @@ ipc_log="$test_tmp/ipc.log"
 runtime_dir="$test_tmp/runtime"
 mkdir -p "$restart_root/shell" "$restart_bin" "$runtime_dir"
 touch "$restart_root/shell/shell.qml"
-ln -s "$ROOT/bin/omarchy-shell" "$restart_bin/omarchy-shell"
-ln -s "$ROOT/bin/omarchy-launch-shell" "$restart_bin/omarchy-launch-shell"
-ln -s "$ROOT/bin/omarchy-cmd-missing" "$restart_bin/omarchy-cmd-missing"
-ln -s "$ROOT/bin/omarchy-hyprland-session-locked" "$restart_bin/omarchy-hyprland-session-locked"
+ln -s "$ROOT/bin/agent0s-shell" "$restart_bin/agent0s-shell"
+ln -s "$ROOT/bin/agent0s-launch-shell" "$restart_bin/agent0s-launch-shell"
+ln -s "$ROOT/bin/agent0s-cmd-missing" "$restart_bin/agent0s-cmd-missing"
+ln -s "$ROOT/bin/agent0s-hyprland-session-locked" "$restart_bin/agent0s-hyprland-session-locked"
 
 cat >"$restart_bin/qs" <<'SH'
 #!/bin/bash
 
-printf '%s\n' "$*" >>"$OMARCHY_TEST_IPC_LOG"
+printf '%s\n' "$*" >>"$AGENT0S_TEST_IPC_LOG"
 
 case "$*" in
   *'shell ping')
-    [[ $* == *"-p $OMARCHY_TEST_SESSION_PATH/shell"* ]] &&
-      grep -Fx '303' "$OMARCHY_TEST_QS_STATE" >/dev/null &&
+    [[ $* == *"-p $AGENT0S_TEST_SESSION_PATH/shell"* ]] &&
+      grep -Fx '303' "$AGENT0S_TEST_QS_STATE" >/dev/null &&
       printf 'ok\n'
     ;;
   *'lock lock')
-    touch "$OMARCHY_TEST_QS_STATE.locked"
+    touch "$AGENT0S_TEST_QS_STATE.locked"
     printf 'ok\n'
     ;;
   *'lock status')
-    if [[ -f $OMARCHY_TEST_QS_STATE.locked ]]; then
+    if [[ -f $AGENT0S_TEST_QS_STATE.locked ]]; then
       printf '{"secure": true, "requested": true}\n'
     else
       printf '{"secure": false, "requested": false}\n'
@@ -110,20 +110,20 @@ SH
 cat >"$restart_bin/quickshell" <<'SH'
 #!/bin/bash
 
-printf '%s\n' "$*" >>"$OMARCHY_TEST_QS_LOG"
+printf '%s\n' "$*" >>"$AGENT0S_TEST_QS_LOG"
 
 case " $* " in
   *' kill -p '*)
-    pid=$(head -n 1 "$OMARCHY_TEST_QS_STATE")
+    pid=$(head -n 1 "$AGENT0S_TEST_QS_STATE")
     [[ $pid =~ ^[0-9]+$ ]] || exit 1
     kill "$pid" 2>/dev/null
     while kill -0 "$pid" 2>/dev/null; do sleep 0.01; done
-    awk 'NR > 1' "$OMARCHY_TEST_QS_STATE" >"$OMARCHY_TEST_QS_STATE.next"
-    mv "$OMARCHY_TEST_QS_STATE.next" "$OMARCHY_TEST_QS_STATE"
+    awk 'NR > 1' "$AGENT0S_TEST_QS_STATE" >"$AGENT0S_TEST_QS_STATE.next"
+    mv "$AGENT0S_TEST_QS_STATE.next" "$AGENT0S_TEST_QS_STATE"
     ;;
   *' -n -p '*)
-    printf '%s\n' "${OMARCHY_TEST_TRANSIENT_ENV-unset}" >"$OMARCHY_TEST_QS_ENV_LOG"
-    printf '303\n' >"$OMARCHY_TEST_QS_STATE"
+    printf '%s\n' "${AGENT0S_TEST_TRANSIENT_ENV-unset}" >"$AGENT0S_TEST_QS_ENV_LOG"
+    printf '303\n' >"$AGENT0S_TEST_QS_STATE"
     ;;
 esac
 SH
@@ -134,15 +134,15 @@ cat >"$restart_bin/hyprctl" <<'SH'
 if [[ ${1:-} == "-j" && ${2:-} == "monitors" ]]; then
   # Hyprland reports an active session lock as a reason the monitor cannot hand
   # a client the whole screen, not as a workspace.
-  if [[ ${OMARCHY_TEST_SESSION_LOCKED:-0} == 1 ]]; then
+  if [[ ${AGENT0S_TEST_SESSION_LOCKED:-0} == 1 ]]; then
     printf '[{"name":"eDP-1","solitaryBlockedBy":["WINDOWED","LOCK","CANDIDATE"]}]\n'
   else
     printf '[{"name":"eDP-1","solitaryBlockedBy":["WINDOWED","CANDIDATE"]}]\n'
   fi
 elif [[ ${1:-} == "dispatch" && ${2:-} == hl.dsp.exec_cmd* ]]; then
-  printf '%s\n' "${2:-}" >>"$OMARCHY_TEST_DISPATCH_LOG"
-  OMARCHY_PATH="$OMARCHY_TEST_SESSION_PATH" \
-    env -u OMARCHY_TEST_TRANSIENT_ENV omarchy-launch-shell
+  printf '%s\n' "${2:-}" >>"$AGENT0S_TEST_DISPATCH_LOG"
+  AGENT0S_PATH="$AGENT0S_TEST_SESSION_PATH" \
+    env -u AGENT0S_TEST_TRANSIENT_ENV agent0s-launch-shell
   printf 'ok\n'
 elif [[ ${1:-} == "dispatch" ]]; then
   exit 1
@@ -164,7 +164,7 @@ cat >"$restart_bin/systemctl" <<'SH'
 #!/bin/bash
 
 if [[ ${1:-} == "--user" && ${2:-} == "show-environment" ]]; then
-  printf 'OMARCHY_PATH=%s\n' "$OMARCHY_TEST_SESSION_PATH"
+  printf 'AGENT0S_PATH=%s\n' "$AGENT0S_TEST_SESSION_PATH"
 elif [[ ${1:-} == "--user" && ${2:-} == "try-restart" ]]; then
   exit 0
 else
@@ -185,16 +185,16 @@ mkdir -p "$caller_root/shell"
 touch "$caller_root/shell/shell.qml"
 
 PATH="$restart_bin:$PATH" \
-OMARCHY_PATH="$caller_root" \
+AGENT0S_PATH="$caller_root" \
 XDG_RUNTIME_DIR="$runtime_dir" \
-OMARCHY_TEST_QS_STATE="$restart_state" \
-OMARCHY_TEST_QS_LOG="$restart_log" \
-OMARCHY_TEST_QS_ENV_LOG="$restart_env_log" \
-OMARCHY_TEST_DISPATCH_LOG="$dispatch_log" \
-OMARCHY_TEST_IPC_LOG="$ipc_log" \
-OMARCHY_TEST_SESSION_PATH="$restart_root" \
-OMARCHY_TEST_TRANSIENT_ENV=leaked \
-  timeout 5 "$ROOT/bin/omarchy-restart-shell"
+AGENT0S_TEST_QS_STATE="$restart_state" \
+AGENT0S_TEST_QS_LOG="$restart_log" \
+AGENT0S_TEST_QS_ENV_LOG="$restart_env_log" \
+AGENT0S_TEST_DISPATCH_LOG="$dispatch_log" \
+AGENT0S_TEST_IPC_LOG="$ipc_log" \
+AGENT0S_TEST_SESSION_PATH="$restart_root" \
+AGENT0S_TEST_TRANSIENT_ENV=leaked \
+  timeout 5 "$ROOT/bin/agent0s-restart-shell"
 
 if kill -0 "$restart_pid_one" 2>/dev/null; then
   fail "restart stops the first matching shell instance"
@@ -210,7 +210,7 @@ restart_pid_two=""
 [[ $(grep -c '^-n -p ' "$restart_log") == 1 ]] || fail "restart launches one fresh shell process"
 grep -F "kill -p $restart_root/shell --any-display" "$restart_log" >/dev/null || fail "restart stops the shell from the session checkout"
 [[ $(<"$restart_env_log") == "unset" ]] || fail "restart uses the Hyprland session environment for the fresh shell"
-grep -F 'hl.dsp.exec_cmd("omarchy-launch-shell")' "$dispatch_log" >/dev/null || fail "restart launches the fresh shell through Hyprland"
+grep -F 'hl.dsp.exec_cmd("agent0s-launch-shell")' "$dispatch_log" >/dev/null || fail "restart launches the fresh shell through Hyprland"
 grep -F "ipc -n -p $restart_root/shell call -- shell ping" "$ipc_log" >/dev/null || fail "restart checks readiness in the session checkout"
 pass "restart replaces duplicate shell instances from the session checkout"
 
@@ -219,17 +219,17 @@ printf '303\n' >"$restart_state"
 touch "$restart_state.locked"
 
 locked_error=$(PATH="$restart_bin:$PATH" \
-  OMARCHY_PATH="$restart_root" \
+  AGENT0S_PATH="$restart_root" \
   XDG_RUNTIME_DIR="$runtime_dir" \
-  OMARCHY_TEST_SESSION_LOCKED=1 \
-  OMARCHY_TEST_QS_STATE="$restart_state" \
-  OMARCHY_TEST_QS_LOG="$restart_log" \
-  OMARCHY_TEST_DISPATCH_LOG="$dispatch_log" \
-  OMARCHY_TEST_IPC_LOG="$ipc_log" \
-  OMARCHY_TEST_SESSION_PATH="$restart_root" \
-  "$ROOT/bin/omarchy-restart-shell" 2>&1) && fail "restart refuses while the shell lock is active"
+  AGENT0S_TEST_SESSION_LOCKED=1 \
+  AGENT0S_TEST_QS_STATE="$restart_state" \
+  AGENT0S_TEST_QS_LOG="$restart_log" \
+  AGENT0S_TEST_DISPATCH_LOG="$dispatch_log" \
+  AGENT0S_TEST_IPC_LOG="$ipc_log" \
+  AGENT0S_TEST_SESSION_PATH="$restart_root" \
+  "$ROOT/bin/agent0s-restart-shell" 2>&1) && fail "restart refuses while the shell lock is active"
 
-[[ $locked_error == "Refusing to restart Omarchy shell while the session is locked." ]] || fail "locked restart explains why it was refused" "$locked_error"
+[[ $locked_error == "Refusing to restart Agent0S shell while the session is locked." ]] || fail "locked restart explains why it was refused" "$locked_error"
 [[ $(<"$restart_state") == 303 ]] || fail "locked restart preserves the running shell"
 [[ ! -s $restart_log ]] || fail "locked restart does not stop or launch Quickshell"
 pass "restart preserves the shell while its lock is active"
@@ -245,16 +245,16 @@ rm -f "$restart_state.locked"
 : >"$ipc_log"
 
 PATH="$restart_bin:$PATH" \
-OMARCHY_PATH="$restart_root" \
+AGENT0S_PATH="$restart_root" \
 XDG_RUNTIME_DIR="$runtime_dir" \
-OMARCHY_TEST_SESSION_LOCKED=1 \
-OMARCHY_TEST_QS_STATE="$restart_state" \
-OMARCHY_TEST_QS_LOG="$restart_log" \
-OMARCHY_TEST_QS_ENV_LOG="$restart_env_log" \
-OMARCHY_TEST_DISPATCH_LOG="$dispatch_log" \
-OMARCHY_TEST_IPC_LOG="$ipc_log" \
-OMARCHY_TEST_SESSION_PATH="$restart_root" \
-  timeout 5 "$ROOT/bin/omarchy-restart-shell" || fail "locked restart recovers when the lock client is dead"
+AGENT0S_TEST_SESSION_LOCKED=1 \
+AGENT0S_TEST_QS_STATE="$restart_state" \
+AGENT0S_TEST_QS_LOG="$restart_log" \
+AGENT0S_TEST_QS_ENV_LOG="$restart_env_log" \
+AGENT0S_TEST_DISPATCH_LOG="$dispatch_log" \
+AGENT0S_TEST_IPC_LOG="$ipc_log" \
+AGENT0S_TEST_SESSION_PATH="$restart_root" \
+  timeout 5 "$ROOT/bin/agent0s-restart-shell" || fail "locked restart recovers when the lock client is dead"
 
 if kill -0 "$restart_pid_one" 2>/dev/null; then
   fail "dead-lock recovery stops the stale shell instance"

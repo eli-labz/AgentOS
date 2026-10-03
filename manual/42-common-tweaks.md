@@ -1,8 +1,8 @@
 # Common tweaks
 
-This is a collection of common tailorings to the Omarchy setup. Know that it might occasionally be necessary for system updates to restore certain configs to their original condition. If this happens, your changes won't be lost, but put in a `.bak` file in the same directory.
+This is a collection of common tailorings to the Agent0S setup. Know that it might occasionally be necessary for system updates to restore certain configs to their original condition. If this happens, your changes won't be lost, but put in a `.bak` file in the same directory.
 
-If you screw something up, you can restore individual configs to their original setup via _Update > Config_ in the Omarchy menu. If you _really_ screw everything up, you can reset all configs via `omarchy-reinstall`.
+If you screw something up, you can restore individual configs to their original setup via _Update > Config_ in the Agent0S menu. If you _really_ screw everything up, you can reset all configs via `agent0s-reinstall`.
 
 ### Reveal all tray icons all the time
 
@@ -10,7 +10,7 @@ By default, tray icons, like Dropbox, 1password, or Steam, are hidden behind the
 
 ### Rounded window corners
 
-Omarchy's default design is one of square corners, but if you like to soften that up a bit, you can change `~/.config/hypr/looknfeel.lua` so rounding is no longer commented out:
+Agent0S's default design is one of square corners, but if you like to soften that up a bit, you can change `~/.config/hypr/looknfeel.lua` so rounding is no longer commented out:
 
 ```
 hl.config({

@@ -8,7 +8,7 @@ migration="$ROOT/migrations/1788662350.sh"
 test_tmp=$(mktemp -d -p /tmp)
 trap 'rm -rf "$test_tmp"' EXIT
 
-mock_omarchy="$test_tmp/omarchy"
+mock_agent0s="$test_tmp/agent0s"
 sleep_dir="$test_tmp/system-sleep"
 systemd_dir="$test_tmp/systemd"
 drop_in="$systemd_dir/supergfxd.service.d/delay-start.conf"
@@ -18,15 +18,15 @@ migration_copy="$test_tmp/migration.sh"
 stub_bin="$test_tmp/bin"
 calls="$test_tmp/calls"
 
-mkdir -p "$mock_omarchy/default/systemd/system-sleep" \
-  "$mock_omarchy/default/systemd/system/supergfxd.service.d" \
+mkdir -p "$mock_agent0s/default/systemd/system-sleep" \
+  "$mock_agent0s/default/systemd/system/supergfxd.service.d" \
   "$sleep_dir" "${drop_in%/*}" "$stub_bin"
 cp "$ROOT/default/systemd/system-sleep/keyboard-backlight" \
-  "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight"
+  "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight"
 cp "$ROOT/default/systemd/system-sleep/force-igpu" \
-  "$mock_omarchy/default/systemd/system-sleep/force-igpu"
+  "$mock_agent0s/default/systemd/system-sleep/force-igpu"
 cp "$ROOT/default/systemd/system/supergfxd.service.d/delay-start.conf" \
-  "$mock_omarchy/default/systemd/system/supergfxd.service.d/delay-start.conf"
+  "$mock_agent0s/default/systemd/system/supergfxd.service.d/delay-start.conf"
 
 [[ $(grep -Fxc 'system_sleep_dir=/usr/lib/systemd/system-sleep' "$migration") == 1 ]] ||
   fail "migration fixes one literal system-sleep directory"
@@ -36,8 +36,8 @@ cp "$ROOT/default/systemd/system/supergfxd.service.d/delay-start.conf" \
 sed \
   -e "s|system_sleep_dir=/usr/lib/systemd/system-sleep|system_sleep_dir=$sleep_dir|" \
   -e "s|supergfxd_drop_in=/etc/systemd/system/supergfxd.service.d/delay-start.conf|supergfxd_drop_in=$drop_in|" \
-  -e "s|quarantine_root=/var/lib/omarchy/migrations/1788662350-system-sleep|quarantine_root=$quarantine|" \
-  -e "s|/var/lib/omarchy/migrations/1788662350-systemd-reload-needed|$reload_needed_marker|" \
+  -e "s|quarantine_root=/var/lib/agent0s/migrations/1788662350-system-sleep|quarantine_root=$quarantine|" \
+  -e "s|/var/lib/agent0s/migrations/1788662350-systemd-reload-needed|$reload_needed_marker|" \
   -e "s|/usr/bin/stat|$stub_bin/stat|g" \
   -e "s|/usr/bin/readlink|$stub_bin/readlink|g" \
   "$migration" >"$migration_copy"
@@ -157,7 +157,7 @@ run_migration() {
     FAKE_ROOT_GID="${FAKE_ROOT_GID:-0}" \
     INACCESSIBLE_AS_USER="${INACCESSIBLE_AS_USER:-}" \
     SYSTEMCTL_FAIL_ONCE_FILE="${SYSTEMCTL_FAIL_ONCE_FILE:-}" \
-    OMARCHY_PATH="$mock_omarchy" \
+    AGENT0S_PATH="$mock_agent0s" \
     PATH="$stub_bin:$PATH" bash -euo pipefail "$migration_copy" >/dev/null
 }
 
@@ -172,11 +172,11 @@ run_migration Integrated
 printf 'write through stale attacker descriptor\n' >&9
 exec 9>&-
 
-cmp -s "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight" ||
+cmp -s "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight" ||
   fail "migration replaces the user-owned keyboard hook with trusted content"
-cmp -s "$mock_omarchy/default/systemd/system-sleep/force-igpu" "$sleep_dir/force-igpu" ||
+cmp -s "$mock_agent0s/default/systemd/system-sleep/force-igpu" "$sleep_dir/force-igpu" ||
   fail "migration replaces the user-owned GPU hook with trusted content"
-cmp -s "$mock_omarchy/default/systemd/system/supergfxd.service.d/delay-start.conf" "$drop_in" ||
+cmp -s "$mock_agent0s/default/systemd/system/supergfxd.service.d/delay-start.conf" "$drop_in" ||
   fail "migration replaces the user-owned root service drop-in with trusted content"
 [[ $(stat -c '%a' "$sleep_dir/keyboard-backlight") == 755 ]] ||
   fail "migration activates the repaired keyboard hook"
@@ -222,7 +222,7 @@ reload_status=$?
 set -e
 (( reload_status != 0 )) ||
   fail "migration reports success after systemd rejects the repaired drop-in"
-cmp -s "$mock_omarchy/default/systemd/system/supergfxd.service.d/delay-start.conf" "$drop_in" ||
+cmp -s "$mock_agent0s/default/systemd/system/supergfxd.service.d/delay-start.conf" "$drop_in" ||
   fail "migration does not repair the drop-in before the simulated reload failure"
 [[ -e $reload_needed_marker && $(stat -c '%a' "$reload_needed_marker") == 644 ]] ||
   fail "migration does not persist the reload requirement before replacing the drop-in"
@@ -241,7 +241,7 @@ FAKE_ROOT_FILES="$sleep_dir/keyboard-backlight:$sleep_dir/force-igpu:$drop_in" \
 pass "migration persists and retries systemd reload after failure or interruption"
 
 keyboard_backup_count=$(find "$quarantine" -path '*/keyboard-backlight.*/original' | wc -l)
-cp "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" \
+cp "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" \
   "$sleep_dir/keyboard-backlight"
 chmod 0644 "$sleep_dir/keyboard-backlight"
 FAKE_ROOT_FILES="$sleep_dir/force-igpu:$drop_in" run_migration Integrated
@@ -279,7 +279,7 @@ cp "$legacy_keyboard" "$sleep_dir/keyboard-backlight"
 chmod 0644 "$sleep_dir/keyboard-backlight"
 FAKE_ROOT_FILES="$sleep_dir/keyboard-backlight:$sleep_dir/force-igpu:$drop_in" \
   run_migration Integrated
-cmp -s "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight" ||
+cmp -s "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight" ||
   fail "migration does not upgrade the released keyboard-backlight hook"
 [[ $(stat -c '%a' "$sleep_dir/keyboard-backlight") == 755 ]] ||
   fail "migration leaves the released keyboard-backlight hook non-executable"
@@ -291,7 +291,7 @@ cp "$legacy_keyboard" "$sleep_dir/keyboard-backlight"
 chmod 0755 "$sleep_dir/keyboard-backlight"
 FAKE_ROOT_FILES="$sleep_dir/keyboard-backlight:$sleep_dir/force-igpu:$drop_in" \
   run_migration Integrated
-cmp -s "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight" ||
+cmp -s "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight" ||
   fail "migration mistakes executable released hook bytes for a current artifact"
 pass "migration refreshes recognized legacy hook contents at the final mode"
 
@@ -308,7 +308,7 @@ run_migration Integrated "$sleep_dir/keyboard-backlight" 755
 grep -Fxq 'administrator customization' "$sleep_dir/keyboard-backlight" ||
   fail "migration preserves a secure administrator-owned custom hook"
 
-cp "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight"
+cp "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" "$sleep_dir/keyboard-backlight"
 chmod 0644 "$sleep_dir/keyboard-backlight"
 run_migration Integrated "$sleep_dir/keyboard-backlight" 644
 [[ $(stat -c '%a' "$sleep_dir/keyboard-backlight") == 755 ]] ||
@@ -361,7 +361,7 @@ cp "$legacy_force_igpu" "$sleep_dir/force-igpu"
 chmod 0644 "$sleep_dir/force-igpu"
 FAKE_ROOT_FILES="$sleep_dir/keyboard-backlight:$sleep_dir/force-igpu:$drop_in" \
   run_migration Integrated
-cmp -s "$mock_omarchy/default/systemd/system-sleep/force-igpu" "$sleep_dir/force-igpu" ||
+cmp -s "$mock_agent0s/default/systemd/system-sleep/force-igpu" "$sleep_dir/force-igpu" ||
   fail "migration does not upgrade the exact legacy force-igpu hook"
 [[ $(stat -c '%a' "$sleep_dir/force-igpu") == 755 ]] ||
   fail "migration leaves the exact legacy force-igpu hook non-executable"
@@ -428,7 +428,7 @@ EXTRA_FAKE_ROOT_DIRS="$admin_dir" \
   run_migration Integrated
 [[ ! -L $sleep_dir/keyboard-backlight ]] ||
   fail "migration trusts a dangling symlink whose unresolved suffix escapes to a user-controlled path"
-cmp -s "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" \
+cmp -s "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" \
   "$sleep_dir/keyboard-backlight" ||
   fail "migration does not replace a future user-controlled dangling symlink"
 pass "migration resolves the full dangling-symlink suffix before trusting it"
@@ -488,7 +488,7 @@ EXTRA_FAKE_ROOT_DIRS="$admin_dir" \
   FAKE_ROOT_FILES="$admin_delay:$sleep_dir/force-igpu" run_migration Integrated
 [[ ! -L $sleep_dir/keyboard-backlight ]] ||
   fail "migration leaves a user-controlled keyboard-hook symlink active"
-cmp -s "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" \
+cmp -s "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" \
   "$sleep_dir/keyboard-backlight" ||
   fail "migration does not replace an unsafe symlink with trusted hook content"
 symlink_backup=$(find "$quarantine" -path '*/keyboard-backlight.*/original' -type l -print -quit)
@@ -506,7 +506,7 @@ EXTRA_FAKE_ROOT_DIRS="$admin_dir" \
   run_migration Integrated
 [[ ! -L $sleep_dir/keyboard-backlight ]] ||
   fail "migration trusts a symlink chain routed through a user-controlled directory"
-cmp -s "$mock_omarchy/default/systemd/system-sleep/keyboard-backlight" \
+cmp -s "$mock_agent0s/default/systemd/system-sleep/keyboard-backlight" \
   "$sleep_dir/keyboard-backlight" ||
   fail "migration does not repair an indirectly user-controlled symlink"
 pass "migration checks every intermediate component in a symlink chain"
@@ -521,7 +521,7 @@ sed \
   -e "s|/usr/bin/supergfxctl|$stub_bin/hook-supergfxctl|g" \
   -e "s|/usr/bin/install|$stub_bin/hook-install|g" \
   -e "s|/etc/supergfxd.conf|$hook_config|g" \
-  -e "s|/run/omarchy-force-igpu-integrated|$hook_marker|g" \
+  -e "s|/run/agent0s-force-igpu-integrated|$hook_marker|g" \
   "$ROOT/default/systemd/system-sleep/force-igpu" >"$hook_copy"
 cat >"$stub_bin/hook-supergfxctl" <<'SH'
 #!/bin/bash

@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 
 // The display side of agent usage. All extraction lives behind
-// omarchy-agent-usage-update, which writes one JSON record per agent into
+// agent0s-agent-usage-update, which writes one JSON record per agent into
 // the usage directory; this file only discovers those records, watches them
 // for changes, and optionally merges snapshots synced from other machines.
 Item {
@@ -13,7 +13,7 @@ Item {
   property var settings: ({})
 
   readonly property string home: Quickshell.env("HOME") || ""
-  readonly property string usageDir: (Quickshell.env("XDG_STATE_HOME") || home + "/.local/state") + "/omarchy/agents/usage"
+  readonly property string usageDir: (Quickshell.env("XDG_STATE_HOME") || home + "/.local/state") + "/agent0s/agents/usage"
 
   // ------------------------------------------------------------- discovery
 
@@ -144,7 +144,7 @@ Item {
   }
 
   function updateCommand(kind, agentIds) {
-    var command = ["omarchy-agent-usage-update"]
+    var command = ["agent0s-agent-usage-update"]
     if (kind === "force") command.push("--force")
     if (kind === "limits") command.push("--limits-only")
     var providers = settings && settings.providers ? settings.providers : {}
@@ -291,7 +291,7 @@ Item {
   readonly property string syncEffectiveDir: expandPath(syncDir)
   readonly property string syncEffectiveFileName: safeSnapshotFileName(syncFileName, syncDeviceId)
   readonly property string syncEffectiveDeviceId: safeDeviceId(syncDeviceId || syncEffectiveFileName.replace(/\.json$/i, ""))
-  readonly property string syncSnapshotPath: syncConfigured() ? syncEffectiveDir + "/" + syncEffectiveFileName : home + "/.cache/omarchy/agents-disabled.json"
+  readonly property string syncSnapshotPath: syncConfigured() ? syncEffectiveDir + "/" + syncEffectiveFileName : home + "/.cache/agent0s/agents-disabled.json"
   property var aggregateData: ({})
   property int syncRevision: 0
   property bool syncRunning: false
@@ -659,7 +659,7 @@ Item {
     }
   }
 
-  // Snapshots keep the field names older Omarchy versions wrote, so a fleet
+  // Snapshots keep the field names older Agent0S versions wrote, so a fleet
   // of machines on mixed versions still merges cleanly in both directions.
   function providerSnapshot(record) {
     return {

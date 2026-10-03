@@ -187,14 +187,14 @@ assert(notifications.shouldRenderCompactGlyph('K', '', true), 'notifications ren
 assert(!notifications.shouldRenderCompactGlyph('K', '', false), 'notifications give glyph hints with bodies the large icon slot')
 assert(!notifications.shouldRenderCompactGlyph('K', 'file:///tmp/image.png', true), 'notifications keep image-backed glyph hints in the icon slot')
 
-assert(notifications.shouldBypassDnd({ appName: 'omarchy-action', urgency: 1 }, 2), 'omarchy action toasts bypass DND')
+assert(notifications.shouldBypassDnd({ appName: 'agent0s-action', urgency: 1 }, 2), 'agent0s action toasts bypass DND')
 assert(notifications.shouldBypassDnd({ appName: 'notify-send', urgency: 2 }, 2), 'critical notify-send bypasses DND')
 assert(!notifications.shouldBypassDnd({ appName: 'notify-send', urgency: 1 }, 2), 'normal notify-send does not bypass DND')
 assert(!notifications.shouldBypassDnd({ appName: 'Slack', urgency: 2 }, 2), 'critical app notifications do not bypass DND')
-assert(!notifications.shouldBypassDnd({ appName: 'omarchy-menu-keybindings', urgency: 1 }, 2), 'omarchy command app names do not bypass DND')
-assert(!notifications.isEphemeralApp('omarchy-menu-keybindings'), 'notifications treat omarchy command app names as normal apps')
+assert(!notifications.shouldBypassDnd({ appName: 'agent0s-menu-keybindings', urgency: 1 }, 2), 'agent0s command app names do not bypass DND')
+assert(!notifications.isEphemeralApp('agent0s-menu-keybindings'), 'notifications treat agent0s command app names as normal apps')
 
-// The click action's argv form: parsed from the persisted omarchy-exec-argv
+// The click action's argv form: parsed from the persisted agent0s-exec-argv
 // JSON only when it is a non-empty array of strings whose program is present
 // and not a leading-dash option. Everything else fails closed so a malformed or
 // hostile hint can never fall through to a shell.
@@ -216,9 +216,9 @@ assertEqual(notifications.parseExecArgv('["",""]'), null, 'notifications reject 
 // lossless.
 const execSnapshot = notifications.snapshotOf({
   id: 3,
-  appName: 'omarchy-action',
+  appName: 'agent0s-action',
   summary: 'Download complete',
-  hints: { 'omarchy-exec-argv': '["mpv","--","/tmp/clip.mp4"]' }
+  hints: { 'agent0s-exec-argv': '["mpv","--","/tmp/clip.mp4"]' }
 }, 1)
 assertEqual(
   execSnapshot.execArgv,
@@ -266,7 +266,7 @@ const notification = {
   summary: 42,
   body: 'Body',
   image: 'file:///tmp/mail.png',
-  hints: { 'omarchy-glyph': '!' },
+  hints: { 'agent0s-glyph': '!' },
   urgency: 1,
   expireTimeout: 1.5
 }
@@ -310,7 +310,7 @@ const replacement = notifications.replacementSnapshot(
     summary: 'Thread v2',
     body: 'message 2',
     image: 'file:///tmp/new.png',
-    hints: { 'omarchy-glyph': '!' },
+    hints: { 'agent0s-glyph': '!' },
     urgency: 2,
     expireTimeout: 4000
   },
@@ -534,7 +534,7 @@ assertEqual(
 // restart: a libnotify action leaves its sender waiting on an id from a server
 // generation that no longer exists.
 assertEqual(
-  notifications.snapshotOf({ id: 3, hints: { 'omarchy-glyph': '!' } }, 1).execArgv,
+  notifications.snapshotOf({ id: 3, hints: { 'agent0s-glyph': '!' } }, 1).execArgv,
   '',
   'notifications leave the click command empty without an exec argv hint'
 )
@@ -581,7 +581,7 @@ assert(
 )
 assert(
   /readonly property string popupStateDir: stateDir \+ "notifications\/"/.test(serviceQml),
-  'notifications service persists popups under the omarchy state dir'
+  'notifications service persists popups under the agent0s state dir'
 )
 assert(
   /readonly property string historyDir: popupStateDir \+ "history\/"/.test(serviceQml),

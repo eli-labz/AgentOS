@@ -1,4 +1,4 @@
-# Omarchy shell surfaces. Colors derive from colors.toml; sizes and the
+# Agent0S shell surfaces. Colors derive from colors.toml; sizes and the
 # typographic scale come from the keys below. Themes can ship
 # themes/<name>/shell.toml to replace this generated file.
 

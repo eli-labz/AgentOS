@@ -27,4 +27,4 @@ if command -v fzf &> /dev/null; then
   fi
 fi
 
-source "$OMARCHY_PATH/default/bash/completions"
+source "$AGENT0S_PATH/default/bash/completions"

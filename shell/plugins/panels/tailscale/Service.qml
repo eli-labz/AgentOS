@@ -142,7 +142,7 @@ Item {
     if (!canSendFiles(peer)) return
     var target = peerAddress(peer)
     if (target === "") return
-    Quickshell.execDetached(["omarchy-tailscale-send", target])
+    Quickshell.execDetached(["agent0s-tailscale-send", target])
   }
 
   function refresh(forceAccounts) {
@@ -373,7 +373,7 @@ Item {
       _loginUrlOpened = true
       _loginInProgress = false
       loginTimeoutTimer.stop()
-      Quickshell.execDetached(["omarchy-launch-browser", url])
+      Quickshell.execDetached(["agent0s-launch-browser", url])
       return true
     }
     return false

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# agent0s:summary=Install Heroic Games Launcher (Epic, GOG, Amazon Prime Gaming) with graphics drivers.
+# agent0s:requires-sudo=true
+
+set -e
+
+echo "Installing Heroic Games Launcher..."
+agent0s-pkg-add heroic-games-launcher-bin
+agent0s-install-gaming-gpu-lib32
+
+setsid uwsm-app -- gtk-launch heroic >/dev/null 2>&1 &

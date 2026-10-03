@@ -22,20 +22,20 @@ fake_bin="$test_tmp/bin"
 shell_root="$test_tmp/root"
 mkdir -p "$fake_bin" "$shell_root/shell"
 
-# Each launch consumes the next status from OMARCHY_TEST_QS_STATUSES; "run"
+# Each launch consumes the next status from AGENT0S_TEST_QS_STATUSES; "run"
 # stands in for a healthy shell that keeps going until stopped.
 cat >"$fake_bin/quickshell" <<'SH'
 #!/bin/bash
 
-printf '%s\n' "$*" >>"$OMARCHY_TEST_QS_LOG"
+printf '%s\n' "$*" >>"$AGENT0S_TEST_QS_LOG"
 printf 'watcher=%s popup=%s\n' \
-  "${QS_DISABLE_FILE_WATCHER:-unset}" "${QS_NO_RELOAD_POPUP:-unset}" >>"$OMARCHY_TEST_QS_ENV_LOG"
+  "${QS_DISABLE_FILE_WATCHER:-unset}" "${QS_NO_RELOAD_POPUP:-unset}" >>"$AGENT0S_TEST_QS_ENV_LOG"
 
-launches=$(wc -l <"$OMARCHY_TEST_QS_LOG")
-status=$(awk -v n="$launches" 'NR == n { print; found = 1 } END { if (!found) print "0" }' <<<"$OMARCHY_TEST_QS_STATUSES")
+launches=$(wc -l <"$AGENT0S_TEST_QS_LOG")
+status=$(awk -v n="$launches" 'NR == n { print; found = 1 } END { if (!found) print "0" }' <<<"$AGENT0S_TEST_QS_STATUSES")
 
 if [[ $status == "run" ]]; then
-  trap 'touch "$OMARCHY_TEST_QS_TERMINATED"; exit 143' TERM
+  trap 'touch "$AGENT0S_TEST_QS_TERMINATED"; exit 143' TERM
   while true; do sleep 0.05; done
 fi
 
@@ -55,13 +55,13 @@ SH
 cat >"$fake_bin/hyprctl" <<'SH'
 #!/bin/bash
 
-[[ ${OMARCHY_TEST_COMPOSITOR_GONE:-0} == 1 ]] && exit 4
+[[ ${AGENT0S_TEST_COMPOSITOR_GONE:-0} == 1 ]] && exit 4
 
-# Refuse the first OMARCHY_TEST_HYPRCTL_MISSES queries, then answer.
-if (( ${OMARCHY_TEST_HYPRCTL_MISSES:-0} > 0 )); then
-  misses=$(cat "$OMARCHY_TEST_HYPRCTL_MISS_COUNT" 2>/dev/null || printf '0')
-  if (( misses < OMARCHY_TEST_HYPRCTL_MISSES )); then
-    printf '%s\n' "$(( misses + 1 ))" >"$OMARCHY_TEST_HYPRCTL_MISS_COUNT"
+# Refuse the first AGENT0S_TEST_HYPRCTL_MISSES queries, then answer.
+if (( ${AGENT0S_TEST_HYPRCTL_MISSES:-0} > 0 )); then
+  misses=$(cat "$AGENT0S_TEST_HYPRCTL_MISS_COUNT" 2>/dev/null || printf '0')
+  if (( misses < AGENT0S_TEST_HYPRCTL_MISSES )); then
+    printf '%s\n' "$(( misses + 1 ))" >"$AGENT0S_TEST_HYPRCTL_MISS_COUNT"
     exit 4
   fi
 fi
@@ -73,7 +73,7 @@ cat >"$fake_bin/logger" <<'SH'
 #!/bin/bash
 
 shift 2
-printf '%s\n' "$*" >>"$OMARCHY_TEST_LOGGER_LOG"
+printf '%s\n' "$*" >>"$AGENT0S_TEST_LOGGER_LOG"
 SH
 
 chmod +x "$fake_bin/quickshell" "$fake_bin/systemd-cat" "$fake_bin/hyprctl" "$fake_bin/logger"
@@ -90,16 +90,16 @@ launch_shell() {
   : >"$logger_log"
 
   PATH="$fake_bin:$PATH" \
-  OMARCHY_PATH="$shell_root" \
-  OMARCHY_TEST_QS_LOG="$qs_log" \
-  OMARCHY_TEST_QS_ENV_LOG="$qs_env_log" \
-  OMARCHY_TEST_QS_STATUSES="$1" \
-  OMARCHY_TEST_COMPOSITOR_GONE="${2:-0}" \
-  OMARCHY_TEST_LOGGER_LOG="$logger_log" \
-  OMARCHY_TEST_QS_TERMINATED="$qs_terminated" \
-  OMARCHY_TEST_HYPRCTL_MISSES="${3:-0}" \
-  OMARCHY_TEST_HYPRCTL_MISS_COUNT="$hyprctl_misses" \
-    timeout 30 "$ROOT/bin/omarchy-launch-shell"
+  AGENT0S_PATH="$shell_root" \
+  AGENT0S_TEST_QS_LOG="$qs_log" \
+  AGENT0S_TEST_QS_ENV_LOG="$qs_env_log" \
+  AGENT0S_TEST_QS_STATUSES="$1" \
+  AGENT0S_TEST_COMPOSITOR_GONE="${2:-0}" \
+  AGENT0S_TEST_LOGGER_LOG="$logger_log" \
+  AGENT0S_TEST_QS_TERMINATED="$qs_terminated" \
+  AGENT0S_TEST_HYPRCTL_MISSES="${3:-0}" \
+  AGENT0S_TEST_HYPRCTL_MISS_COUNT="$hyprctl_misses" \
+    timeout 30 "$ROOT/bin/agent0s-launch-shell"
 }
 
 launches() {
@@ -108,7 +108,7 @@ launches() {
 
 launch_shell '0' || fail "a clean launch succeeds"
 [[ $(launches) == 1 ]] || fail "a shell that exits cleanly is not relaunched" "$(<"$qs_log")"
-grep -F -- "-n -p $shell_root/shell" "$qs_log" >/dev/null || fail "the shell launches from OMARCHY_PATH"
+grep -F -- "-n -p $shell_root/shell" "$qs_log" >/dev/null || fail "the shell launches from AGENT0S_PATH"
 pass "a shell that exits cleanly is left alone"
 
 # A misspelled variable would leave Quickshell hot-reloading the tree pacman
@@ -145,14 +145,14 @@ pass "a compositor too busy to answer is not mistaken for one that is gone"
 : >"$logger_log"
 
 PATH="$fake_bin:$PATH" \
-OMARCHY_PATH="$shell_root" \
-OMARCHY_TEST_QS_LOG="$qs_log" \
-OMARCHY_TEST_QS_ENV_LOG="$qs_env_log" \
-OMARCHY_TEST_QS_STATUSES=$'255\n0' \
-OMARCHY_TEST_COMPOSITOR_GONE=0 \
-OMARCHY_TEST_LOGGER_LOG="$logger_log" \
-OMARCHY_TEST_QS_TERMINATED="$qs_terminated" \
-  "$ROOT/bin/omarchy-launch-shell" &
+AGENT0S_PATH="$shell_root" \
+AGENT0S_TEST_QS_LOG="$qs_log" \
+AGENT0S_TEST_QS_ENV_LOG="$qs_env_log" \
+AGENT0S_TEST_QS_STATUSES=$'255\n0' \
+AGENT0S_TEST_COMPOSITOR_GONE=0 \
+AGENT0S_TEST_LOGGER_LOG="$logger_log" \
+AGENT0S_TEST_QS_TERMINATED="$qs_terminated" \
+  "$ROOT/bin/agent0s-launch-shell" &
 launch_pid=$!
 
 for (( waited = 0; waited < 100; waited++ )); do
@@ -174,14 +174,14 @@ pass "a signal during backoff stops the supervisor before it relaunches"
 rm -f "$qs_terminated"
 
 PATH="$fake_bin:$PATH" \
-OMARCHY_PATH="$shell_root" \
-OMARCHY_TEST_QS_LOG="$qs_log" \
-OMARCHY_TEST_QS_ENV_LOG="$qs_env_log" \
-OMARCHY_TEST_QS_STATUSES='run' \
-OMARCHY_TEST_COMPOSITOR_GONE=0 \
-OMARCHY_TEST_LOGGER_LOG="$logger_log" \
-OMARCHY_TEST_QS_TERMINATED="$qs_terminated" \
-  "$ROOT/bin/omarchy-launch-shell" &
+AGENT0S_PATH="$shell_root" \
+AGENT0S_TEST_QS_LOG="$qs_log" \
+AGENT0S_TEST_QS_ENV_LOG="$qs_env_log" \
+AGENT0S_TEST_QS_STATUSES='run' \
+AGENT0S_TEST_COMPOSITOR_GONE=0 \
+AGENT0S_TEST_LOGGER_LOG="$logger_log" \
+AGENT0S_TEST_QS_TERMINATED="$qs_terminated" \
+  "$ROOT/bin/agent0s-launch-shell" &
 launch_pid=$!
 
 for (( waited = 0; waited < 100; waited++ )); do

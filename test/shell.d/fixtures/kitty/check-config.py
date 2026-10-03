@@ -10,7 +10,7 @@ system = root / 'etc/xdg/kitty/kitty.conf'
 template = root / 'config/kitty/kitty.conf'
 legacy = root / 'test/shell.d/fixtures/kitty/legacy.conf'
 active_lines = [line for line in template.read_text().splitlines() if line and not line.startswith('#')]
-assert active_lines == ['include ~/.local/state/omarchy/current/theme/kitty.conf']
+assert active_lines == ['include ~/.local/state/agent0s/current/theme/kitty.conf']
 
 with TemporaryDirectory() as tmp:
   user = Path(tmp) / 'kitty.conf'
@@ -23,7 +23,7 @@ with TemporaryDirectory() as tmp:
   opts = load_config(str(system), str(user), accumulate_bad_lines=errors)
   assert not errors, errors
   assert opts.allow_remote_control == 'socket-only'
-  assert opts.listen_on == 'unix:${XDG_RUNTIME_DIR}/omarchy-kitty-{kitty_pid}'
+  assert opts.listen_on == 'unix:${XDG_RUNTIME_DIR}/agent0s-kitty-{kitty_pid}'
 
   old = Path(tmp) / 'legacy.conf'
   old.write_text(legacy.read_text().replace(active_lines[0], themed.strip()))

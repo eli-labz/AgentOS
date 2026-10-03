@@ -8,10 +8,10 @@ run_application_bindings() {
   local home="$1"
   local prelude="${2:-}"
 
-  HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_STATE_HOME="$home/.local/state" OMARCHY_PATH="$ROOT" OMARCHY_BINDING_PRELUDE="$prelude" lua <<'LUA'
-package.path = os.getenv("HOME") .. "/.config/?.lua;" .. os.getenv("OMARCHY_PATH") .. "/?.lua;" .. package.path
+  HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_STATE_HOME="$home/.local/state" AGENT0S_PATH="$ROOT" AGENT0S_BINDING_PRELUDE="$prelude" lua <<'LUA'
+package.path = os.getenv("HOME") .. "/.config/?.lua;" .. os.getenv("AGENT0S_PATH") .. "/?.lua;" .. package.path
 
-local prelude = os.getenv("OMARCHY_BINDING_PRELUDE") or ""
+local prelude = os.getenv("AGENT0S_BINDING_PRELUDE") or ""
 if prelude ~= "" then
   assert(load(prelude))()
 end
@@ -35,12 +35,12 @@ require("default.hypr.bindings.applications")
 LUA
 }
 
-run_omarchy_bindings() {
+run_agent0s_bindings() {
   local home="$1"
   local prelude="${2:-}"
 
-  HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_STATE_HOME="$home/.local/state" OMARCHY_PATH="$ROOT" OMARCHY_BINDING_PRELUDE="$prelude" lua <<'LUA'
-package.path = os.getenv("HOME") .. "/.config/?.lua;" .. os.getenv("OMARCHY_PATH") .. "/?.lua;" .. package.path
+  HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_STATE_HOME="$home/.local/state" AGENT0S_PATH="$ROOT" AGENT0S_BINDING_PRELUDE="$prelude" lua <<'LUA'
+package.path = os.getenv("HOME") .. "/.config/?.lua;" .. os.getenv("AGENT0S_PATH") .. "/?.lua;" .. package.path
 
 local function proxy()
   return setmetatable({}, {
@@ -55,7 +55,7 @@ local function proxy()
   })
 end
 
-local prelude = os.getenv("OMARCHY_BINDING_PRELUDE") or ""
+local prelude = os.getenv("AGENT0S_BINDING_PRELUDE") or ""
 if prelude ~= "" then
   assert(load(prelude))()
 end
@@ -91,7 +91,7 @@ hl = setmetatable({
   end,
 })
 
-require("default.hypr.omarchy")
+require("default.hypr.agent0s")
 LUA
 }
 
@@ -120,8 +120,8 @@ fi
 pass "universal clipboard shortcuts avoid virtual keyboard modifier merging"
 
 removed_home="$tmpdir/removed-home"
-mkdir -p "$removed_home/.local/state/omarchy"
-touch "$removed_home/.local/state/omarchy/preinstalls-removed"
+mkdir -p "$removed_home/.local/state/agent0s"
+touch "$removed_home/.local/state/agent0s/preinstalls-removed"
 removed_output=$(run_application_bindings "$removed_home")
 grep -Fq $'SUPER + RETURN	Terminal' <<<"$removed_output" || fail "preinstall removal keeps essential bindings"
 if grep -Fq $'SUPER + SHIFT + A	ChatGPT' <<<"$removed_output"; then
@@ -131,7 +131,7 @@ pass "preinstall removal flag skips optional application bindings"
 
 variable_home="$tmpdir/variable-home"
 mkdir -p "$variable_home"
-variable_output=$(run_application_bindings "$variable_home" 'omarchy_preinstalled_bindings = false')
+variable_output=$(run_application_bindings "$variable_home" 'agent0s_preinstalled_bindings = false')
 grep -Fq $'SUPER + RETURN	Terminal' <<<"$variable_output" || fail "preinstalled binding variable keeps essential bindings"
 if grep -Fq $'SUPER + SHIFT + A	ChatGPT' <<<"$variable_output"; then
   fail "preinstalled binding variable skips optional application bindings"
@@ -140,16 +140,16 @@ pass "preinstalled binding variable skips optional application bindings"
 
 no_bindings_home="$tmpdir/no-bindings-home"
 mkdir -p "$no_bindings_home"
-no_bindings_output=$(run_omarchy_bindings "$no_bindings_home" 'omarchy_default_bindings = false')
-[[ -z $no_bindings_output ]] || fail "default binding variable disables all Omarchy bindings" "$no_bindings_output"
-pass "default binding variable disables all Omarchy bindings"
+no_bindings_output=$(run_agent0s_bindings "$no_bindings_home" 'agent0s_default_bindings = false')
+[[ -z $no_bindings_output ]] || fail "default binding variable disables all Agent0S bindings" "$no_bindings_output"
+pass "default binding variable disables all Agent0S bindings"
 
 voxtype_home="$tmpdir/voxtype-home"
 voxtype_bin="$tmpdir/voxtype-bin"
 mkdir -p "$voxtype_home" "$voxtype_bin"
 touch "$voxtype_bin/voxtype"
 chmod +x "$voxtype_bin/voxtype"
-voxtype_output=$(PATH="$voxtype_bin:$PATH" run_omarchy_bindings "$voxtype_home")
+voxtype_output=$(PATH="$voxtype_bin:$PATH" run_agent0s_bindings "$voxtype_home")
 grep -Fq $'SUPER + CTRL + X	Toggle dictation' <<<"$voxtype_output" ||
   fail "installed Voxtype enables its toggle binding"
 grep -Fq $'F9	Start dictation (push-to-talk)' <<<"$voxtype_output" ||
@@ -158,7 +158,7 @@ grep -Fq $'F9	Stop dictation (push-to-talk)' <<<"$voxtype_output" ||
   fail "installed Voxtype enables its release binding"
 pass "installed Voxtype conditionally enables dictation bindings"
 
-voxtype_without_execute_output=$(PATH="$voxtype_bin:$PATH" run_omarchy_bindings \
+voxtype_without_execute_output=$(PATH="$voxtype_bin:$PATH" run_agent0s_bindings \
   "$voxtype_home" 'os.execute = function() return nil, "No child processes", 10 end')
 grep -Fq $'SUPER + CTRL + X	Toggle dictation' <<<"$voxtype_without_execute_output" ||
   fail "Voxtype detection does not require spawning a subprocess"
@@ -169,7 +169,7 @@ mkdir -p "$missing_bin"
 ln -s "$(command -v lua)" "$missing_bin/lua"
 ln -s "$(command -v lspci)" "$missing_bin/lspci"
 ln -s "$(command -v sort)" "$missing_bin/sort"
-missing_voxtype_output=$(PATH="$missing_bin" run_omarchy_bindings "$voxtype_home")
+missing_voxtype_output=$(PATH="$missing_bin" run_agent0s_bindings "$voxtype_home")
 if grep -Fq $'SUPER + CTRL + X	Toggle dictation' <<<"$missing_voxtype_output"; then
   fail "missing Voxtype skips its bindings"
 fi
@@ -179,7 +179,7 @@ pass "missing Voxtype skips dictation bindings"
 # working alongside them.
 scratchpad_home="$tmpdir/scratchpad-home"
 mkdir -p "$scratchpad_home"
-scratchpad_output=$(run_omarchy_bindings "$scratchpad_home")
+scratchpad_output=$(run_agent0s_bindings "$scratchpad_home")
 grep -Fqx $'SUPER + S	Toggle scratchpad' <<<"$scratchpad_output" ||
   fail "scratchpad keeps its existing toggle binding"
 grep -Fqx $'SUPER + grave	Toggle scratchpad' <<<"$scratchpad_output" ||
@@ -195,7 +195,7 @@ pass "scratchpad retains existing bindings and adds Grave shortcuts"
 # claim on SUPER + CTRL + a number is a collision with one of these.
 panels_home="$tmpdir/panels-home"
 mkdir -p "$panels_home"
-panels_output=$(run_omarchy_bindings "$panels_home")
+panels_output=$(run_agent0s_bindings "$panels_home")
 for panel in 1 2 3 4 5 6 7 8 9; do
   grep -Fqx "SUPER + CTRL + code:$((panel + 9))"$'\t'"Bar panel $panel" <<<"$panels_output" ||
     fail "bar panel hotkeys count the right section" "$panel"
@@ -216,23 +216,23 @@ require("default.hypr.bindings.clipboard")
 require("default.hypr.bindings.tiling")
 require("default.hypr.bindings.utilities")
 
--- Application bindings without Omarchy's preinstalled web apps, TUIs, or desktop apps.
-o.bind("SUPER + RETURN", "Terminal", { omarchy = "terminal" })
-o.bind("SUPER + SHIFT + RETURN", "Browser", { omarchy = "browser" })
-o.bind("SUPER + SHIFT + F", "File manager", { omarchy = "nautilus" })
-o.bind("SUPER + ALT + SHIFT + F", "File manager (cwd)", { omarchy = "nautilus-cwd" })
-o.bind("SUPER + SHIFT + B", "Browser", { omarchy = "browser" })
-o.bind("SUPER + SHIFT + ALT + B", "Browser (private)", { omarchy = "browser --private" })
-o.bind("SUPER + SHIFT + N", "Editor", { omarchy = "editor" })
+-- Application bindings without Agent0S's preinstalled web apps, TUIs, or desktop apps.
+o.bind("SUPER + RETURN", "Terminal", { agent0s = "terminal" })
+o.bind("SUPER + SHIFT + RETURN", "Browser", { agent0s = "browser" })
+o.bind("SUPER + SHIFT + F", "File manager", { agent0s = "nautilus" })
+o.bind("SUPER + ALT + SHIFT + F", "File manager (cwd)", { agent0s = "nautilus-cwd" })
+o.bind("SUPER + SHIFT + B", "Browser", { agent0s = "browser" })
+o.bind("SUPER + SHIFT + ALT + B", "Browser (private)", { agent0s = "browser --private" })
+o.bind("SUPER + SHIFT + N", "Editor", { agent0s = "editor" })
 LUA
-HOME="$migration_home" OMARCHY_PATH="$ROOT" bash -euo pipefail "$migration" >/dev/null
+HOME="$migration_home" AGENT0S_PATH="$ROOT" bash -euo pipefail "$migration" >/dev/null
 cmp -s "$ROOT/config/hypr/bindings.lua" "$migration_home/.config/hypr/bindings.lua" ||
   fail "plain legacy bindings migrate to the user override stub"
-[[ -f $migration_home/.local/state/omarchy/preinstalls-removed ]] ||
+[[ -f $migration_home/.local/state/agent0s/preinstalls-removed ]] ||
   fail "plain legacy bindings preserve preinstall removal state"
 pass "migration converts plain legacy bindings to package-owned defaults"
 
-upgrade_script="$ROOT/bin/omarchy-upgrade-to-quattro"
+upgrade_script="$ROOT/bin/agent0s-upgrade-to-quattro"
 grep -Fq 'touch "$state_dir/preinstalls-removed"' "$upgrade_script" ||
   fail "upgrade-to-quattro preserves preinstall removal state"
 

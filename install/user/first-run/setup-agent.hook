@@ -2,10 +2,10 @@
 
 set -e
 
-# Omarchy ships no default agent, so invite once rather than picking one. An
+# Agent0S ships no default agent, so invite once rather than picking one. An
 # agent already chosen means the invitation has nothing to offer.
-if [[ -z $(omarchy-default-agent) ]] && omarchy-done ensure agent-setup-invitation; then
-  omarchy-notification-send -u critical -g 󰚩 "Set your default agent" \
-    "Let your favorite agent help with Omarchy." \
-    --exec omarchy menu summon setup.default.agent
+if [[ -z $(agent0s-default-agent) ]] && agent0s-done ensure agent-setup-invitation; then
+  agent0s-notification-send -u critical -g 󰚩 "Set your default agent" \
+    "Let your favorite agent help with Agent0S." \
+    --exec agent0s menu summon setup.default.agent
 fi

@@ -33,14 +33,14 @@ JSON
 
 stub_dir="$TMPDIR/stubs"
 mkdir -p "$stub_dir"
-cat >"$stub_dir/omarchy-shell" <<'STUB'
+cat >"$stub_dir/agent0s-shell" <<'STUB'
 #!/bin/bash
 exit 0
 STUB
-chmod +x "$stub_dir/omarchy-shell"
+chmod +x "$stub_dir/agent0s-shell"
 
 test_home="$TMPDIR/home"
-write_plugin "$test_home/.config/omarchy/plugins/different-folder" "acme.same" "Installed"
+write_plugin "$test_home/.config/agent0s/plugins/different-folder" "acme.same" "Installed"
 
 incoming="$TMPDIR/incoming"
 write_plugin "$incoming" "acme.same" "Incoming"
@@ -48,30 +48,30 @@ git -C "$incoming" init -q
 git -C "$incoming" add .
 git -C "$incoming" -c user.name=Test -c user.email=test@example.com commit -qm "Initial"
 
-output=$(HOME="$test_home" OMARCHY_PATH="$ROOT" PATH="$stub_dir:$ROOT/bin:$PATH" \
-  omarchy-plugin-add "$incoming" --yes 2>&1) &&
+output=$(HOME="$test_home" AGENT0S_PATH="$ROOT" PATH="$stub_dir:$ROOT/bin:$PATH" \
+  agent0s-plugin-add "$incoming" --yes 2>&1) &&
   fail "plugin add accepts an id already installed under another directory" "$output"
 grep -qF "plugin id 'acme.same' is already used by" <<<"$output" ||
   fail "plugin add explains the installed id collision" "$output"
-[[ ! -e $test_home/.config/omarchy/plugins/acme.same ]] ||
+[[ ! -e $test_home/.config/agent0s/plugins/acme.same ]] ||
   fail "plugin add leaves a target behind after refusing a duplicate id"
 pass "plugin add refuses an installed manifest id regardless of directory name"
 
 # --- URL transport-helper guard -------------------------------------------
 #
 # The guard refuses git transport helpers (`<name>::…`) and option-shaped URLs
-# before `git clone` runs, matching omarchy-theme-install. A git stub records
+# before `git clone` runs, matching agent0s-theme-install. A git stub records
 # whether clone was reached, so the guard is exercised with no network: reaching
 # the stub proves a URL passed the guard; not reaching it proves the guard
 # rejected the URL first.
 
 guard_stubs="$TMPDIR/guard-stubs"
 mkdir -p "$guard_stubs"
-cat >"$guard_stubs/omarchy-shell" <<'STUB'
+cat >"$guard_stubs/agent0s-shell" <<'STUB'
 #!/bin/bash
 exit 0
 STUB
-chmod +x "$guard_stubs/omarchy-shell"
+chmod +x "$guard_stubs/agent0s-shell"
 
 clone_marker="$TMPDIR/git-clone-reached"
 cat >"$guard_stubs/git" <<STUB
@@ -95,12 +95,12 @@ STUB
 chmod +x "$guard_stubs/gum"
 
 add_url() {
-  HOME="$test_home" OMARCHY_PATH="$ROOT" PATH="$guard_stubs:$ROOT/bin:$PATH" \
-    omarchy-plugin-add "$1" --yes 2>&1
+  HOME="$test_home" AGENT0S_PATH="$ROOT" PATH="$guard_stubs:$ROOT/bin:$PATH" \
+    agent0s-plugin-add "$1" --yes 2>&1
 }
 
 # Transport helpers reach the guard, are named as such, and never reach clone.
-for bad in "ext::sh -c touch /tmp/omarchy-guard-test" "fd::17"; do
+for bad in "ext::sh -c touch /tmp/agent0s-guard-test" "fd::17"; do
   rm -f "$clone_marker"
   output=$(add_url "$bad") &&
     fail "plugin add rejects a transport-helper URL: $bad" "$output"
@@ -118,7 +118,7 @@ for bad in "ext://sh -c id" "gcrypt://example.com/x"; do
   rm -f "$clone_marker"
   output=$(add_url "$bad") &&
     fail "plugin add rejects a transport-scheme URL: $bad" "$output"
-  grep -qF "which Omarchy does not clone from" <<<"$output" ||
+  grep -qF "which Agent0S does not clone from" <<<"$output" ||
     fail "plugin add names the transport-scheme rejection: $bad" "$output"
   [[ ! -e $clone_marker ]] ||
     fail "plugin add reached git clone for a transport-scheme URL: $bad"
@@ -146,9 +146,9 @@ pass "plugin add rejects option-shaped URLs before cloning"
 if script -qec true /dev/null >/dev/null 2>&1; then
   rm -f "$clone_marker"
   status=0
-  raw=$(GUM_INPUT_VALUE="-oProxyCommand=x" HOME="$test_home" OMARCHY_PATH="$ROOT" \
+  raw=$(GUM_INPUT_VALUE="-oProxyCommand=x" HOME="$test_home" AGENT0S_PATH="$ROOT" \
     PATH="$guard_stubs:$ROOT/bin:$PATH" \
-    script -qec "omarchy-plugin-add --yes" /dev/null) || status=$?
+    script -qec "agent0s-plugin-add --yes" /dev/null) || status=$?
   output=$(tr -d '\r' <<<"$raw")
   (( status != 0 )) ||
     fail "plugin add rejects an option-shaped URL from the gum prompt" "$output"

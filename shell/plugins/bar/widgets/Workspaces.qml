@@ -6,7 +6,7 @@ import qs.Ui
 
 BarWidget {
   id: root
-  moduleName: "omarchy.workspaces"
+  moduleName: "agent0s.workspaces"
 
   function workspaceById(id) {
     var values = Hyprland.workspaces.values

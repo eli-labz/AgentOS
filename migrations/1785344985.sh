@@ -6,7 +6,7 @@ echo "Add the agents widget to the bar"
 # active days, or a rate limit. So adding it to every existing bar is free:
 # machines without Claude Code or Codex never see it.
 
-config_file="$HOME/.config/omarchy/shell.json"
+config_file="$HOME/.config/agent0s/shell.json"
 
 if [[ -s $config_file ]]; then
   tmp=$(mktemp)
@@ -38,10 +38,10 @@ if [[ -s $config_file ]]; then
 
     # Respect a bar the user already curated: only place the widget when it is
     # absent from every section, never a second copy.
-    if has_widget("omarchy.agents") then
+    if has_widget("agent0s.agents") then
       .
     else
-      .bar.layout.right |= insert_after("omarchy.tray"; { id: "omarchy.agents" })
+      .bar.layout.right |= insert_after("agent0s.tray"; { id: "agent0s.agents" })
     end
   ' "$config_file" >"$tmp" && mv "$tmp" "$config_file" || rm -f "$tmp"
 fi

@@ -23,7 +23,7 @@ run_failure_case() {
   local error
 
   export PW_NMCLI_FIELDS=$fields
-  if PATH="$tmp/bin:$PATH" "$ROOT/bin/omarchy-network-password" wlan0 >"$tmp/output" 2>"$tmp/error"; then
+  if PATH="$tmp/bin:$PATH" "$ROOT/bin/agent0s-network-password" wlan0 >"$tmp/output" 2>"$tmp/error"; then
     fail "$description" "helper unexpectedly succeeded"
   fi
   error=$(<"$tmp/error")
@@ -34,7 +34,7 @@ run_failure_case() {
 # The password comes back raw -- no QR escaping -- because it is shown to a
 # human, not embedded in a WIFI: payload.
 export PW_NMCLI_FIELDS=$'wpa-psk\np,a:ss;word\\42\n'
-output=$(PATH="$tmp/bin:$PATH" "$ROOT/bin/omarchy-network-password" wlan0)
+output=$(PATH="$tmp/bin:$PATH" "$ROOT/bin/agent0s-network-password" wlan0)
 [[ $output == 'p,a:ss;word\42' ]] || fail "network password helper prints the raw password" "expected: p,a:ss;word\\42\nactual: $output"
 pass "network password helper prints the raw password"
 
@@ -45,7 +45,7 @@ run_failure_case \
 
 # WEP looks like an open network (key-mgmt "none") but carries a wep-key.
 export PW_NMCLI_FIELDS=$'none\n\nwep-secret\n'
-output=$(PATH="$tmp/bin:$PATH" "$ROOT/bin/omarchy-network-password" wlan0)
+output=$(PATH="$tmp/bin:$PATH" "$ROOT/bin/agent0s-network-password" wlan0)
 [[ $output == "wep-secret" ]] || fail "network password helper prints WEP keys" "expected: wep-secret\nactual: $output"
 pass "network password helper prints WEP keys"
 

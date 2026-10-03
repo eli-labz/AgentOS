@@ -17,7 +17,7 @@ SCRIPT
 set +e
 (
   set -euo pipefail
-  export OMARCHY_INSTALL_LOG_FILE="$log_file"
+  export AGENT0S_INSTALL_LOG_FILE="$log_file"
   source "$ROOT/install/helpers/logging.sh"
   run_logged "$failing_script"
   echo "unreachable"
@@ -34,8 +34,8 @@ stdout_log="$work_dir/stdout.log"
 set +e
 (
   set -euo pipefail
-  export OMARCHY_INSTALL_LOG_FILE="$work_dir/iso-owned.log"
-  export OMARCHY_LOG_TO_STDOUT=1
+  export AGENT0S_INSTALL_LOG_FILE="$work_dir/iso-owned.log"
+  export AGENT0S_LOG_TO_STDOUT=1
   source "$ROOT/install/helpers/logging.sh"
   run_logged "$failing_script"
 ) >"$stdout_log" 2>&1

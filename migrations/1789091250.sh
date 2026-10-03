@@ -1,4 +1,4 @@
-echo "Activate the Omarchy theme for existing T3 Code installs"
+echo "Activate the Agent0S theme for existing T3 Code installs"
 
-omarchy-pkg-present t3code-bin || exit 0
-omarchy-install-ai-t3-code
+agent0s-pkg-present t3code-bin || exit 0
+agent0s-install-ai-t3-code

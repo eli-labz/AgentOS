@@ -1,3 +1,3 @@
-if omarchy-hw-surface; then
-  omarchy-pkg-add linux-firmware-marvell
+if agent0s-hw-surface; then
+  agent0s-pkg-add linux-firmware-marvell
 fi

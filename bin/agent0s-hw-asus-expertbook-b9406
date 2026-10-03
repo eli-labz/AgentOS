@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# agent0s:summary=Detect ASUS ExpertBook B9406 series laptops on Intel Panther Lake.
+
+agent0s-hw-match "B9406" && agent0s-hw-intel-ptl

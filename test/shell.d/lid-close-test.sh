@@ -4,7 +4,7 @@ set -euo pipefail
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
-lid_close="$ROOT/bin/omarchy-system-lid-close"
+lid_close="$ROOT/bin/agent0s-system-lid-close"
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
@@ -19,15 +19,15 @@ setup_scenario() {
 
   local closed="$2" docked="$3"
 
-  cat >"$mock_bin/omarchy-hw-laptop-closed" <<SH
+  cat >"$mock_bin/agent0s-hw-laptop-closed" <<SH
 #!/bin/bash
 exit $closed
 SH
-  cat >"$mock_bin/omarchy-hw-external-monitors" <<SH
+  cat >"$mock_bin/agent0s-hw-external-monitors" <<SH
 #!/bin/bash
 exit $docked
 SH
-  for command in omarchy-system-lock omarchy-hyprland-monitor-clamshell; do
+  for command in agent0s-system-lock agent0s-hyprland-monitor-clamshell; do
     cat >"$mock_bin/$command" <<SH
 #!/bin/bash
 echo $command >>"\$CALL_LOG"
@@ -47,11 +47,11 @@ run_lid_close() {
 setup_scenario undocked 0 1
 run_lid_close
 
-[[ ${calls[0]} == "omarchy-system-lock" ]] ||
+[[ ${calls[0]} == "agent0s-system-lock" ]] ||
   fail "undocked lid close locks before anything else" "calls: ${calls[*]}"
 pass "undocked lid close locks before anything else"
 
-[[ ${calls[1]} == "omarchy-hyprland-monitor-clamshell" ]] ||
+[[ ${calls[1]} == "agent0s-hyprland-monitor-clamshell" ]] ||
   fail "undocked lid close still reconciles displays" "calls: ${calls[*]}"
 pass "undocked lid close still reconciles displays"
 
@@ -60,11 +60,11 @@ pass "undocked lid close still reconciles displays"
 setup_scenario docked 0 0
 run_lid_close
 
-[[ ${calls[*]} != *omarchy-system-lock* ]] ||
+[[ ${calls[*]} != *agent0s-system-lock* ]] ||
   fail "docked lid close does not lock the session" "calls: ${calls[*]}"
 pass "docked lid close does not lock the session"
 
-[[ ${calls[0]} == "omarchy-hyprland-monitor-clamshell" ]] ||
+[[ ${calls[0]} == "agent0s-hyprland-monitor-clamshell" ]] ||
   fail "docked lid close reconciles displays" "calls: ${calls[*]}"
 pass "docked lid close reconciles displays"
 
@@ -73,21 +73,21 @@ pass "docked lid close reconciles displays"
 setup_scenario open 1 1
 run_lid_close
 
-[[ ${calls[*]} != *omarchy-system-lock* ]] ||
+[[ ${calls[*]} != *agent0s-system-lock* ]] ||
   fail "an open lid never locks the session" "calls: ${calls[*]}"
 pass "an open lid never locks the session"
 
 # The lid handler runs from a Hyprland binding, so a lock that hangs or fails
 # must not stop the display reconciliation behind it.
 setup_scenario failing_lock 0 1
-cat >"$mock_bin/omarchy-system-lock" <<'SH'
+cat >"$mock_bin/agent0s-system-lock" <<'SH'
 #!/bin/bash
-echo omarchy-system-lock >>"$CALL_LOG"
+echo agent0s-system-lock >>"$CALL_LOG"
 exit 1
 SH
-chmod +x "$mock_bin/omarchy-system-lock"
+chmod +x "$mock_bin/agent0s-system-lock"
 run_lid_close
 
-[[ ${calls[1]} == "omarchy-hyprland-monitor-clamshell" ]] ||
+[[ ${calls[1]} == "agent0s-hyprland-monitor-clamshell" ]] ||
   fail "a failing lock still reconciles displays" "calls: ${calls[*]}"
 pass "a failing lock still reconciles displays"

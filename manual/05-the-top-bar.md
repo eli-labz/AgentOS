@@ -1,14 +1,14 @@
 # The Top Bar
 
-The strip along the top of your screen is the Omarchy bar. It's not a bolted-on status bar but part of the Omarchy shell, the single long-running Quickshell process that also draws the menu, the notifications, the OSD popups, and the lock screen. That's why it themes perfectly with everything else and why a panel opens instantly instead of spawning a new app.
+The strip along the top of your screen is the Agent0S bar. It's not a bolted-on status bar but part of the Agent0S shell, the single long-running Quickshell process that also draws the menu, the notifications, the OSD popups, and the lock screen. That's why it themes perfectly with everything else and why a panel opens instantly instead of spawning a new app.
 
 It's also the one piece of the desktop that's always on screen, so it's worth knowing what all those little glyphs do.
 
 ## What's on it by default
 
-The bar has three sections. On the left sits the Omarchy logo (the menu launcher) and the workspace indicators. In the center you get the status indicators, the clock, the keyboard layout, the weather, and an Omarchy update badge. On the right: the system tray, agents, bluetooth, network, audio, display, and power.
+The bar has three sections. On the left sits the Agent0S logo (the menu launcher) and the workspace indicators. In the center you get the status indicators, the clock, the keyboard layout, the weather, and an Agent0S update badge. On the right: the system tray, agents, bluetooth, network, audio, display, and power.
 
-A few of those only show up when they have something to say. The keyboard layout appears only if you've configured more than one layout. The update badge appears only when there's an Omarchy update waiting. And the agents icon appears the first time Omarchy finds AI coding usage on the machine (see [AI](17-ai.md)).
+A few of those only show up when they have something to say. The keyboard layout appears only if you've configured more than one layout. The update badge appears only when there's an Agent0S update waiting. And the agents icon appears the first time Agent0S finds AI coding usage on the machine (see [AI](17-ai.md)).
 
 ## Clicking around
 
@@ -16,7 +16,7 @@ Nearly every widget does something on left, right, and middle click, and several
 
 | Widget | Left | Right | Middle / scroll |
 | --- | --- | --- | --- |
-| Menu | Omarchy menu | New terminal | — |
+| Menu | Agent0S menu | New terminal | — |
 | Workspaces | Focus that workspace | — | — |
 | Clock | Calendar popup | Cycle the label format | Middle: timezone picker |
 | Weather | Forecast popup | Full weather as a notification | Middle: refresh |
@@ -29,7 +29,7 @@ Nearly every widget does something on left, right, and middle click, and several
 | Media | Play/pause | Cover-art popup | Middle: next · scroll: prev/next |
 | Agents | Agents panel | Launch your agent | Middle: next subscription |
 | Tray | Hover to reveal the drawer | Right on the chevron to manage | — |
-| Omarchy update | Run the update | — | — |
+| Agent0S update | Run the update | — | — |
 
 Not everything in that table is on your bar out of the box. The media widget (MPRIS now-playing, with a scrolling track and artist) and the microphone widget are both built in but off by default — add them if you want them, as described below.
 
@@ -64,7 +64,7 @@ Every panel takes the keyboard as well as the mouse: arrows move, Return activat
 
 Two more widgets appear on the bar only once you install the matching service from **Install → Service**, and both are worth knowing about because they do more than report status.
 
-The **Tailscale** panel connects and disconnects the tailnet, switches between accounts, and picks an exit node (your own machines and Mullvad regions both show up in that list). It also browses your machines — and with one selected, `s` sends files to it over Taildrop, which is the fastest way to move a file to your phone or another laptop. `c` copies the machine's IP, `n` its name, and `d` its full DNS name. There's a send button on each machine row too, if you'd rather click. The same thing from the terminal is `omarchy tailscale send <machine> [file...]`.
+The **Tailscale** panel connects and disconnects the tailnet, switches between accounts, and picks an exit node (your own machines and Mullvad regions both show up in that list). It also browses your machines — and with one selected, `s` sends files to it over Taildrop, which is the fastest way to move a file to your phone or another laptop. `c` copies the machine's IP, `n` its name, and `d` its full DNS name. There's a send button on each machine row too, if you'd rather click. The same thing from the terminal is `agent0s tailscale send <machine> [file...]`.
 
 The **Dropbox** panel handles login, shows how much storage you've used, and lists recently synced files.
 
@@ -87,18 +87,18 @@ If you'd rather pick from a menu, **Style → Menu Bar** has both position and t
 The same things have commands, which is what you want for a [dotfiles](31-dotfiles.md) setup:
 
 ```bash
-omarchy bar position bottom
-omarchy bar transparent toggle
-omarchy bar move omarchy.clock --section center --index 0
-omarchy bar set omarchy.clock format "HH:mm"
-omarchy bar defaults          # back to the shipped layout
+agent0s bar position bottom
+agent0s bar transparent toggle
+agent0s bar move agent0s.clock --section center --index 0
+agent0s bar set agent0s.clock format "HH:mm"
+agent0s bar defaults          # back to the shipped layout
 ```
 
-To add or remove a widget entirely, use the plugin commands. `omarchy plugin list` prints every widget the shell knows about with its id, and then:
+To add or remove a widget entirely, use the plugin commands. `agent0s plugin list` prints every widget the shell knows about with its id, and then:
 
 ```bash
-omarchy plugin enable omarchy.media --section center
-omarchy plugin disable omarchy.weather
+agent0s plugin enable agent0s.media --section center
+agent0s plugin disable agent0s.weather
 ```
 
 ## Hiding the bar
@@ -107,7 +107,7 @@ omarchy plugin disable omarchy.weather
 
 ## The config file
 
-All of it is stored in `~/.config/omarchy/shell.json`, under the `bar` key. Here's a trimmed version:
+All of it is stored in `~/.config/agent0s/shell.json`, under the `bar` key. Here's a trimmed version:
 
 ```json
 {
@@ -115,20 +115,20 @@ All of it is stored in `~/.config/omarchy/shell.json`, under the `bar` key. Here
   "bar": {
     "position": "top",
     "transparent": false,
-    "centerAnchor": "omarchy.clock",
+    "centerAnchor": "agent0s.clock",
     "layout": {
-      "left": [{ "id": "omarchy.menu" }, { "id": "omarchy.workspaces" }],
-      "center": [{ "id": "omarchy.clock", "format": "HH:mm" }],
-      "right": [{ "id": "omarchy.audio" }, { "id": "omarchy.power" }]
+      "left": [{ "id": "agent0s.menu" }, { "id": "agent0s.workspaces" }],
+      "center": [{ "id": "agent0s.clock", "format": "HH:mm" }],
+      "right": [{ "id": "agent0s.audio" }, { "id": "agent0s.power" }]
     }
   }
 }
 ```
 
-Every widget is one entry in one of the three layout arrays, and its settings sit inline on that entry — there's no separate settings file and no `config` sub-object. The clock's `format`, `formatAlt` (what right-click cycles to), and `verticalFormat` all live right there on `{ "id": "omarchy.clock" }`.
+Every widget is one entry in one of the three layout arrays, and its settings sit inline on that entry — there's no separate settings file and no `config` sub-object. The clock's `format`, `formatAlt` (what right-click cycles to), and `verticalFormat` all live right there on `{ "id": "agent0s.clock" }`.
 
 `centerAnchor` names the one center widget that gets pinned to the exact center of the screen, with the others flanking it. That's how the clock stays dead center even as the weather and update badge come and go. Set it to an empty string and the center list is just centered as a group instead.
 
-One rule worth internalizing: **once you have your own `shell.json`, it's canonical**. Until you customize anything, the shell reads Omarchy's default file. The moment you drag a widget, run `omarchy bar`, or edit the file yourself, you own it — there's no deep merge, so new default widgets in future Omarchy releases won't appear on your bar automatically. `omarchy bar defaults` puts the shipped layout back whenever you want a clean slate.
+One rule worth internalizing: **once you have your own `shell.json`, it's canonical**. Until you customize anything, the shell reads Agent0S's default file. The moment you drag a widget, run `agent0s bar`, or edit the file yourself, you own it — there's no deep merge, so new default widgets in future Agent0S releases won't appear on your bar automatically. `agent0s bar defaults` puts the shipped layout back whenever you want a clean slate.
 
 The same file also holds your idle timings at the top level, outside the `bar` key: `idle.screensaver` and `idle.lock`, both in seconds since you went idle. So the default screensaver kicks in at 150 seconds and the lock at 300.

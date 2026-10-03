@@ -22,7 +22,7 @@ stock_networkd_file() {
 }
 
 backup_stock_networkd_files() {
-  local backup_dir="/etc/systemd/network/omarchy-networkd-retired-$(date +%Y%m%d%H%M%S)"
+  local backup_dir="/etc/systemd/network/agent0s-networkd-retired-$(date +%Y%m%d%H%M%S)"
   local file
 
   for file in /etc/systemd/network/20-ethernet.network /etc/systemd/network/20-wlan.network /etc/systemd/network/20-wwan.network; do
@@ -41,7 +41,7 @@ networkd_units=(
   systemd-networkd-resolve-hook.socket
 )
 
-if [[ ${OMARCHY_UPGRADE_TO_QUATTRO_LIVE:-0} == "1" ]]; then
+if [[ ${AGENT0S_UPGRADE_TO_QUATTRO_LIVE:-0} == "1" ]]; then
   as_root systemctl enable NetworkManager.service >/dev/null 2>&1 || true
 
   if systemctl is-active --quiet NetworkManager.service 2>/dev/null; then
@@ -70,7 +70,7 @@ if [[ ${OMARCHY_UPGRADE_TO_QUATTRO_LIVE:-0} == "1" ]]; then
 fi
 
 if ! command -v NetworkManager >/dev/null 2>&1; then
-  omarchy-pkg-add networkmanager
+  agent0s-pkg-add networkmanager
 fi
 
 as_root systemctl enable --now NetworkManager.service >/dev/null 2>&1 || true

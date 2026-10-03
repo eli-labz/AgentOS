@@ -8,7 +8,7 @@ TMPDIR=$(mktemp -d)
 # The /tmp-fallback case (below) must place its decoy at exactly the fixed path the
 # old wrapper would have formed, so it cannot use a random mktemp name. Track whether
 # we created it and remove it on exit only then -- never touch a path we did not create.
-tmp_cache="/tmp/omarchy-brightness-display-apple.device"
+tmp_cache="/tmp/agent0s-brightness-display-apple.device"
 created_tmp_cache=0
 
 cleanup() {
@@ -54,11 +54,11 @@ exit 0
 STUB
 chmod +x "$stub_dir/asdcontrol"
 
-cat >"$stub_dir/omarchy-osd" <<'STUB'
+cat >"$stub_dir/agent0s-osd" <<'STUB'
 #!/bin/bash
 exit 0
 STUB
-chmod +x "$stub_dir/omarchy-osd"
+chmod +x "$stub_dir/agent0s-osd"
 
 run_wrapper() {
   # $1: value for XDG_RUNTIME_DIR ("" means unset); remaining args go to the wrapper.
@@ -67,22 +67,22 @@ run_wrapper() {
   : >"$asd_log"
   if [[ -n $xdg ]]; then
     XDG_RUNTIME_DIR="$xdg" PATH="$stub_dir:$ROOT/bin:$PATH" \
-      omarchy-brightness-display-apple "$@" 2>&1 || true
+      agent0s-brightness-display-apple "$@" 2>&1 || true
   else
     env -u XDG_RUNTIME_DIR PATH="$stub_dir:$ROOT/bin:$PATH" \
-      omarchy-brightness-display-apple "$@" 2>&1 || true
+      agent0s-brightness-display-apple "$@" 2>&1 || true
   fi
 }
 
 # --- A cache value that is not a hiddev character device is rejected ----------
 xdg_dir="$TMPDIR/xdg"
 mkdir -p "$xdg_dir"
-cache_file="$xdg_dir/omarchy-brightness-display-apple.device"
+cache_file="$xdg_dir/agent0s-brightness-display-apple.device"
 
 regular_file="$TMPDIR/not-a-device"
 : >"$regular_file"
 
-poisons=("/dev/null" "$regular_file" "/tmp/omarchy-evil")
+poisons=("/dev/null" "$regular_file" "/tmp/agent0s-evil")
 
 # The cases above all fail on the pathname prefix, so none of them reaches the -c
 # test -- drop `&& -c $cached` from the wrapper and they all still pass. A path
@@ -140,7 +140,7 @@ if mkfifo "$tmp_cache" 2>/dev/null; then
   created_tmp_cache=1
   status=0
   env -u XDG_RUNTIME_DIR PATH="$stub_dir:$ROOT/bin:$PATH" \
-    timeout 5 omarchy-brightness-display-apple "+5%" >/dev/null 2>&1 || status=$?
+    timeout 5 agent0s-brightness-display-apple "+5%" >/dev/null 2>&1 || status=$?
   rm -f "$tmp_cache"
   created_tmp_cache=0
   (( status != 124 )) ||

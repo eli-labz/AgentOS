@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# agent0s:summary=Send an IPC call to the running Agent0S shell
+# agent0s:args=[-q] <target> <method> [args...]
+# agent0s:examples=agent0s shell shell ping | agent0s-shell shell toggle agent0s.menu '{"menu":"root"}'
+
+QUIET=0
+if [[ ${1:-} == "-q" ]]; then
+  QUIET=1
+  shift
+fi
+
+fail() {
+  (( QUIET )) && exit 0
+  echo "$1" >&2
+  exit 1
+}
+
+if (( $# == 0 )) || [[ $1 == "-h" || $1 == "--help" ]]; then
+  cat <<USAGE
+Usage: agent0s-shell [-q] <target> <method> [args...]
+
+Forwards an IPC call to the running Agent0S shell. The shell is expected
+to already be running; this command does not start it.
+
+Options:
+  -q  Quiet best-effort mode. Suppress output and return success even when
+      the shell, target, method, or arguments are unavailable.
+
+Examples:
+  agent0s-shell shell ping
+  agent0s-shell -q agent0s.indicators refresh
+  agent0s-shell shell listPlugins
+  agent0s-shell shell toggle agent0s.menu '{"menu":"root"}'
+USAGE
+  exit 0
+fi
+
+(( $# >= 2 )) || fail "Usage: agent0s-shell <target> <method> [args...]"
+[[ -n ${AGENT0S_PATH:-} ]] || fail "AGENT0S_PATH is not set"
+[[ -f $AGENT0S_PATH/shell/shell.qml ]] || fail "agent0s-shell config not found: $AGENT0S_PATH/shell/shell.qml"
+
+# qs matches instances by display, and a caller from outside the session (an
+# ssh or TTY agent0s-restart-shell, and the migrations it runs for) has none,
+# so recover it from the compositor socket.
+if [[ -z ${WAYLAND_DISPLAY:-} ]]; then
+  socket=$(ls -t "${XDG_RUNTIME_DIR:-/run/user/$UID}"/wayland-[0-9]* 2>/dev/null | grep -v '\.lock$' | head -n1)
+  [[ -n $socket ]] && export WAYLAND_DISPLAY=${socket##*/}
+fi
+
+if [[ $1 == "shell" && ( $2 == "summon" || $2 == "toggle" ) ]] && (( $# == 3 )); then
+  set -- "$1" "$2" "$3" "{}"
+fi
+
+# The -- keeps function names that shadow qs subcommands (e.g. show) as
+# positionals. qs reports connection failures with a nonzero exit, but IPC-level
+# failures (unknown target/function, bad arguments) go to stdout with exit 0.
+ipc_timeout=${AGENT0S_SHELL_IPC_TIMEOUT:-2s}
+output=$(timeout --kill-after=1s "$ipc_timeout" qs ipc -n -p "$AGENT0S_PATH/shell" call -- "$@" 2>/dev/null)
+ipc_status=$?
+
+if (( ipc_status == 124 || ipc_status == 137 )); then
+  fail "agent0s-shell is not responding"
+elif (( ipc_status != 0 )); then
+  fail "agent0s-shell is not running"
+fi
+
+case $output in
+  "Target not found." | "Function not found." | "Too few arguments provided"* | "Too many arguments provided"*)
+    fail "$output"
+    ;;
+  # A starting shell answers on stdout and exits 0, so a ping reads it as up
+  # and the next call's answer as a result. It is as unreachable as none.
+  "Not ready to accept queries yet"*)
+    fail "agent0s-shell is not ready"
+    ;;
+esac
+
+if (( !QUIET )) && [[ -n $output ]]; then
+  echo "$output"
+fi
+exit 0

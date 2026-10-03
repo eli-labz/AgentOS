@@ -1,9 +1,9 @@
 echo "Move zram tuning to a vendor drop-in"
 
-zram_conf="${OMARCHY_ZRAM_CONF:-/etc/systemd/zram-generator.conf}"
-zram_dropin="${OMARCHY_ZRAM_DROPIN:-/usr/lib/systemd/zram-generator.conf.d/90-omarchy.conf}"
+zram_conf="${AGENT0S_ZRAM_CONF:-/etc/systemd/zram-generator.conf}"
+zram_dropin="${AGENT0S_ZRAM_DROPIN:-/usr/lib/systemd/zram-generator.conf.d/90-agent0s.conf}"
 
-# The tuning ships as /usr/lib/systemd/zram-generator.conf.d/90-omarchy.conf.
+# The tuning ships as /usr/lib/systemd/zram-generator.conf.d/90-agent0s.conf.
 # Drop-ins outrank the main config file, so a leftover /etc copy decides nothing
 # and only implies /etc is where zram gets configured.
 
@@ -21,7 +21,7 @@ pacman -Qo "$zram_conf" &>/dev/null && exit 0
 
 # archinstall writes exactly a [zram0] section with one compression-algorithm
 # line. Anything else is a deliberate local override. grep exits 1 on a config
-# that sets nothing at all, which omarchy-migrate's -e would take as a failed
+# that sets nothing at all, which agent0s-migrate's -e would take as a failed
 # migration and block every migration behind this one.
 settings=$(grep -vE '^[[:space:]]*([#;]|$)' "$zram_conf" | tr -d '[:space:]') || true
 
@@ -31,6 +31,6 @@ if [[ -z $settings || $settings =~ ^\[zram0\]compression-algorithm=[[:alnum:]-]+
   sudo rm -f "$zram_conf" || true
 else
   echo "Keeping $zram_conf; it has local edits."
-  echo "Omarchy's drop-in overrides it. Move your changes to"
+  echo "Agent0S's drop-in overrides it. Move your changes to"
   echo "/etc/systemd/zram-generator.conf.d/99-local.conf to keep them in effect."
 fi

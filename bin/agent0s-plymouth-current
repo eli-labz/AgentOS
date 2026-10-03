@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# agent0s:summary=Show which theme is styling the Plymouth boot screen
+# agent0s:examples=agent0s plymouth current
+
+# agent0s-plymouth-set installs the theme's unlock.png as a byte-for-byte
+# copy of logo.png, so matching it back identifies the current theme.
+installed_logo=/usr/share/plymouth/themes/agent0s/logo.png
+
+if cmp -s "$AGENT0S_PATH/default/plymouth/logo.png" "$installed_logo"; then
+  echo default
+  exit
+fi
+
+agent0s-plymouth-list | while read -r name; do
+  if cmp -s "$(agent0s-theme-dir "$name")/unlock.png" "$installed_logo"; then
+    echo "$name"
+    exit
+  fi
+done
