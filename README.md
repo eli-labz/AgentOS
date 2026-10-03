@@ -1,21 +1,58 @@
-<img width="2816" height="1536" alt="agent0s" src="https://github.com/user-attachments/assets/7ce5be35-b577-4296-b4b2-8843dcaee438" />
+<img width="2816" height="1536" alt="Agent0S" src="https://github.com/user-attachments/assets/7ce5be35-b577-4296-b4b2-8843dcaee438" />
 
-# Agent0S
+<h1 align="center">Agent0S</h1>
 
-Agent0S is a beautiful, fun & agentic Linux distribution by DHH.
+<p align="center">
+  <strong>A beautiful, keyboard-driven Linux desktop built for working alongside AI agents.</strong>
+</p>
 
-Read more at [omarchy.org](https://omarchy.org).
+<p align="center">
+  <a href="https://github.com/eli-labz/AgentOS/stargazers"><img src="https://img.shields.io/github/stars/eli-labz/AgentOS?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/eli-labz/AgentOS/commits/quattro"><img src="https://img.shields.io/github/last-commit/eli-labz/AgentOS/quattro?style=flat-square" alt="Last commit"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/base-Arch%20Linux-1793d1?style=flat-square&logo=archlinux&logoColor=white" alt="Arch Linux">
+  <img src="https://img.shields.io/badge/WM-Hyprland-58e1ff?style=flat-square" alt="Hyprland">
+</p>
 
-## The Agent0S Manual
+<p align="center">
+  <a href="manual/02-getting-started.md">Getting Started</a> ·
+  <a href="manual/01-welcome-to-agent0s.md">Manual</a> ·
+  <a href="agents/skills">Agent Skills</a> ·
+  <a href="https://github.com/eli-labz/AgentOS/issues">Report a Bug</a>
+</p>
 
-The manual lives in [`manual/`](manual/), which is its authoritative source. It's
-mirrored to [learn.omacom.io](https://learn.omacom.io/2/the-agent0s-manual), where
-its screenshots are also hosted.
+---
 
-- [Welcome to Agent0S!](manual/01-welcome-to-agent0s.md)
+## Why Agent0S?
 
-**The Basics**
+Agent0S is a fork of [Omarchy](https://github.com/omacom/omarchy) that keeps everything that makes it a joy to use and adds a layer designed for agentic workflows: a system your AI coding agents can understand, modify and verify.
 
+- **Agent-ready from the first boot.** `AGENTS.md`, `CLAUDE.md` and a library of [agent skills](agents/skills) teach AI agents how the system is built, how to write migrations and install scripts, and how to verify their own changes.
+- **Beautiful out of the box.** Curated themes, fonts and backgrounds, with a tiling Hyprland desktop that looks good without hours of ricing.
+- **Keyboard first.** Every core action has a hotkey. See the [hotkey reference](manual/07-hotkeys.md).
+- **Developer toolkit included.** Terminal, Neovim, shell tools, TUIs and dev tooling configured and ready to go.
+- **Yours to reshape.** Plain dotfiles, a CLI for common tasks, and a guide to [making your own theme](manual/43-making-your-own-theme.md).
+
+## Quick start
+
+Follow the [Getting Started guide](manual/02-getting-started.md). Coming from macOS or Windows? Read [Coming From Mac or Windows](manual/03-coming-from-mac-or-windows.md) first.
+
+## For AI agents
+
+| File | What it gives an agent |
+| --- | --- |
+| [`AGENTS.md`](AGENTS.md) | Project conventions and how the repo fits together |
+| [`CLAUDE.md`](CLAUDE.md) | Guidance for Claude-based coding agents |
+| [`agents/skills/`](agents/skills) | Task playbooks: acceptance tests, install scripts, migrations, shell dev, visual verification and more |
+
+## The Manual
+
+The full manual lives in [`manual/`](manual/).
+
+<details>
+<summary><strong>The Basics</strong></summary>
+
+- [Welcome to Agent0S](manual/01-welcome-to-agent0s.md)
 - [Getting Started](manual/02-getting-started.md)
 - [Coming From Mac or Windows](manual/03-coming-from-mac-or-windows.md)
 - [Navigation](manual/04-navigation.md)
@@ -30,7 +67,10 @@ its screenshots are also hosted.
 - [Toggles, idle & screensaver](manual/13-toggles-idle-screensaver.md)
 - [Agent0S CLI](manual/14-agent0s-cli.md)
 
-**The Applications**
+</details>
+
+<details>
+<summary><strong>The Applications</strong></summary>
 
 - [Terminal](manual/15-terminal.md)
 - [Neovim](manual/16-neovim.md)
@@ -48,7 +88,10 @@ its screenshots are also hosted.
 - [Windows VM](manual/28-windows-vm.md)
 - [Other Packages](manual/29-other-packages.md)
 
-**Configuration**
+</details>
+
+<details>
+<summary><strong>Configuration</strong></summary>
 
 - [Updates](manual/30-updates.md)
 - [Dotfiles](manual/31-dotfiles.md)
@@ -65,7 +108,10 @@ its screenshots are also hosted.
 - [Common tweaks](manual/42-common-tweaks.md)
 - [Making your own theme](manual/43-making-your-own-theme.md)
 
-**The Rest**
+</details>
+
+<details>
+<summary><strong>The Rest</strong></summary>
 
 - [Mac support](manual/44-mac-support.md)
 - [Troubleshooting](manual/45-troubleshooting.md)
@@ -76,6 +122,18 @@ its screenshots are also hosted.
 - [Dual Boot Install](manual/50-dual-boot-install.md)
 - [Unattended Installs](manual/51-unattended-installs.md)
 
+</details>
+
+## Contributing
+
+Issues and pull requests are welcome. If you're using an AI agent to contribute, point it at [`AGENTS.md`](AGENTS.md) and the [agent skills](agents/skills) first.
+
+If Agent0S is useful to you, a ⭐ helps other people find it.
+
+## Credits
+
+Agent0S is built on [Omarchy](https://github.com/omacom/omarchy), created by David Heinemeier Hansson and its contributors. Agent0S is an independent fork and is not affiliated with or endorsed by the Omarchy project.
+
 ## License
 
-Agent0S is released under the [MIT License](https://opensource.org/licenses/MIT).
+Released under the [MIT License](LICENSE).
