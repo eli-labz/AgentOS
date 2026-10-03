@@ -1,3 +1,5 @@
+<img width="2816" height="1536" alt="agent0s" src="https://github.com/user-attachments/assets/7ce5be35-b577-4296-b4b2-8843dcaee438" />
+
 # Agent0S
 
 Agent0S is a beautiful, fun & agentic Linux distribution by DHH.
