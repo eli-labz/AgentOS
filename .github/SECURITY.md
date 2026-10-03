@@ -2,19 +2,17 @@
 
 ## Report a vulnerability
 
-If you believe you’ve found a security vulnerability in Agent0S, please tell the [Agent0S Security Team](https://omarchy.org/teams/#security) privately so we have an opportunity to investigate and fix it before it is made public.
+If you believe you've found a security vulnerability in Agent0S, please report it privately through [GitHub's private vulnerability reporting](https://github.com/eli-labz/AgentOS/security/advisories/new) so it can be investigated and fixed before it is made public.
 
-[security@omarchy.org](mailto:security@omarchy.org?subject=Security%20report)
+Please don't report potential vulnerabilities publicly in GitHub Issues, Discord, or social media before they've been resolved.
 
-Please don’t report potential vulnerabilities publicly in GitHub Issues, Discord, or social media before they’ve been resolved.
+If the issue also affects upstream [Omarchy](https://github.com/omacom/omarchy), please report it to the Omarchy security team as well, following [their security policy](https://github.com/omacom/omarchy/security/policy).
 
 ## What is a vulnerability?
 
 We consider a bug a security vulnerability when it can be exploited to cross a meaningful security boundary: an untrusted or lower-privileged party gains access, permissions, or control they didn’t already have.
 
 Code that could be more robust but does not cross a security boundary is an improvement rather than a security vulnerability. We may still merge a proposed fix and credit the reporter in our release notes.
-
-Eligibility for our [security credits](https://omarchy.org/security/credits/) page depends on whether a report identifies a confirmed security vulnerability, not on its severity.
 
 ## What to include
 
@@ -38,10 +36,8 @@ We’ll review your report and keep you informed as we’re able while we work t
 
 ## Credits
 
-Researchers who privately report a confirmed security vulnerability and give us the chance to ship a fix are thanked on the [security credits](https://omarchy.org/security/credits/) page. Accepted improvements that don’t cross a security boundary may still be credited in our release notes.
-
-Credits link to each reporter’s X profile and show their avatar. For duplicate reports, only the first reporter is eligible for credit.
+Researchers who privately report a confirmed security vulnerability and give us the chance to ship a fix will be thanked in the release notes.
 
 ## Regular bugs and support
 
-For anything that isn’t a security vulnerability, please use the [Agent0S issue tracker](https://github.com/omacom/omarchy/issues).
+For anything that isn’t a security vulnerability, please use the [Agent0S issue tracker](https://github.com/eli-labz/AgentOS/issues).
