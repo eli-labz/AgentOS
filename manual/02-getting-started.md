@@ -2,7 +2,7 @@
 
 Agent0S is installed using an ISO. You can choose between a full-disk install, which takes over the entire drive, or a free-space install, which puts Agent0S in the unallocated space on a drive — that's how you dual boot alongside Windows or another OS (see [dual-boot install](50-dual-boot-install.md) — note that you'll need to turn off BitLocker in Windows first). Either way, the installation defaults to full encryption, and the full-disk option will wipe the selected drive, so be sure to take a backup before using an existing one!
 
-[Download the Agent0S ISO](https://omarchy.org/) first, put it on a USB stick (use [balenaEtcher](https://etcher.balena.io/) on Mac/Windows or [caligula](https://github.com/ifd3f/caligula) on Linux), and boot off the stick.
+Agent0S doesn't ship its own ISO yet, so installs start from the upstream [Omarchy ISO](https://omarchy.org/). Download it first, put it on a USB stick (use [balenaEtcher](https://etcher.balena.io/) on Mac/Windows or [caligula](https://github.com/ifd3f/caligula) on Linux), and boot off the stick.
 
 _You must turn off Secure Boot and/or TPM in the BIOS. You have to turn these off to be able to install Agent0S. They're Microsoft security schemes meant for Windows and Microsoft-affiliated Linux distributions._
 
@@ -36,4 +36,4 @@ But in special circumstances, like remote Agent0S installs on protected computer
 
 ### Help if you're stuck
 
-If you get stuck, you can usually find someone willing to help in the _#agent0s-help_ channel on [the community Discord](https://omarchy.org/discord).
+If you get stuck with something specific to Agent0S, [open an issue](https://github.com/eli-labz/AgentOS/issues). For general Omarchy questions, the upstream [Omarchy community Discord](https://omarchy.org/discord) is a good place to ask.

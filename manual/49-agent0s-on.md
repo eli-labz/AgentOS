@@ -6,15 +6,15 @@
 
 ### Apple Virtual Machine
 
-You can also install Agent0S inside a Parallels VM. Quite the cumbersome process, but there's [a user-driven guide](https://github.com/omacom/omarchy/discussions/452) for that too.
+You can also install Agent0S inside a Parallels VM. Quite the cumbersome process, but there's [a user-driven guide from the Omarchy community](https://github.com/omacom/omarchy/discussions/452) for that too.
 
 ### VirtualBox
 
-VirtualBox is a popular VM runner. [You can run Agent0S inside that too](https://github.com/omacom/omarchy/discussions/176). But performance probably won't be great.
+VirtualBox is a popular VM runner. [You can run it inside that too](https://github.com/omacom/omarchy/discussions/176) (Omarchy community guide). But performance probably won't be great.
 
 ### VMware Workstation on Windows 11
 
-Another popular VM runner for Windows. [Agent0S has been setup inside of that as well](https://github.com/omacom/omarchy/discussions/572).
+Another popular VM runner for Windows. [Omarchy has been set up inside of that as well](https://github.com/omacom/omarchy/discussions/572), and the same steps apply.
 
 ### Steam Deck
 

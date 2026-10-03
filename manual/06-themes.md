@@ -6,7 +6,7 @@ Each theme styles the desktop, terminal, neovim, activity screen (btop), Chromiu
 
 Themes have a set of background images that you can pick between using `Super + Ctrl + Space`.
 
-You can find even more themes on [the extra themes page](https://omarchy.org/themes/) or even [make your own theme](43-making-your-own-theme.md).
+You can find even more themes on [Omarchy's extra themes page](https://omarchy.org/themes/) or even [make your own theme](43-making-your-own-theme.md).
 
  ![tokyo-night](../themes/tokyo-night/preview.png)
 _Tokyo Night_

@@ -26,6 +26,6 @@ Be clear-eyed about this one: while it's on, anything running as your user can d
 
 ## Signing Keys
 
-The public key for all ISO signatures and Agent0S repo package is `40DFB630FF42BCFFB047046CF0134EE680CAC571` ([verify at openpgp.org](https://keys.openpgp.org/search?q=pkgs%40omarchy.org)). The `agent0s/omarchy-keyring` package contains this as well and will be used to rollout any potential updates seamlessly.
+The public key for all upstream Omarchy ISO signatures and repo packages is `40DFB630FF42BCFFB047046CF0134EE680CAC571` ([verify at openpgp.org](https://keys.openpgp.org/search?q=pkgs%40omarchy.org)). The `agent0s/omarchy-keyring` package contains this as well and will be used to rollout any potential updates seamlessly.
 
-You can find the signature for any ISO release by adding .sig to the URL. Like https://iso.omarchy.org/agent0s-x.x.x.iso.sig.
+You can find the signature for any ISO release by adding .sig to the URL. Like https://iso.omarchy.org/omarchy-x.x.x.iso.sig.
