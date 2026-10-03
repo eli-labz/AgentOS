@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Suggestion
-    url: https://github.com/omacom/omarchy/discussions/categories/suggestions
-    about: Suggest a new feature, change to existing feature, or other ideas in Discussions.
-  - name: Support
+  - name: Suggestion or question
+    url: https://github.com/eli-labz/AgentOS/issues
+    about: Suggest a feature or ask a question about Agent0S. Use the bug template for verified bugs.
+  - name: Upstream Omarchy support
     url: https://omarchy.org/discord
-    about: Need help? Join our Discord community for support with any issues. GitHub issues should be used for verified bugs only.
+    about: For general Omarchy questions not specific to Agent0S, the Omarchy community Discord is the best place to ask.
