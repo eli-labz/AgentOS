@@ -33,9 +33,15 @@ Agent0S is a fork of [Omarchy](https://github.com/omacom/omarchy) that keeps eve
 - **Developer toolkit included.** Terminal, Neovim, shell tools, TUIs and dev tooling configured and ready to go.
 - **Yours to reshape.** Plain dotfiles, a CLI for common tasks, and a guide to [making your own theme](manual/43-making-your-own-theme.md).
 
+<p align="center">
+  <img src="docs/agent0s-themes.gif" alt="The Agent0S desktop cycling through built-in themes" width="900">
+  <br>
+  <sub>A few of the 22 built-in themes. See <a href="manual/06-themes.md">Themes</a> to switch or <a href="manual/43-making-your-own-theme.md">make your own</a>.</sub>
+</p>
+
 ## Quick start
 
-Follow the [Getting Started guide](manual/02-getting-started.md). Coming from macOS or Windows? Read [Coming From Mac or Windows](manual/03-coming-from-mac-or-windows.md) first.
+Agent0S doesn't have its own ISO yet, so installs currently start from the upstream [Omarchy ISO](https://omarchy.org/). Follow the [Getting Started guide](manual/02-getting-started.md) for the full walkthrough. Coming from macOS or Windows? Read [Coming From Mac or Windows](manual/03-coming-from-mac-or-windows.md) first.
 
 ## For AI agents
 
